@@ -1,52 +1,63 @@
-# Multi-stage Dockerfile for Django Tech Routing App
+# Django Tech Routing App - Optimized Dockerfile for Koyeb/Production
 
-# Stage 1: Build
-FROM python:3.10-slim as builder
+# Build stage
+FROM python:3.10-slim AS builder
 
 WORKDIR /app
 
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy and install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir gunicorn
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Stage 2: Production
+# Production stage
 FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install runtime dependencies
+# Install runtime dependencies only
 RUN apt-get update && apt-get install -y \
     libpq5 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python dependencies from builder
+# Copy Python packages from builder
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY . .
 
-# Create directories for static and media files
-RUN mkdir -p /static /media
+# Create necessary directories
+RUN mkdir -p /app/staticfiles /app/media /app/logs
 
-# Collect static files
-RUN python manage.py collectstatic --noinput || true
+# Set environment variables for production
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DJANGO_SETTINGS_MODULE=tech_routing.production_settings \
+    PORT=8000
 
-# Expose port
+# Collect static files during build
+RUN python manage.py collectstatic --noinput || echo "Static files collection skipped"
+
+# Expose port (will be overridden by Koyeb if needed)
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD python -c "import socket; s=socket.socket(); s.connect(('localhost', 8000))" || exit 1
-
-# Run Gunicorn
-CMD ["gunicorn", "tech_routing.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-"]
+# Use exec form for better signal handling
+CMD exec gunicorn tech_routing.wsgi:application \
+    --bind 0.0.0.0:${PORT:-8000} \
+    --workers ${GUNICORN_WORKERS:-2} \
+    --threads ${GUNICORN_THREADS:-4} \
+    --timeout ${GUNICORN_TIMEOUT:-120} \
+    --access-logfile - \
+    --error-logfile - \
+    --capture-output \
+    --log-level info
 

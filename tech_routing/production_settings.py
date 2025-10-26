@@ -1,5 +1,5 @@
 """
-Production settings for Django deployment on Defang.io
+Production settings for Django deployment on Koyeb/Cloud platforms
 This extends the base settings with production-specific configurations
 """
 
@@ -13,17 +13,51 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 # Database configuration - PostgreSQL
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', os.environ.get('POSTGRES_DB', 'tech_routing')),
-        'USER': os.environ.get('DB_USER', os.environ.get('POSTGRES_USER', 'django_user')),
-        'PASSWORD': os.environ.get('DB_PASSWORD', os.environ.get('POSTGRES_PASSWORD', 'django_password')),
-        'HOST': os.environ.get('DB_HOST', 'db'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-        'CONN_MAX_AGE': 600,
+# Support both DATABASE_URL and individual variables
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Parse DATABASE_URL if provided
+    import re
+    db_match = re.match(r'postgresql://([^:]+):([^@]+)@([^:]+):(\d+)/(.+)', DATABASE_URL)
+    if db_match:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': db_match.group(5),
+                'USER': db_match.group(1),
+                'PASSWORD': db_match.group(2),
+                'HOST': db_match.group(3),
+                'PORT': db_match.group(4),
+                'CONN_MAX_AGE': 600,
+            }
+        }
+    else:
+        # Fallback to default
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': 'tech_routing',
+                'USER': 'django_user',
+                'PASSWORD': 'django_password',
+                'HOST': 'db',
+                'PORT': '5432',
+                'CONN_MAX_AGE': 600,
+            }
+        }
+else:
+    # Use individual environment variables
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', os.environ.get('POSTGRES_DB', 'tech_routing')),
+            'USER': os.environ.get('DB_USER', os.environ.get('POSTGRES_USER', 'django_user')),
+            'PASSWORD': os.environ.get('DB_PASSWORD', os.environ.get('POSTGRES_PASSWORD', 'django_password')),
+            'HOST': os.environ.get('DB_HOST', 'db'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+            'CONN_MAX_AGE': 600,
+        }
     }
-}
 
 # Static files configuration
 STATIC_URL = '/static/'
@@ -47,33 +81,29 @@ SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)
 # Google Maps API key
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
 
-# Logging configuration
+# Logging configuration (console only for Docker)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-        },
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': '/app/logs/django.log',
+            'level': 'INFO',
         },
     },
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console'],
         'level': 'INFO',
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
         'tech_routing': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': False,
         },
     },
