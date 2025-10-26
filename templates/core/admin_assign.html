@@ -1,0 +1,82 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+<style>
+    .assign-form {
+        max-width: 600px;
+        margin: 20px 0;
+    }
+    .stats-box {
+        background: #f0f0f0;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="assign-form">
+    <h1>🚀 Assign Jobs with OR-Tools</h1>
+    <p class="description">Automatically match pending service requests to technicians based on skills, time windows, and capacity.</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="stats-box">
+            <strong>Pending Requests:</strong> {{ pending_count }}<br>
+            <strong>Active Technicians:</strong> {{ active_tech_count }}
+        </div>
+        
+        <div class="form-row">
+            <label for="assigned_date">Select Date:</label>
+            <input type="date" class="vTextField" id="assigned_date" name="assigned_date" 
+                   value="{{ today|date:'Y-m-d' }}" required style="width: 200px;">
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button type="submit" class="default" style="font-size: 16px; padding: 10px 20px;">
+                ▶️ Run Assignment
+            </button>
+            <a href="/admin/core/assignment/" class="button" style="margin-left: 10px;">View Assignments</a>
+            <a href="/admin/core/servicerequest/" class="button" style="margin-left: 10px;">View Requests</a>
+        </div>
+    </form>
+    
+    {% if pending_requests %}
+    <div style="margin-top: 30px;">
+        <h2>Pending Requests Preview</h2>
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Service</th>
+                    <th>Address</th>
+                    <th>Required Skills</th>
+                    <th>Time Window</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in pending_requests %}
+                <tr>
+                    <td>{{ req.customer.username }}</td>
+                    <td>{{ req.name }}</td>
+                    <td>{{ req.address|truncatewords:8 }}</td>
+                    <td>
+                        {% for skill in req.required_skills.all %}
+                            <span style="background: #417690; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">{{ skill.name }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>{{ req.window_start|date:"H:i" }} - {{ req.window_end|date:"H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+    <div class="submit-row" style="background: #fff9c4; padding: 10px; border-radius: 5px; margin-top: 20px;">
+        <p><strong>⚠️ Note:</strong> Make sure Google Maps API key is configured in <a href="/admin/core/googlemapsconfig/1/change/">admin settings</a>.</p>
+    </div>
+</div>
+{% endblock %}

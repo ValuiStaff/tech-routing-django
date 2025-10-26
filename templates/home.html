@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Tech Routing System{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-5 mb-4 bg-primary text-white rounded-3">
+    <div class="container py-5">
+        <h1 class="display-5 fw-bold"><i class="bi bi-gear"></i> Tech Routing System</h1>
+        <p class="col-md-8 fs-4">Efficient technician scheduling and route optimization for Melbourne service teams.</p>
+        <div class="d-flex gap-3 mt-4">
+            <a class="btn btn-light btn-lg" href="{% url 'accounts:register' %}">
+                <i class="bi bi-person-plus"></i> Register as Customer
+            </a>
+            {% if not user.is_authenticated %}
+            <a class="btn btn-outline-light btn-lg" href="{% url 'accounts:technician_signup' %}">
+                <i class="bi bi-tools"></i> Become a Technician
+            </a>
+            <a class="btn btn-outline-light btn-lg" href="{% url 'accounts:login' %}">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-people fs-1 text-primary me-3"></i>
+                        <h5 class="card-title mb-0">For Customers</h5>
+                    </div>
+                    <p class="card-text">Submit service requests with flexible time windows. Track your requests and see nearby technicians on a map.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> Easy service request submission</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Real-time status updates</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Track nearby technicians</li>
+                    </ul>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary mt-3">
+                        <i class="bi bi-person-plus"></i> Register as Customer
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-tools fs-1 text-success me-3"></i>
+                        <h5 class="card-title mb-0">For Technicians</h5>
+                    </div>
+                    <p class="card-text">Get assigned jobs with optimized routes. View your itinerary on an interactive map and update job status.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> Optimized daily routes</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Interactive map view</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Easy status updates</li>
+                    </ul>
+                    <a href="{% url 'accounts:technician_signup' %}" class="btn btn-success mt-3">
+                        <i class="bi bi-tools"></i> Become a Technician
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-shield-check fs-1 text-warning me-3"></i>
+                        <h5 class="card-title mb-0">For Admins</h5>
+                    </div>
+                    <p class="card-text">Manage technicians, customers, and service requests. Run AI-powered assignment algorithm to optimize routes.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> Complete dashboard</li>
+                        <li><i class="bi bi-check-circle text-success"></i> AI-powered routing</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Route visualization</li>
+                    </ul>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-warning mt-3">
+                        <i class="bi bi-box-arrow-in-right"></i> Admin Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">How It Works</h2>
+            <div class="row">
+                <div class="col-md-3 text-center mb-4">
+                    <i class="bi bi-1-circle fs-1 text-primary"></i>
+                    <h5 class="mt-3">1. Submit Request</h5>
+                    <p class="text-muted">Customers submit service requests with address, time window, and required skills.</p>
+                </div>
+                <div class="col-md-3 text-center mb-4">
+                    <i class="bi bi-2-circle fs-1 text-success"></i>
+                    <h5 class="mt-3">2. AI Assignment</h5>
+                    <p class="text-muted">Admin runs OR-Tools algorithm to match technicians to jobs based on skills, location, and availability.</p>
+                </div>
+                <div class="col-md-3 text-center mb-4">
+                    <i class="bi bi-3-circle fs-1 text-info"></i>
+                    <h5 class="mt-3">3. Optimized Routes</h5>
+                    <p class="text-muted">Technicians receive optimized routes with turn-by-turn directions displayed on an interactive map.</p>
+                </div>
+                <div class="col-md-3 text-center mb-4">
+                    <i class="bi bi-4-circle fs-1 text-success"></i>
+                    <h5 class="mt-3">4. Complete Job</h5>
+                    <p class="text-muted">Technicians complete jobs and update status. Customers receive real-time updates.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,163 @@
+==========================================
+PYTHONANYWHERE DEPLOYMENT CHECKLIST
+==========================================
+
+QUICK START GUIDE
+=================
+
+1. CREATE PYTHONANYWHERE ACCOUNT
+   - Go to: https://www.pythonanywhere.com/
+   - Sign up for free account
+   - Note your username
+
+2. PREPARE YOUR CODE
+   - Update pythonanywhere_settings.py:
+     * Replace 'yourusername' with your actual PythonAnywhere username
+   - Or edit settings.py directly:
+     * Set DEBUG = False
+     * Add your domain to ALLOWED_HOSTS
+     * Configure STATIC_ROOT and MEDIA_ROOT
+
+3. UPLOAD TO PYTHONANYWHERE
+   - Option A: Use PythonAnywhere Files tab
+   - Option B: Use bash console with git/wget
+   - Option C: Run deploy_prep.sh to create zip file, then upload
+
+4. SETUP VIRTUAL ENVIRONMENT
+   - Open bash console in PythonAnywhere
+   - Run: cd /home/yourusername/tech_routing
+   - Run: python3.10 -m venv venv
+   - Run: source venv/bin/activate
+   - Run: pip install -r requirements.txt
+
+5. RUN MIGRATIONS
+   - python manage.py migrate
+   - python manage.py createsuperuser
+   - python manage.py populate_test_data (optional)
+
+6. COLLECT STATIC FILES
+   - python manage.py collectstatic --noinput
+
+7. CONFIGURE WEB APP
+   - Go to Web tab
+   - Add new web app → Manual Configuration
+   - Edit WSGI file with correct paths
+   - Set static/media file mappings
+   - Add your domain to ALLOWED_HOSTS
+
+8. SET ENVIRONMENT VARIABLES
+   - Set GOOGLE_MAPS_API_KEY
+   - Or add to WSGI file
+
+9. RELOAD WEB APP
+   - Click green Reload button
+   - Visit your URL
+
+10. TEST EVERYTHING
+    - Admin panel
+    - Customer signup
+    - Technician signup
+    - Job assignment
+    - Map views
+
+==========================================
+CRITICAL FILES TO UPDATE
+==========================================
+
+1. tech_routing/settings.py OR
+   tech_routing/pythonanywhere_settings.py
+   - ALLOWED_HOSTS: ['yourusername.pythonanywhere.com']
+   - Update all paths with your actual username
+
+2. WSGI file in PythonAnywhere
+   - Update path to project
+   - Add GOOGLE_MAPS_API_KEY if needed
+
+3. Web tab configuration
+   - Static files: /home/yourusername/tech_routing/static
+   - Media files: /home/yourusername/tech_routing/media
+
+==========================================
+FILE PATHS TO UPDATE
+==========================================
+
+Replace 'yourusername' with YOUR actual PythonAnywhere username:
+
+1. pythonanywhere_settings.py:
+   - ALLOWED_HOSTS = ['yourusername.pythonanywhere.com']
+   - STATIC_ROOT = '/home/yourusername/tech_routing/static'
+   - MEDIA_ROOT = '/home/yourusername/tech_routing/media'
+
+2. WSGI file:
+   path = '/home/yourusername/tech_routing'
+
+3. All bash commands should use YOUR username
+
+==========================================
+TROUBLESHOOTING
+==========================================
+
+Error: Module not found
+→ Activate virtualenv and install requirements
+
+Error: No such file or directory
+→ Check paths, update yourusername
+
+Error: Permission denied
+→ Run: chmod -R 755 static/ media/
+
+Static files not loading
+→ Run: python manage.py collectstatic --noinput
+
+Database errors
+→ Run: python manage.py migrate
+
+App shows error page
+→ Check Error log in Web tab
+
+==========================================
+USEFUL COMMANDS
+==========================================
+
+# In PythonAnywhere bash console:
+
+cd /home/yourusername/tech_routing
+source venv/bin/activate
+
+# Common operations:
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py populate_test_data
+python manage.py collectstatic --noinput
+
+# Check if server is running:
+curl https://yourusername.pythonanywhere.com/
+
+# View error logs:
+tail -f /var/log/yourusername.pythonanywhere.com.error.log
+
+# View Django logs:
+tail -f /home/yourusername/tech_routing/logs/django.log
+
+==========================================
+CUSTOM DOMAIN (Paid Feature)
+==========================================
+
+If you have a paid account:
+1. Add domain in Web tab
+2. Configure DNS
+3. Update ALLOWED_HOSTS
+4. Reload app
+
+==========================================
+SECURITY REMINDERS
+==========================================
+
+✓ DEBUG = False in production
+✓ ALLOWED_HOSTS configured
+✓ SECRET_KEY is secure
+✓ API keys not in version control
+✓ HTTPS enabled (automatic on PA)
+
+==========================================
+

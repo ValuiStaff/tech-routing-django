@@ -1,0 +1,139 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+    }
+    #legend {
+        background: white;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+    }
+    .legend-color {
+        width: 30px;
+        height: 20px;
+        margin-right: 10px;
+        border-radius: 3px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>📍 Route Map</h1>
+
+<div class="module">
+    <h2>All Technician Routes</h2>
+    <p>View all technician routes on an interactive map.</p>
+    
+    <div id="legend">
+        <h3>Legend</h3>
+        {% for tech_name, route_info in routes.items %}
+        <div class="legend-item">
+            <div class="legend-color" style="background: {{ route_info.color }};"></div>
+            <strong>{{ tech_name }}</strong> - {{ route_info.assignments|length }} stops
+        </div>
+        {% empty %}
+        <p>No routes to display</p>
+        {% endfor %}
+    </div>
+    
+    <div id="map"></div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}"></script>
+<script>
+function initMap() {
+    const routes = {{ routes_json|safe }};
+    
+    if (routes.length === 0) {
+        document.getElementById('map').innerHTML = '<p style="padding: 20px;">No routes to display</p>';
+        return;
+    }
+    
+    // Create map centered on first depot
+    const firstRoute = routes[0];
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: firstRoute.depot,
+        zoom: 12
+    });
+    
+    // Add markers and polylines for each technician
+    routes.forEach(route => {
+        // Depot marker
+        new google.maps.Marker({
+            position: route.depot,
+            map: map,
+            label: 'D',
+            title: route.technician + ' Depot',
+            icon: {
+                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                fillColor: route.color,
+                fillOpacity: 1,
+                strokeColor: '#000',
+                strokeWeight: 2,
+                scale: 6
+            }
+        });
+        
+        // Job markers
+        route.stops.forEach((stop, idx) => {
+            new google.maps.Marker({
+                position: stop.position,
+                map: map,
+                label: (idx + 1).toString(),
+                title: route.technician + ' - ' + stop.customer,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: route.color,
+                    fillOpacity: 1,
+                    strokeColor: '#000',
+                    strokeWeight: 1,
+                    scale: 8
+                }
+            });
+        });
+        
+        // Create polyline if we have path data
+        if (route.path && route.path.length > 0) {
+            const path = route.path.map(p => ({ lat: p[1], lng: p[0] }));
+            new google.maps.Polyline({
+                path: path,
+                geodesic: true,
+                strokeColor: route.color,
+                strokeOpacity: 0.8,
+                strokeWeight: 4,
+                map: map
+            });
+        } else {
+            // Simple straight lines between points
+            const points = [route.depot].concat(route.stops.map(s => s.position)).concat([route.depot]);
+            const flightPath = new google.maps.Polyline({
+                path: points,
+                geodesic: true,
+                strokeColor: route.color,
+                strokeOpacity: 0.8,
+                strokeWeight: 4,
+                map: map
+            });
+        }
+    });
+}
+
+// Load map when page is ready
+if (google && google.maps) {
+    google.maps.event.addDomListener(window, 'load', initMap);
+} else {
+    window.onload = initMap;
+}
+</script>
+{% endblock %}
+

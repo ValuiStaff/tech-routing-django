@@ -1,0 +1,54 @@
+# Defang Compose configuration for Tech Routing Django App
+# Deploy with: defang compose up
+
+name = "tech-routing"
+
+# Web Application Service
+[services.web]
+image = "python:3.10"
+build = "."
+command = "gunicorn tech_routing.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 4 --timeout 120"
+ports = ["80:8000"]
+
+environment = [
+  "DJANGO_SETTINGS_MODULE=tech_routing.production_settings",
+  "DEBUG=False",
+  # These should be set via environment variables or Defang secrets
+  "SECRET_KEY=${SECRET_KEY}",
+  "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}",
+  "DATABASE_URL=postgresql://django_user:django_password@db:5432/tech_routing",
+  "DJANGO_ALLOWED_HOSTS=*",
+]
+
+volumes = [
+  "static-files:/static",
+  "media-files:/media",
+]
+
+# PostgreSQL Database Service
+[services.db]
+image = "postgres:15-alpine"
+environment = [
+  "POSTGRES_DB=tech_routing",
+  "POSTGRES_USER=django_user",
+  "POSTGRES_PASSWORD=${DB_PASSWORD}",
+]
+volumes = ["db-data:/var/lib/postgresql/data"]
+
+# Redis for caching (optional but recommended)
+[services.redis]
+image = "redis:7-alpine"
+ports = ["6379:6379"]
+volumes = ["redis-data:/data"]
+
+# Nginx for static file serving
+[services.nginx]
+image = "nginx:alpine"
+ports = ["8000:80"]
+volumes = [
+  "static-files:/static",
+  "media-files:/media",
+  "nginx-conf:/etc/nginx/conf.d",
+]
+depends_on = ["web"]
+

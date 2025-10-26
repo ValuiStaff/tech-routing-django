@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>Welcome, {{ request.user.username }}</h2>
+            <p class="text-muted">Your Service Requests</p>
+            
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Submit New Request Button -->
+            {% if can_submit_new %}
+            <div class="mb-3">
+                <a href="{% url 'core:customer_submit' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Submit New Service Request
+                </a>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                You have an active request. Complete it before submitting a new one.
+            </div>
+            {% endif %}
+            
+            <!-- Service Requests List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">My Requests</h5>
+                </div>
+                <div class="card-body">
+                    {% if requests %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Request Name</th>
+                                    <th>Address</th>
+                                    <th>Time Window</th>
+                                    <th>Status</th>
+                                    <th>Assigned Technician</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in requests %}
+                                <tr>
+                                    <td>{{ req.name }}</td>
+                                    <td>{{ req.address|truncatewords:5 }}</td>
+                                    <td>{{ req.window_start|date:"H:i" }} - {{ req.window_end|date:"H:i" }}</td>
+                                    <td>
+                                        {% if req.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                        {% elif req.status == 'assigned' %}
+                                        <span class="badge bg-info">Assigned</span>
+                                        {% elif req.status == 'in_progress' %}
+                                        <span class="badge bg-primary">In Progress</span>
+                                        {% elif req.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ req.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% for assign in assignments %}
+                                            {% if assign.service_request.id == req.id %}
+                                                {{ assign.technician.user.username }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ req.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'core:customer_nearby' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-geo-alt"></i> Nearby Technicians
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No service requests yet. <a href="{% url 'core:customer_submit' %}">Submit your first request</a>.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

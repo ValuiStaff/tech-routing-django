@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Nearby Technicians{% endblock %}
+
+{% block extra_css %}
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+        border-radius: 8px;
+    }
+    .marker-info {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>Technicians Near Your Location</h2>
+            <p class="text-muted">Technicians who will be in your area during their runs</p>
+            
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Customer Location -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Your Service Location</h5>
+                    <p class="card-text">
+                        <strong>Address:</strong> {{ customer_location.address }}<br>
+                        <strong>Coordinates:</strong> {{ customer_location.lat }}, {{ customer_location.lon }}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Google Map -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Map View</h5>
+                    <div id="map"></div>
+                </div>
+            </div>
+            
+            <!-- Nearby Technicians List -->
+            {% if nearby_technicians %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Technicians Within 5km</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">These technicians will be near your location during their assigned runs:</p>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Technician</th>
+                                    <th>Visiting Customer</th>
+                                    <th>Address</th>
+                                    <th>Distance</th>
+                                    <th>Arrival Time</th>
+                                    <th>Sequence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tech in nearby_technicians %}
+                                <tr>
+                                    <td><strong>{{ tech.technician }}</strong></td>
+                                    <td>{{ tech.customer }}</td>
+                                    <td>{{ tech.address|truncatewords:4 }}</td>
+                                    <td><span class="badge bg-info">{{ tech.distance_km }} km</span></td>
+                                    <td>{{ tech.arrival_time }}</td>
+                                    <td>#{{ tech.sequence }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <p>No technicians will be near your location at this time.</p>
+                <p>Check back later or contact support for assistance.</p>
+            </div>
+            {% endif %}
+            
+            <div class="mt-3">
+                <a href="{% url 'core:customer_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function initMap() {
+        const customerLocation = { lat: {{ customer_location.lat }}, lng: {{ customer_location.lon }} };
+        
+        // Initialize map centered on customer location
+        const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: { lat: customerLocation.lat, lng: customerLocation.lng },
+            mapTypeId: 'roadmap'
+        });
+        
+        // Add customer location marker (blue)
+        const customerMarker = new google.maps.Marker({
+            position: { lat: customerLocation.lat, lng: customerLocation.lng },
+            map: map,
+            title: 'Your Location',
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 12,
+                fillColor: '#4285F4',
+                fillOpacity: 1,
+                strokeColor: '#FFFFFF',
+                strokeWeight: 3
+            },
+            label: {
+                text: 'You',
+                color: '#FFFFFF',
+                fontSize: '12px',
+                fontWeight: 'bold'
+            }
+        });
+        
+        // Add info window for customer
+        const customerInfo = new google.maps.InfoWindow({
+            content: `<div class="marker-info">
+                <strong>Your Location</strong><br>
+                {{ customer_location.address }}
+            </div>`
+        });
+        
+        customerMarker.addListener('click', () => {
+            customerInfo.open(map, customerMarker);
+        });
+        
+        // Add technician markers
+        const markersData = {{ markers|safe }};
+        
+        markersData.forEach(function(markerData) {
+            const marker = new google.maps.Marker({
+                position: { lat: markerData.position.lat, lng: markerData.position.lng },
+                map: map,
+                title: markerData.title,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 14,
+                    fillColor: '#EA4335',
+                    fillOpacity: 1,
+                    strokeColor: '#FFFFFF',
+                    strokeWeight: 2
+                },
+                label: {
+                    text: markerData.label,
+                    color: '#FFFFFF',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                }
+            });
+            
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<div class="marker-info">
+                    ${markerData.info}<br>
+                    <strong>Distance: ${markerData.distance} km away</strong>
+                </div>`
+            });
+            
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+        });
+        
+        // Draw circles to show 5km radius
+        const circle = new google.maps.Circle({
+            strokeColor: '#4285F4',
+            strokeOpacity: 0.5,
+            strokeWeight: 2,
+            fillColor: '#4285F4',
+            fillOpacity: 0.1,
+            map: map,
+            center: { lat: customerLocation.lat, lng: customerLocation.lng },
+            radius: 5000 // 5km in meters
+        });
+    }
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places" async defer></script>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+{{ block.super }}
+
+<div style="margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
+    <h2 style="color: white; margin: 0 0 15px 0;">
+        <span style="font-size: 28px; margin-right: 10px;">🚀</span>
+        Assignment Tool
+    </h2>
+    <p style="color: #f0f0f0; margin: 0 0 20px 0;">
+        Click below to run the OR-Tools algorithm and automatically assign pending jobs to technicians.
+    </p>
+    <a href="/admin/core/assignment/assign/" 
+       style="display: inline-block; background: white; color: #667eea; padding: 12px 25px; 
+              text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+        ▶️ Assign Jobs Now
+    </a>
+    
+    <div style="margin-top: 15px; color: #f0f0f0; font-size: 14px;">
+        <strong>Quick Links:</strong>
+        <a href="/admin/core/servicerequest/" style="color: white; margin-left: 10px; text-decoration: underline;">Service Requests</a> | 
+        <a href="/admin/core/assignment/" style="color: white; margin-left: 5px; text-decoration: underline;">Assignments</a> | 
+        <a href="/admin/core/technician/" style="color: white; margin-left: 5px; text-decoration: underline;">Technicians</a>
+    </div>
+</div>
+
+{% endblock %}
+

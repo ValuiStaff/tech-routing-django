@@ -1,0 +1,25 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+{{ block.super }}
+{% if assignment_button %}
+<div style="margin: 20px 0; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+    <div style="color: white; margin-bottom: 15px;">
+        <strong style="font-size: 18px;">🚀 Automatic Job Assignment</strong>
+    </div>
+    <div style="margin-bottom: 15px;">
+        <p style="color: #f0f0f0; margin: 0 0 10px 0;">
+            Click below to run the OR-Tools algorithm. It will automatically match pending service requests to technicians based on:
+        </p>
+        <ul style="color: #f0f0f0; margin: 0; padding-left: 20px;">
+            <li>Required skills match (technician must have needed skills)</li>
+            <li>Time windows (arrival within customer's preferred window)</li>
+            <li>Capacity constraints (technician's daily capacity)</li>
+            <li>Travel time optimization</li>
+        </ul>
+    </div>
+    {{ assignment_button|safe }}
+</div>
+{% endif %}
+{% endblock %}
+
