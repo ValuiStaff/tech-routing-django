@@ -20,6 +20,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import render
+from django.http import JsonResponse
 from tech_routing import views
 
 def admin_assign_view(request):
@@ -27,11 +28,16 @@ def admin_assign_view(request):
     from core.admin import AssignmentAdminViews
     return AssignmentAdminViews.admin_assign_view(request)
 
+def health_check(request):
+    """Health check endpoint for deployment platforms"""
+    return JsonResponse({'status': 'ok', 'service': 'tech-routing'})
+
 urlpatterns = [
     path("admin/core/assignment/assign/", admin_assign_view, name='admin_assign'),
     path("admin/", admin.site.urls),
     path("accounts/", include('accounts.urls', namespace='accounts')),
     path("core/", include('core.urls', namespace='core')),
+    path("health/", health_check, name='health'),
     path("", views.home, name='home'),
 ]
 
