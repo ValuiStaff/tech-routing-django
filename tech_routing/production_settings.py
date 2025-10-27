@@ -61,6 +61,9 @@ STATIC_ROOT = str(BASE_DIR / 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = str(BASE_DIR / 'media')
 
+# Remove non-existent STATICFILES_DIRS for production
+STATICFILES_DIRS = []
+
 # Add WhiteNoise for static files serving
 MIDDLEWARE = MIDDLEWARE + ['whitenoise.middleware.WhiteNoiseMiddleware']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
