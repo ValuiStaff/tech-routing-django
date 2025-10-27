@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p /app/staticfiles /app/media /app/logs
+RUN mkdir -p staticfiles media logs
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -30,8 +30,11 @@ ENV PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=tech_routing.production_settings \
     PORT=8000
 
-# Collect static files
-RUN python manage.py collectstatic --noinput || true
+# Set SECRET_KEY for collectstatic (required)
+ENV SECRET_KEY=temp-secret-key-for-collectstatic
+
+# Collect static files - skip if it fails
+RUN python manage.py collectstatic --noinput 2>/dev/null || echo "Static files collection failed, continuing..."
 
 # Expose port
 EXPOSE 8000
