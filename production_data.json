@@ -1,0 +1,1123 @@
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2025-10-26T09:12:55.313Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "1",
+    "object_repr": "Google Maps Configuration",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Api key\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2025-10-26T09:35:53.917Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "1",
+    "object_repr": "Google Maps Configuration",
+    "action_flag": 2,
+    "change_message": "[]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2025-10-26T12:35:28.817Z",
+    "user": 1,
+    "content_type": 10,
+    "object_id": "3",
+    "object_repr": "nav - Docklands Drive, Docklands VIC, Australia",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Skills\"]}}]"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 1,
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": 1,
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 2,
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": 1,
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 3,
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": 1,
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 4,
+  "fields": {
+    "name": "Can view log entry",
+    "content_type": 1,
+    "codename": "view_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 5,
+  "fields": {
+    "name": "Can add permission",
+    "content_type": 2,
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 6,
+  "fields": {
+    "name": "Can change permission",
+    "content_type": 2,
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 7,
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": 2,
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 8,
+  "fields": {
+    "name": "Can view permission",
+    "content_type": 2,
+    "codename": "view_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 9,
+  "fields": {
+    "name": "Can add group",
+    "content_type": 3,
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 10,
+  "fields": {
+    "name": "Can change group",
+    "content_type": 3,
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 11,
+  "fields": {
+    "name": "Can delete group",
+    "content_type": 3,
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 12,
+  "fields": {
+    "name": "Can view group",
+    "content_type": 3,
+    "codename": "view_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 13,
+  "fields": {
+    "name": "Can add content type",
+    "content_type": 4,
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 14,
+  "fields": {
+    "name": "Can change content type",
+    "content_type": 4,
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 15,
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": 4,
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 16,
+  "fields": {
+    "name": "Can view content type",
+    "content_type": 4,
+    "codename": "view_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 17,
+  "fields": {
+    "name": "Can add session",
+    "content_type": 5,
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 18,
+  "fields": {
+    "name": "Can change session",
+    "content_type": 5,
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 19,
+  "fields": {
+    "name": "Can delete session",
+    "content_type": 5,
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 20,
+  "fields": {
+    "name": "Can view session",
+    "content_type": 5,
+    "codename": "view_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 21,
+  "fields": {
+    "name": "Can add User",
+    "content_type": 6,
+    "codename": "add_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 22,
+  "fields": {
+    "name": "Can change User",
+    "content_type": 6,
+    "codename": "change_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 23,
+  "fields": {
+    "name": "Can delete User",
+    "content_type": 6,
+    "codename": "delete_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 24,
+  "fields": {
+    "name": "Can view User",
+    "content_type": 6,
+    "codename": "view_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 25,
+  "fields": {
+    "name": "Can add Google Maps Configuration",
+    "content_type": 7,
+    "codename": "add_googlemapsconfig"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 26,
+  "fields": {
+    "name": "Can change Google Maps Configuration",
+    "content_type": 7,
+    "codename": "change_googlemapsconfig"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 27,
+  "fields": {
+    "name": "Can delete Google Maps Configuration",
+    "content_type": 7,
+    "codename": "delete_googlemapsconfig"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 28,
+  "fields": {
+    "name": "Can view Google Maps Configuration",
+    "content_type": 7,
+    "codename": "view_googlemapsconfig"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 29,
+  "fields": {
+    "name": "Can add skill",
+    "content_type": 8,
+    "codename": "add_skill"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 30,
+  "fields": {
+    "name": "Can change skill",
+    "content_type": 8,
+    "codename": "change_skill"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 31,
+  "fields": {
+    "name": "Can delete skill",
+    "content_type": 8,
+    "codename": "delete_skill"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 32,
+  "fields": {
+    "name": "Can view skill",
+    "content_type": 8,
+    "codename": "view_skill"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 33,
+  "fields": {
+    "name": "Can add service request",
+    "content_type": 9,
+    "codename": "add_servicerequest"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 34,
+  "fields": {
+    "name": "Can change service request",
+    "content_type": 9,
+    "codename": "change_servicerequest"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 35,
+  "fields": {
+    "name": "Can delete service request",
+    "content_type": 9,
+    "codename": "delete_servicerequest"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 36,
+  "fields": {
+    "name": "Can view service request",
+    "content_type": 9,
+    "codename": "view_servicerequest"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 37,
+  "fields": {
+    "name": "Can add technician",
+    "content_type": 10,
+    "codename": "add_technician"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 38,
+  "fields": {
+    "name": "Can change technician",
+    "content_type": 10,
+    "codename": "change_technician"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 39,
+  "fields": {
+    "name": "Can delete technician",
+    "content_type": 10,
+    "codename": "delete_technician"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 40,
+  "fields": {
+    "name": "Can view technician",
+    "content_type": 10,
+    "codename": "view_technician"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 41,
+  "fields": {
+    "name": "Can add assignment",
+    "content_type": 11,
+    "codename": "add_assignment"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 42,
+  "fields": {
+    "name": "Can change assignment",
+    "content_type": 11,
+    "codename": "change_assignment"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 43,
+  "fields": {
+    "name": "Can delete assignment",
+    "content_type": 11,
+    "codename": "delete_assignment"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 44,
+  "fields": {
+    "name": "Can view assignment",
+    "content_type": 11,
+    "codename": "view_assignment"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 1,
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 2,
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 3,
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 4,
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 5,
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 6,
+  "fields": {
+    "app_label": "accounts",
+    "model": "user"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 7,
+  "fields": {
+    "app_label": "core",
+    "model": "googlemapsconfig"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 8,
+  "fields": {
+    "app_label": "core",
+    "model": "skill"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 9,
+  "fields": {
+    "app_label": "core",
+    "model": "servicerequest"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 10,
+  "fields": {
+    "app_label": "core",
+    "model": "technician"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 11,
+  "fields": {
+    "app_label": "core",
+    "model": "assignment"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "bl1txbxn0fstws9vjl4kegypz888c2pw",
+  "fields": {
+    "session_data": "e30:1vCwm3:zQ6Tw7g4eIl1_EUk6_XYGU7SaUhXuQjs19ilvVm_4yE",
+    "expire_date": "2025-11-09T09:10:51.949Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "esax2xxkqa8j0jn5honz3otvmspnq2xo",
+  "fields": {
+    "session_data": "e30:1vCwle:MYz6vFxbaiBZVPnA-fiKT3joqsF7pEPm7lmlYuqMiw0",
+    "expire_date": "2025-11-09T09:10:26.662Z"
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$ldpdwo3fKf1ceEzjGkrFD6$DowsN5MM6crxmFeGcmVC2PIpXcRI7RlZxvec8x/Gk9c=",
+    "last_login": "2025-10-26T13:20:31.700Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@test.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-10-26T09:08:50.060Z",
+    "role": "ADMIN",
+    "phone": "",
+    "created_at": "2025-10-26T09:08:50.061Z",
+    "updated_at": "2025-10-26T09:34:51.724Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$ytUgKVfDrPf3XbJD3wuCzc$oA+t1+rbgd4bV4BsmbkPEG1I6bu278opGGHxKOKH3WE=",
+    "last_login": "2025-10-26T10:49:04.300Z",
+    "is_superuser": false,
+    "username": "tech1",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech1@test.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-10-26T09:09:00.341Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "created_at": "2025-10-26T09:09:00.341Z",
+    "updated_at": "2025-10-26T10:23:18.224Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$R7h9kC48cfMgBxT0DVLbhV$YEaiKzyzKwm4km5D7OF/X4MgtAMhsvTWaJb6VuULuvc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech2",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech2@test.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-10-26T09:09:00.487Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "created_at": "2025-10-26T09:09:00.487Z",
+    "updated_at": "2025-10-26T10:23:24.133Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$IuZUaecF7JkhX1GTKuaShN$2C3Frc4OJ28Yj+VmLZ+mkWF2u/1TyFtYc7tuLcfSFW8=",
+    "last_login": "2025-10-26T10:46:42.879Z",
+    "is_superuser": false,
+    "username": "customer1",
+    "first_name": "",
+    "last_name": "",
+    "email": "customer1@test.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-26T09:09:00.632Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "created_at": "2025-10-26T09:09:00.633Z",
+    "updated_at": "2025-10-26T09:09:00.776Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$HHdJTSztxvDtY5h8HSFZuz$J9LO8hTh7+iekeFTOEA3HobYi6xavWfU0tUdudNi68E=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "customer2",
+    "first_name": "",
+    "last_name": "",
+    "email": "customer2@test.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-26T09:09:00.777Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "created_at": "2025-10-26T09:09:00.777Z",
+    "updated_at": "2025-10-26T09:09:00.924Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$HNGlc3rB6ybAmN36nUlqmM$NhND/++y/v06HOHbB1qydI4udAQn9ivOLysoEvmuJ2Q=",
+    "last_login": "2025-10-26T11:04:35.682Z",
+    "is_superuser": false,
+    "username": "georgie",
+    "first_name": "",
+    "last_name": "",
+    "email": "cust100@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-26T10:57:54.100Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "created_at": "2025-10-26T10:57:54.277Z",
+    "updated_at": "2025-10-26T10:57:54.277Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$GhHaPh3XQvdNw9fSqA7gNG$G8PD4eD4fXPZMCxixdXSNuny1ZCXsWeJjSK2JYlVVxg=",
+    "last_login": "2025-10-26T13:27:20.470Z",
+    "is_superuser": false,
+    "username": "nav",
+    "first_name": "",
+    "last_name": "",
+    "email": "nav@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-26T12:34:03.725Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "created_at": "2025-10-26T12:34:03.891Z",
+    "updated_at": "2025-10-26T12:34:03.893Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$XiYrKadt8rBo0diklQMllW$+Ai9BMS5BzDHBetEmOmZ7E+jPrj1zGdDUTfOCfb+hrk=",
+    "last_login": "2025-10-26T12:38:52.039Z",
+    "is_superuser": false,
+    "username": "julie",
+    "first_name": "",
+    "last_name": "",
+    "email": "julie@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-26T12:38:51.864Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "created_at": "2025-10-26T12:38:52.035Z",
+    "updated_at": "2025-10-26T12:38:52.037Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$OyCefgbUJGNXAZUCZpeR48$eqdp06eK4iMWTvSlyo0Fnru3CtUfAX/uh/mVr4GPO44=",
+    "last_login": "2025-10-26T13:19:10.870Z",
+    "is_superuser": false,
+    "username": "nirjhara",
+    "first_name": "",
+    "last_name": "",
+    "email": "nirjhara@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-26T13:19:10.696Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "created_at": "2025-10-26T13:19:10.867Z",
+    "updated_at": "2025-10-26T13:19:10.868Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 1,
+  "fields": {
+    "name": "Gas",
+    "slug": "gas",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.186Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 2,
+  "fields": {
+    "name": "Electric",
+    "slug": "electric",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.186Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 3,
+  "fields": {
+    "name": "Plumbing",
+    "slug": "plumbing",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.187Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 4,
+  "fields": {
+    "name": "HVAC",
+    "slug": "hvac",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.188Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 5,
+  "fields": {
+    "name": "Carpentry",
+    "slug": "carpentry",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.188Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 6,
+  "fields": {
+    "name": "IT",
+    "slug": "it",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.188Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 7,
+  "fields": {
+    "name": "Security",
+    "slug": "security",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.189Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 8,
+  "fields": {
+    "name": "Solar",
+    "slug": "solar",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.189Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 9,
+  "fields": {
+    "name": "Roofing",
+    "slug": "roofing",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.190Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 10,
+  "fields": {
+    "name": "Cleaning",
+    "slug": "cleaning",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.190Z"
+  }
+},
+{
+  "model": "core.googlemapsconfig",
+  "pk": 1,
+  "fields": {
+    "api_key": "AIzaSyCZCEanL50XqkGdej2VdZUCwRrkcf1RrYw",
+    "avg_speed_kph": 40,
+    "late_penalty_per_min": 500,
+    "drop_penalty_per_job": 100000,
+    "return_to_depot": true,
+    "time_limit_seconds": 30
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "depot_address": "333 Collins St, Melbourne VIC 3000",
+    "depot_lat": -37.8136,
+    "depot_lon": 144.9561,
+    "capacity_minutes": 480,
+    "shift_start": "08:00:00",
+    "shift_end": "17:00:00",
+    "color_hex": "#4285F4",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.926Z",
+    "updated_at": "2025-10-26T09:38:29.626Z",
+    "skills": [
+      2,
+      1
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 2,
+  "fields": {
+    "user": 3,
+    "depot_address": "1 Flinders St, Melbourne VIC 3000",
+    "depot_lat": -37.8183,
+    "depot_lon": 144.9671,
+    "capacity_minutes": 480,
+    "shift_start": "08:00:00",
+    "shift_end": "17:00:00",
+    "color_hex": "#EA4335",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.928Z",
+    "updated_at": "2025-10-26T09:38:29.627Z",
+    "skills": [
+      4,
+      3
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 3,
+  "fields": {
+    "user": 7,
+    "depot_address": "Docklands Drive, Docklands VIC, Australia",
+    "depot_lat": -37.8146686,
+    "depot_lon": 144.9383432,
+    "capacity_minutes": 480,
+    "shift_start": "01:33:00",
+    "shift_end": "17:39:00",
+    "color_hex": "#4285f4",
+    "is_active": true,
+    "created_at": "2025-10-26T12:34:04.823Z",
+    "updated_at": "2025-10-26T12:35:59.760Z",
+    "skills": [
+      6
+    ]
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 1,
+  "fields": {
+    "customer": 4,
+    "name": "Melbourne Central Repair",
+    "address": "Melbourne Central, Melbourne VIC 3000",
+    "lat": -37.8102,
+    "lon": 144.9628,
+    "service_minutes": 60,
+    "window_start": "2025-10-26T09:00:00Z",
+    "window_end": "2025-10-26T15:00:00Z",
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-26T09:09:00.930Z",
+    "updated_at": "2025-10-26T09:41:16.794Z",
+    "required_skills": [
+      1
+    ]
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 2,
+  "fields": {
+    "customer": 5,
+    "name": "Queen Victoria Market Plumbing",
+    "address": "Queen Victoria Market, Melbourne VIC 3000",
+    "lat": -37.8076,
+    "lon": 144.9564,
+    "service_minutes": 90,
+    "window_start": "2025-10-26T09:00:00Z",
+    "window_end": "2025-10-26T14:00:00Z",
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-26T09:09:00.931Z",
+    "updated_at": "2025-10-26T09:41:17.227Z",
+    "required_skills": [
+      3
+    ]
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 3,
+  "fields": {
+    "customer": 6,
+    "name": "Electrical Fault",
+    "address": "57A Mosaic Drive, Lalor VIC, Australia",
+    "lat": -37.6652767,
+    "lon": 144.9911318,
+    "service_minutes": 15,
+    "window_start": "2025-10-26T14:10:00Z",
+    "window_end": "2025-10-26T15:10:00Z",
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-26T11:15:19.677Z",
+    "updated_at": "2025-10-26T11:16:29.753Z",
+    "required_skills": [
+      2
+    ]
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 4,
+  "fields": {
+    "customer": 8,
+    "name": "System Upgrade",
+    "address": "Carlton Street, Carlton VIC, Australia",
+    "lat": -37.8009696,
+    "lon": 144.9722654,
+    "service_minutes": 15,
+    "window_start": "2025-10-26T13:39:00Z",
+    "window_end": "2025-10-26T14:39:00Z",
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-26T12:39:34.126Z",
+    "updated_at": "2025-10-26T12:40:49.766Z",
+    "required_skills": [
+      6
+    ]
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 5,
+  "fields": {
+    "customer": 9,
+    "name": "System Upgrade",
+    "address": "Brunswick Street, Fitzroy VIC, Australia",
+    "lat": -37.798538,
+    "lon": 144.9784336,
+    "service_minutes": 15,
+    "window_start": "2025-10-26T15:19:00Z",
+    "window_end": "2025-10-26T16:19:00Z",
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-26T13:20:21.172Z",
+    "updated_at": "2025-10-26T13:21:18.458Z",
+    "required_skills": [
+      6
+    ]
+  }
+},
+{
+  "model": "core.assignment",
+  "pk": 1,
+  "fields": {
+    "service_request": 1,
+    "technician": 1,
+    "assigned_date": "2025-10-26",
+    "sequence_order": 1,
+    "planned_start": "2025-10-26T09:00:00Z",
+    "planned_finish": "2025-10-26T10:00:00Z",
+    "actual_start": null,
+    "actual_finish": null,
+    "status": "assigned",
+    "travel_time_minutes": 0.0,
+    "created_at": "2025-10-26T09:41:16.589Z",
+    "updated_at": "2025-10-26T09:41:16.589Z"
+  }
+},
+{
+  "model": "core.assignment",
+  "pk": 2,
+  "fields": {
+    "service_request": 2,
+    "technician": 2,
+    "assigned_date": "2025-10-26",
+    "sequence_order": 1,
+    "planned_start": "2025-10-26T09:00:00Z",
+    "planned_finish": "2025-10-26T10:30:00Z",
+    "actual_start": null,
+    "actual_finish": null,
+    "status": "assigned",
+    "travel_time_minutes": 0.0,
+    "created_at": "2025-10-26T09:41:17.016Z",
+    "updated_at": "2025-10-26T09:41:17.016Z"
+  }
+},
+{
+  "model": "core.assignment",
+  "pk": 3,
+  "fields": {
+    "service_request": 3,
+    "technician": 1,
+    "assigned_date": "2025-10-26",
+    "sequence_order": 1,
+    "planned_start": "2025-10-26T14:10:00Z",
+    "planned_finish": "2025-10-26T14:25:00Z",
+    "actual_start": null,
+    "actual_finish": null,
+    "status": "assigned",
+    "travel_time_minutes": 0.0,
+    "created_at": "2025-10-26T11:16:29.710Z",
+    "updated_at": "2025-10-26T11:16:29.710Z"
+  }
+},
+{
+  "model": "core.assignment",
+  "pk": 4,
+  "fields": {
+    "service_request": 4,
+    "technician": 3,
+    "assigned_date": "2025-10-26",
+    "sequence_order": 1,
+    "planned_start": "2025-10-26T13:39:00Z",
+    "planned_finish": "2025-10-26T13:54:00Z",
+    "actual_start": null,
+    "actual_finish": null,
+    "status": "assigned",
+    "travel_time_minutes": 0.0,
+    "created_at": "2025-10-26T12:40:49.765Z",
+    "updated_at": "2025-10-26T12:40:49.765Z"
+  }
+},
+{
+  "model": "core.assignment",
+  "pk": 5,
+  "fields": {
+    "service_request": 5,
+    "technician": 3,
+    "assigned_date": "2025-10-26",
+    "sequence_order": 1,
+    "planned_start": "2025-10-26T15:19:00Z",
+    "planned_finish": "2025-10-26T15:34:00Z",
+    "actual_start": null,
+    "actual_finish": null,
+    "status": "assigned",
+    "travel_time_minutes": 0.0,
+    "created_at": "2025-10-26T13:21:18.457Z",
+    "updated_at": "2025-10-26T13:21:18.457Z"
+  }
+}
+]
