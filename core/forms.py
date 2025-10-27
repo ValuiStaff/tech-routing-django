@@ -2,6 +2,32 @@ from django import forms
 from core.models import ServiceRequest, Technician, Skill
 
 
+class BulkUploadForm(forms.Form):
+    """Form for bulk uploading users via Excel"""
+    
+    excel_file = forms.FileField(
+        label='Excel File',
+        help_text='Upload Excel file with customer/technician data (.xlsx or .xls)',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.xlsx,.xls'
+        })
+    )
+    
+    def clean_excel_file(self):
+        file = self.cleaned_data.get('excel_file')
+        if file:
+            # Check file extension
+            if not file.name.endswith(('.xlsx', '.xls')):
+                raise forms.ValidationError('Only Excel files (.xlsx or .xls) are allowed.')
+            
+            # Check file size (max 10MB)
+            if file.size > 10 * 1024 * 1024:
+                raise forms.ValidationError('File size should not exceed 10MB.')
+        
+        return file
+
+
 # Common service types
 SERVICE_TYPE_CHOICES = [
     ('Gas Leak Repair', 'Gas Leak Repair'),

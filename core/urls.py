@@ -2,6 +2,7 @@ from django.urls import path
 from core import views
 from core import customer_views
 from core import technician_views
+from core.admin import bulk_upload_view
 
 app_name = 'core'
 
@@ -9,6 +10,7 @@ urlpatterns = [
     # Admin views
     path('admin/assign/', views.admin_assign_view, name='admin_assign'),
     path('admin/map/', views.admin_map_view, name='admin_map'),
+    path('admin/bulk-upload/', bulk_upload_view, name='bulk_upload'),
     
     # Customer views
     path('customer/dashboard/', customer_views.customer_dashboard, name='customer_dashboard'),

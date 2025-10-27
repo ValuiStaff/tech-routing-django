@@ -141,7 +141,7 @@ class Assignment(models.Model):
     ]
     
     service_request = models.ForeignKey(ServiceRequest, on_delete=models.CASCADE, related_name='assignments')
-    technician = models.ForeignKey(Technician, on_delete=models.CASCADE, related_name='assignments')
+    technician = models.ForeignKey(Technician, on_delete=models.SET_NULL, null=True, blank=True, related_name='assignments')
     assigned_date = models.DateField()
     sequence_order = models.IntegerField(help_text="Order in technician's route")
     planned_start = models.DateTimeField(help_text="Planned arrival time")

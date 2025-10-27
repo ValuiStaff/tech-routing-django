@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib import messages
 from accounts.models import User
 
 
@@ -11,6 +12,7 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ['role', 'is_active', 'is_staff', 'is_superuser', 'created_at']
     search_fields = ['username', 'email', 'first_name', 'last_name']
     ordering = ['username']
+    actions = ['delete_users_with_cascade']
     
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Additional Info', {'fields': ('role', 'phone')}),
@@ -19,3 +21,32 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         ('Additional Info', {'fields': ('role', 'phone')}),
     )
+    
+    def delete_users_with_cascade(self, request, queryset):
+        """Delete users and cascade delete related data"""
+        deleted_count = 0
+        
+        for user in queryset:
+            # Delete related data based on role
+            if user.role == 'CUSTOMER':
+                # Cascade delete service requests (handled by CASCADE on_delete)
+                pass
+            elif user.role == 'TECHNICIAN':
+                # Delete technician profile if exists
+                # This will set assignments to NULL (SET_NULL on_delete)
+                if hasattr(user, 'technician_profile'):
+                    user.technician_profile.delete()
+            
+            # Delete the user
+            user.delete()
+            deleted_count += 1
+        
+        self.message_user(
+            request,
+            f'Successfully deleted {deleted_count} user(s) and their related data.',
+            messages.SUCCESS
+        )
+    
+    delete_users_with_cascade.short_description = 'Delete selected users and their related data'
+
+

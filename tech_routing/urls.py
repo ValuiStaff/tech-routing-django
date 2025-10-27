@@ -32,6 +32,8 @@ def health_check(request):
     """Health check endpoint for deployment platforms"""
     return JsonResponse({'status': 'ok', 'service': 'tech-routing'})
 
+# Note: Bulk upload URL is handled via core.urls
+
 urlpatterns = [
     path("admin/core/assignment/assign/", admin_assign_view, name='admin_assign'),
     path("admin/", admin.site.urls),

@@ -226,3 +226,52 @@ class GoogleMapsConfigAdmin(admin.ModelAdmin):
 admin.site.site_header = "Tech Routing System"
 admin.site.site_title = "Tech Routing Admin"
 admin.site.index_title = "Assignment Dashboard"
+
+
+def bulk_upload_view(request):
+    """View for bulk uploading users via Excel"""
+    from core.forms import BulkUploadForm
+    from core.services.bulk_upload import BulkUploadService
+    from django.http import FileResponse
+    from django.conf import settings
+    import os
+    
+    if request.method == 'POST':
+        form = BulkUploadForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            excel_file = form.cleaned_data['excel_file']
+            
+            # Process the file
+            service = BulkUploadService()
+            results = service.process_excel_file(excel_file)
+            
+            # Display results
+            if results['errors']:
+                for error in results['errors']:
+                    messages.error(request, error)
+            
+            if results['warnings']:
+                for warning in results['warnings']:
+                    messages.warning(request, warning)
+            
+            # Success message
+            success_msg = (
+                f"Upload complete: {len(results['created_users'])} created, "
+                f"{len(results['updated_users'])} updated, "
+                f"{len(results['created_requests'])} service requests created, "
+                f"{len(results['created_technicians'])} technician profiles created."
+            )
+            messages.success(request, success_msg)
+            
+            return redirect('core:bulk_upload')
+    else:
+        form = BulkUploadForm()
+    
+    context = {
+        'form': form,
+        'title': 'Bulk Upload Users',
+        'opts': {'app_label': 'core', 'model_name': 'bulk_upload'},
+    }
+    
+    return render(request, 'admin/bulk_upload.html', context)
