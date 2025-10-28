@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import messages
+from django.utils.html import format_html
+from django.db.models import CharField
+from django.db.models.functions import Cast
 from accounts.models import User
 
 
@@ -8,19 +11,30 @@ from accounts.models import User
 class UserAdmin(BaseUserAdmin):
     """Custom admin for User model"""
     
-    list_display = ['username', 'email', 'role', 'is_active', 'created_at']
+    list_display = ['username', 'email', 'role', 'password_display', 'is_active', 'created_at']
     list_filter = ['role', 'is_active', 'is_staff', 'is_superuser', 'created_at']
     search_fields = ['username', 'email', 'first_name', 'last_name']
     ordering = ['username']
     actions = ['delete_users_with_cascade']
+    readonly_fields = ['password_display']
     
     fieldsets = BaseUserAdmin.fieldsets + (
-        ('Additional Info', {'fields': ('role', 'phone')}),
+        ('Additional Info', {'fields': ('role', 'phone', 'password_display')}),
     )
     
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         ('Additional Info', {'fields': ('role', 'phone')}),
     )
+    
+    def password_display(self, obj):
+        """Display password hash for reference (read-only)"""
+        if obj.pk:
+            return format_html(
+                '<code style="font-size: 11px; word-break: break-all;">{}</code>',
+                obj.password[:50] + '...' if len(obj.password) > 50 else obj.password
+            )
+        return '-'
+    password_display.short_description = 'Password Hash'
     
     def delete_users_with_cascade(self, request, queryset):
         """Delete users and cascade delete related data"""
