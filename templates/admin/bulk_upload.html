@@ -208,10 +208,13 @@ function addCustomerRow() {
     
     container.appendChild(row);
     
+    // Store the current rowCount before incrementing
+    const currentRowCount = rowCount;
+    
     // Populate skills dropdown for this customer
     setTimeout(function() {
-        populateSkillsDropdowns(rowCount, 'required_skills_customer_' + rowCount);
-        initAutocomplete(rowCount);
+        populateSkillsDropdowns(currentRowCount, 'required_skills_customer_' + currentRowCount);
+        initAutocomplete(currentRowCount);
     }, 100);
     
     rowCount++;
@@ -298,10 +301,13 @@ function addTechnicianRow() {
     
     container.appendChild(row);
     
+    // Store the current rowCount before incrementing
+    const currentRowCount = rowCount;
+    
     // Populate skills dropdown for this technician
     setTimeout(function() {
-        populateSkillsDropdowns(rowCount, 'skills_technician_' + rowCount);
-        initAutocomplete(rowCount);
+        populateSkillsDropdowns(currentRowCount, 'skills_technician_' + currentRowCount);
+        initAutocomplete(currentRowCount);
     }, 100);
     
     rowCount++;
