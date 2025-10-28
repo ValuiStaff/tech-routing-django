@@ -432,6 +432,15 @@ class BulkUploadService:
                     service_minutes = post_data.get(f'service_minutes_{row_count}', '60')
                     window_start = post_data.get(f'window_start_{row_count}', '').strip()
                     window_end = post_data.get(f'window_end_{row_count}', '').strip()
+                    
+                    print(f"\n{'='*60}")
+                    print(f"CUSTOMER DATA EXTRACTION for row {row_count}:")
+                    print(f"address: '{address}'")
+                    print(f"service_type: '{service_type}'")
+                    print(f"service_minutes: '{service_minutes}'")
+                    print(f"window_start: '{window_start}'")
+                    print(f"window_end: '{window_end}'")
+                    
                     # Handle multi-select skills field (returns a list)
                     required_skills_list = post_data.getlist(f'required_skills_{row_count}')
                     print(f"Row {row_count}: Required skills list from form: {required_skills_list}")
@@ -448,6 +457,17 @@ class BulkUploadService:
                     priority = post_data.get(f'priority_{row_count}', 'medium').strip()
                     notes = post_data.get(f'notes_{row_count}', '').strip()
                     
+                    print(f"priority: '{priority}'")
+                    print(f"notes: '{notes}'")
+                    print(f"{'='*60}\n")
+                    
+                    if not address:
+                        print(f"ERROR: Address is empty for customer row {row_count}")
+                    if not window_start:
+                        print(f"ERROR: Window start is empty for customer row {row_count}")
+                    if not window_end:
+                        print(f"ERROR: Window end is empty for customer row {row_count}")
+                    
                     if address:
                         # Create service request
                         try:
@@ -456,8 +476,13 @@ class BulkUploadService:
                                 lat, lon = coords
                                 
                                 # Parse datetime fields
+                                print(f"Parsing window_start: '{window_start}'")
                                 window_start_dt = self._parse_datetime_manual(window_start, row_count + 1)
+                                print(f"Parsing window_end: '{window_end}'")
                                 window_end_dt = self._parse_datetime_manual(window_end, row_count + 1)
+                                
+                                print(f"Parsed window_start_dt: {window_start_dt}")
+                                print(f"Parsed window_end_dt: {window_end_dt}")
                                 
                                 if window_start_dt and window_end_dt:
                                     priority_map = {'high': 1, 'medium': 2, 'low': 3}
@@ -477,12 +502,19 @@ class BulkUploadService:
                                         notes=notes
                                     )
                                     
+                                    print(f"SUCCESS: Created service request for customer")
+                                    
                                     # Add required skills
                                     if required_skills:
                                         self._add_skills_to_service_request(service_request, required_skills, row_count + 1)
                                     
                                     self.results['created_requests'].append(service_request)
+                                else:
+                                    print(f"ERROR: Could not parse datetime fields for row {row_count}")
+                            else:
+                                print(f"ERROR: Could not geocode address '{address}'")
                         except Exception as e:
+                            print(f"ERROR creating service request: {str(e)}")
                             self.results['errors'].append(f"Row {row_count + 1}: Error creating service request: {str(e)}")
                 
                 # Process technician specific fields
