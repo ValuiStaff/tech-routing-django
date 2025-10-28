@@ -217,6 +217,11 @@ class RoutingService:
                     if t.skills.filter(id=required_skill.id).exists():
                         allowed.append(k)
                 print(f"Request {i} needs skill '{required_skill.name}', allowed techs: {allowed}")
+                
+                # If no tech has the required skill, allow all (job will be dropped later)
+                if not allowed:
+                    print(f"WARNING: No technician has required skill '{required_skill.name}' for request {i}")
+                    allowed = list(range(K))  # Allow all, OR-Tools will handle drop penalty
             else:
                 # No skill requirement, allow all technicians
                 allowed = list(range(K))
