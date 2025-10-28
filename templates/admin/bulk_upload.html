@@ -121,32 +121,41 @@ function addCustomerRow() {
     row.innerHTML = `
         <h4 style="margin-top: 0; color: #417690; padding-bottom: 10px; border-bottom: 2px solid #417690;">Customer ${rowCount + 1}</h4>
         
-        <!-- User Information -->
-        <h5 style="color: #417690; margin-top: 15px; margin-bottom: 10px;">User Information</h5>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
-            <div>
-                <label>Username *</label>
-                <input type="text" name="username_${rowCount}" required style="width: 100%; padding: 8px;">
+        <!-- Step 1: User Account -->
+        <div id="customer_account_${rowCount}">
+            <h5 style="color: #417690; margin-top: 15px; margin-bottom: 10px;">Step 1: Create User Account</h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                <div>
+                    <label>Username *</label>
+                    <input type="text" name="username_${rowCount}" id="username_${rowCount}" required style="width: 100%; padding: 8px;">
+                </div>
+                <div>
+                    <label>Email *</label>
+                    <input type="email" name="email_${rowCount}" id="email_${rowCount}" required style="width: 100%; padding: 8px;">
+                </div>
+                <div>
+                    <label>Phone</label>
+                    <input type="text" name="phone_${rowCount}" id="phone_${rowCount}" placeholder="Optional" style="width: 100%; padding: 8px;">
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input type="text" name="password_${rowCount}" id="password_${rowCount}" value="Welcome123" style="width: 100%; padding: 8px;">
+                </div>
             </div>
-            <div>
-                <label>Email *</label>
-                <input type="email" name="email_${rowCount}" required style="width: 100%; padding: 8px;">
-            </div>
-            <div>
-                <label>Phone</label>
-                <input type="text" name="phone_${rowCount}" placeholder="Optional" style="width: 100%; padding: 8px;">
-            </div>
-            <div>
-                <label>Password</label>
-                <input type="text" name="password_${rowCount}" value="Welcome123" style="width: 100%; padding: 8px;">
+            <button type="button" onclick="saveCustomerAccount(${rowCount})" class="button" style="background: #28a745; color: white; padding: 8px 20px; border: none; cursor: pointer; margin: 10px 5px; border-radius: 5px;">
+                ✅ Save Account
+            </button>
+            <div id="customer_account_status_${rowCount}" style="margin-top: 10px; display: none;">
+                <span style="color: green; font-weight: bold;">✓ Account created</span>
             </div>
         </div>
         
         <!-- Hidden type field -->
         <input type="hidden" name="type_${rowCount}" value="Customer">
         
-        <!-- Service Request Details -->
-        <h5 style="color: #417690; margin-top: 15px; margin-bottom: 10px;">Service Request Details</h5>
+        <!-- Step 2: Service Request Details -->
+        <div id="customer_service_request_${rowCount}" style="display: none; margin-top: 20px;">
+            <h5 style="color: #417690; margin-top: 15px; margin-bottom: 10px;">Step 2: Create Service Request</h5>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
             <div>
                 <label>Service Type *</label>
@@ -200,6 +209,14 @@ function addCustomerRow() {
                 <textarea name="notes_${rowCount}" placeholder="Additional notes or details" rows="2" style="width: 100%; padding: 8px;"></textarea>
             </div>
         </div>
+        
+        <button type="button" onclick="saveCustomerServiceRequest(${rowCount})" class="button" style="background: #007bff; color: white; padding: 8px 20px; border: none; cursor: pointer; margin: 10px 5px; border-radius: 5px;">
+            📋 Save Service Request
+        </button>
+        <div id="customer_service_request_status_${rowCount}" style="margin-top: 10px; display: none;">
+            <span style="color: green; font-weight: bold;">✓ Service request created</span>
+        </div>
+    </div>
         
         <button type="button" onclick="this.parentElement.remove()" style="background: #dc3545; color: white; padding: 5px 15px; border: none; cursor: pointer; margin-top: 10px; border-radius: 5px;">
             ❌ Remove Customer
@@ -425,6 +442,103 @@ function initAutocomplete(rowNum) {
     } else {
         console.log('Depot address input not found');
     }
+}
+
+// Function to save customer account
+function saveCustomerAccount(rowCount) {
+    console.log('Saving customer account for row:', rowCount);
+    
+    const username = document.getElementById('username_' + rowCount).value;
+    const email = document.getElementById('email_' + rowCount).value;
+    const phone = document.getElementById('phone_' + rowCount).value;
+    const password = document.getElementById('password_' + rowCount).value;
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('mode', 'manual_account');
+    formData.append('type_' + rowCount, 'Customer');
+    formData.append('username_' + rowCount, username);
+    formData.append('email_' + rowCount, email);
+    formData.append('phone_' + rowCount, phone);
+    formData.append('password_' + rowCount, password);
+    
+    // Send AJAX request
+    fetch('/core/admin/bulk-upload/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Account creation response:', data);
+        if (data.success) {
+            // Show success message
+            document.getElementById('customer_account_status_' + rowCount).style.display = 'block';
+            // Show service request section
+            document.getElementById('customer_service_request_' + rowCount).style.display = 'block';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving account');
+    });
+}
+
+// Function to save customer service request
+function saveCustomerServiceRequest(rowCount) {
+    console.log('Saving customer service request for row:', rowCount);
+    
+    const address = document.getElementById('address_input_' + rowCount).value;
+    const serviceType = document.querySelector('[name="service_type_' + rowCount + '"]').value;
+    const serviceMinutes = document.querySelector('[name="service_minutes_' + rowCount + '"]').value;
+    const windowStart = document.querySelector('[name="window_start_' + rowCount + '"]').value;
+    const windowEnd = document.querySelector('[name="window_end_' + rowCount + '"]').value;
+    const priority = document.querySelector('[name="priority_' + rowCount + '"]').value;
+    const notes = document.querySelector('[name="notes_' + rowCount + '"]').value;
+    const requiredSkills = Array.from(document.querySelector('#required_skills_customer_' + rowCount).selectedOptions)
+        .map(option => option.value);
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('mode', 'manual_service');
+    formData.append('type_' + rowCount, 'Customer');
+    formData.append('address_' + rowCount, address);
+    formData.append('service_type_' + rowCount, serviceType);
+    formData.append('service_minutes_' + rowCount, serviceMinutes);
+    formData.append('window_start_' + rowCount, windowStart);
+    formData.append('window_end_' + rowCount, windowEnd);
+    formData.append('priority_' + rowCount, priority);
+    formData.append('notes_' + rowCount, notes);
+    requiredSkills.forEach(skill => {
+        formData.append('required_skills_' + rowCount, skill);
+    });
+    
+    // Send AJAX request
+    fetch('/core/admin/bulk-upload/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Service request creation response:', data);
+        if (data.success) {
+            // Show success message
+            document.getElementById('customer_service_request_status_' + rowCount).style.display = 'block';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving service request');
+    });
 }
 
 // Add initial row when manual section is first shown

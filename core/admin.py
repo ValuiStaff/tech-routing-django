@@ -340,6 +340,60 @@ def bulk_upload_view(request):
     if request.method == 'POST':
         mode = request.POST.get('mode', 'upload')
         
+        # Handle AJAX requests for step-by-step creation
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.http import JsonResponse
+            from accounts.models import User
+            
+            if mode == 'manual_account':
+                # Create user account only
+                try:
+                    username = request.POST.get('username_0', '')
+                    email = request.POST.get('email_0', '')
+                    password = request.POST.get('password_0', 'Welcome123')
+                    phone = request.POST.get('phone_0', '')
+                    user_type = request.POST.get('type_0', 'Customer')
+                    
+                    # Get or create user
+                    user, created = BulkUploadService()._get_or_create_user_manual(
+                        username, email, password, phone, user_type
+                    )
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Account created successfully',
+                        'user_id': user.id
+                    })
+                except Exception as e:
+                    return JsonResponse({
+                        'success': False,
+                        'message': str(e)
+                    })
+            
+            elif mode == 'manual_service':
+                # Create service request only
+                try:
+                    # Get user first (we'll use a simple approach for now)
+                    # In production, you'd store user_id from previous step
+                    service = BulkUploadService()
+                    results = service.process_manual_entries(request.POST)
+                    
+                    if results['created_requests']:
+                        return JsonResponse({
+                            'success': True,
+                            'message': 'Service request created successfully'
+                        })
+                    else:
+                        return JsonResponse({
+                            'success': False,
+                            'message': 'Failed to create service request'
+                        })
+                except Exception as e:
+                    return JsonResponse({
+                        'success': False,
+                        'message': str(e)
+                    })
+        
         if mode == 'manual':
             # Process manual entry
             service = BulkUploadService()
