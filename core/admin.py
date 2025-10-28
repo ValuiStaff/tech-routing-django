@@ -154,7 +154,7 @@ class TechnicianAdmin(admin.ModelAdmin):
     skills_display.short_description = 'Skills'
     
     def availability_display(self, obj):
-        """Display shift times and location"""
+        """Display shift times, location, and next assignment dates"""
         from django.utils.html import format_html
         
         # Get depot address and coordinates
@@ -169,10 +169,20 @@ class TechnicianAdmin(admin.ModelAdmin):
         else:
             shift = "No shift times"
         
+        # Get upcoming assignments dates
+        from core.models import Assignment
+        upcoming = Assignment.objects.filter(
+            technician=obj,
+            status__in=['assigned', 'in_progress']
+        ).values_list('assigned_date', flat=True).distinct().order_by('assigned_date')[:3]
+        
+        dates_str = ", ".join([date.strftime('%Y-%m-%d') for date in upcoming]) if upcoming else "No upcoming assignments"
+        
         # Format HTML
         html = f'<div style="font-size: 11px;">'
         html += f'<div><strong>⌚ Shift:</strong> {shift}</div>'
         html += f'<div><strong>📍 Location:</strong> {depot}{coords}</div>'
+        html += f'<div><strong>📅 Upcoming:</strong> {dates_str}</div>'
         html += f'<div><strong>⚡ Capacity:</strong> {obj.capacity_minutes // 60}h {obj.capacity_minutes % 60}m</div>'
         html += '</div>'
         
