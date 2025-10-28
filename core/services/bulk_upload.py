@@ -190,17 +190,28 @@ class BulkUploadService:
     
     def _process_technician(self, row, row_num):
         """Process a technician row from Excel"""
+        print(f"\n{'='*60}")
+        print(f"PROCESSING TECHNICIAN ROW {row_num}")
+        print(f"{'='*60}")
+        
         username = str(row.get('Username', '')).strip()
         email = str(row.get('Email', '')).strip()
         
+        print(f"Username: {username}, Email: {email}")
+        
         if not username or not email:
             self.results['errors'].append(f"Row {row_num}: Username and Email are required")
+            print(f"ERROR: Missing username or email")
             return
         
         # Get or create user
+        print(f"Getting or creating user...")
         user, created = self._get_or_create_user(row, row_num, 'TECHNICIAN')
         if not user:
+            print(f"ERROR: Could not get or create user")
             return
+        
+        print(f"User created: {user.username}, role: {user.role}")
         
         if created:
             self.results['created_users'].append(user)
@@ -209,17 +220,23 @@ class BulkUploadService:
         
         # Create or update technician profile
         depot_address = str(row.get('DepotAddress', '')).strip()
+        print(f"Depot address: {depot_address}")
+        
         if not depot_address:
             self.results['errors'].append(f"Row {row_num}: DepotAddress is required for technicians")
+            print(f"ERROR: Missing depot address")
             return
         
         try:
             # Geocode depot address and validate Melbourne
+            print(f"Geocoding depot address...")
             coords = self._geocode_address(depot_address, row_num)
             if not coords:
+                print(f"ERROR: Geocoding failed for depot address")
                 return
             
             depot_lat, depot_lon = coords
+            print(f"Geocoded successfully: lat={depot_lat}, lon={depot_lon}")
             
             # Parse capacity
             capacity_hours = row.get('CapacityHours', 8)
@@ -227,15 +244,22 @@ class BulkUploadService:
                 capacity_minutes = int(float(capacity_hours) * 60)
             else:
                 capacity_minutes = 480
+            print(f"Capacity: {capacity_hours} hours = {capacity_minutes} minutes")
             
             # Parse shift times
+            print(f"Parsing shift times...")
             shift_start = self._parse_time(row.get('ShiftStart'), row_num)
             shift_end = self._parse_time(row.get('ShiftEnd'), row_num)
             
+            print(f"Shift start: {shift_start}")
+            print(f"Shift end: {shift_end}")
+            
             if not shift_start or not shift_end:
+                print(f"ERROR: Failed to parse shift times")
                 return
             
             # Get or create technician profile
+            print(f"Creating technician profile...")
             technician, tech_created = Technician.objects.get_or_create(
                 user=user,
                 defaults={
@@ -250,6 +274,9 @@ class BulkUploadService:
                 }
             )
             
+            print(f"Technician profile created: {tech_created}")
+            print(f"Technician id: {technician.id if technician else 'None'}")
+            
             if not tech_created:
                 # Update existing technician
                 technician.depot_address = depot_address
@@ -260,18 +287,29 @@ class BulkUploadService:
                 technician.shift_end = shift_end
                 technician.color_hex = str(row.get('ColorHex', '#4285F4')).strip()
                 technician.save()
+                print(f"Updated existing technician")
             
             # Add skills
             skills_str = str(row.get('Skills', '')).strip()
+            print(f"Adding skills: {skills_str}")
             if skills_str:
                 self._add_skills_to_technician(technician, skills_str, row_num)
             
             if tech_created:
                 self.results['created_technicians'].append(technician)
+                print(f"SUCCESS: Added technician to created_technicians list")
             else:
-                self.results['updated_users'].append(user)
+                print(f"Technician was updated (already existed)")
+            
+            print(f"{'='*60}\n")
             
         except Exception as e:
+            import traceback
+            print(f"\n{'='*60}")
+            print(f"ERROR in technician row {row_num}: {str(e)}")
+            print(f"{'='*60}")
+            traceback.print_exc()
+            print(f"{'='*60}\n")
             self.results['errors'].append(f"Row {row_num}: Error creating technician: {str(e)}")
     
     def _get_or_create_user(self, row, row_num, role):
