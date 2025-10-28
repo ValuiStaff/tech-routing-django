@@ -68,29 +68,63 @@ class AssignmentAdminViews:
                         
                         # Save assignments
                         saved_count = 0
+                        updated_count = 0
                         for assignment_data in assignments_data:
                             print(f"DEBUG: Processing assignment for {assignment_data['service_request'].name}")
-                            # Create assignment
-                            assignment = Assignment.objects.create(
+                            
+                            # Check if assignment already exists for this date
+                            existing = Assignment.objects.filter(
                                 service_request=assignment_data['service_request'],
-                                technician=assignment_data['technician'],
-                                assigned_date=assigned_date,
-                                sequence_order=assignment_data['sequence_order'],
-                                planned_start=assignment_data['planned_start'],
-                                planned_finish=assignment_data['planned_finish'],
-                                travel_time_minutes=assignment_data.get('travel_time', 0.0),
-                                status='assigned'
-                            )
+                                assigned_date=assigned_date
+                            ).first()
+                            
+                            if existing:
+                                # Update existing assignment
+                                existing.technician = assignment_data['technician']
+                                existing.sequence_order = assignment_data['sequence_order']
+                                existing.planned_start = assignment_data['planned_start']
+                                existing.planned_finish = assignment_data['planned_finish']
+                                existing.travel_time_minutes = assignment_data.get('travel_time', 0.0)
+                                existing.status = 'assigned'
+                                existing.save()
+                                updated_count += 1
+                                print(f"DEBUG: Updated existing assignment")
+                            else:
+                                # Create new assignment
+                                assignment = Assignment.objects.create(
+                                    service_request=assignment_data['service_request'],
+                                    technician=assignment_data['technician'],
+                                    assigned_date=assigned_date,
+                                    sequence_order=assignment_data['sequence_order'],
+                                    planned_start=assignment_data['planned_start'],
+                                    planned_finish=assignment_data['planned_finish'],
+                                    travel_time_minutes=assignment_data.get('travel_time', 0.0),
+                                    status='assigned'
+                                )
+                                saved_count += 1
+                                print(f"DEBUG: Created new assignment")
                             
                             # Update service request status
                             assignment_data['service_request'].status = 'assigned'
                             assignment_data['service_request'].save()
-                            saved_count += 1
                         
-                        messages.success(
-                            request, 
-                            f'Successfully assigned {saved_count} jobs. Total travel time: {total_travel:.1f} minutes.'
-                        )
+                        if saved_count > 0 and updated_count > 0:
+                            messages.success(
+                                request, 
+                                f'Successfully created {saved_count} new assignments and updated {updated_count} existing assignments. Total travel time: {total_travel:.1f} minutes.'
+                            )
+                        elif saved_count > 0:
+                            messages.success(
+                                request, 
+                                f'Successfully assigned {saved_count} jobs. Total travel time: {total_travel:.1f} minutes.'
+                            )
+                        elif updated_count > 0:
+                            messages.success(
+                                request, 
+                                f'Updated {updated_count} existing assignments. Total travel time: {total_travel:.1f} minutes.'
+                            )
+                        else:
+                            messages.info(request, 'No assignments created or updated.')
                         
                         if unserved:
                             messages.warning(
