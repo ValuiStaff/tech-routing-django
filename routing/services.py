@@ -90,12 +90,16 @@ class RoutingService:
                         travel_time = 999999
                     t_i_j[(i, j)] = travel_time
         
+        print(f"\n{'='*80}")
+        print(f"OR-TOOLS SOLVER SETUP")
+        print(f"{'='*80}")
         print(f"Distance matrices built: K={K} techs, I={I} requests")
         
         # Node indices
         start_nodes = list(range(K))
         cust_base = K
         num_nodes = K + I
+        print(f"Nodes: start_nodes={start_nodes}, cust_base={cust_base}, num_nodes={num_nodes}")
         
         # Time windows (in minutes from reference time)
         # Convert time objects to datetime for comparison
@@ -289,16 +293,30 @@ class RoutingService:
             routing.AddDisjunction([manager.NodeToIndex(node)], drop_penalty)
         
         # Search
+        print(f"\n{'='*80}")
+        print(f"SOLVING WITH OR-TOOLS")
+        print(f"{'='*80}")
+        print(f"Total time windows: {len([k for k in tw_start.keys() if k < cust_base])} techs, {len([k for k in tw_start.keys() if k >= cust_base])} requests")
+        print(f"Time window ranges:")
+        for k in range(num_nodes):
+            if k in tw_start and k in tw_end:
+                print(f"  Node {k}: {tw_start[k]} - {tw_end[k]} minutes")
+        
         search_params = pywrapcp.DefaultRoutingSearchParameters()
         search_params.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
         search_params.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
         search_params.time_limit.FromSeconds(self.config.time_limit_seconds)
         
+        print(f"Attempting to solve...")
         try:
             solution = routing.SolveWithParameters(search_params)
+            print(f"Solver result: {solution is not None}")
         except Exception as e:
             print(f"OR-Tools solver error: {str(e)}")
-            print(f"K={K}, I={I}, num_nodes={num_nodes}")
+            import traceback
+            traceback.print_exc()
+            print(f"Parameters: K={K}, I={I}, num_nodes={num_nodes}")
+            print(f"{'='*80}")
             return [], reqs, 0.0
         
         if solution is None:
