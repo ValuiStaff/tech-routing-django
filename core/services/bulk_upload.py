@@ -98,31 +98,61 @@ class BulkUploadService:
         address = row.get('Address', '').strip()
         if address:
             try:
+                print(f"\n{'='*60}")
+                print(f"PROCESSING CUSTOMER ROW {row_num}")
+                print(f"{'='*60}")
+                
                 # Geocode address and validate Melbourne
+                print(f"Address to geocode: {address}")
                 coords = self._geocode_address(address, row_num)
                 if not coords:
+                    print(f"ERROR: Geocoding failed for address: {address}")
                     return
                 
                 lat, lon = coords
+                print(f"Geocoded successfully: lat={lat}, lon={lon}")
                 
                 # Parse service request data
                 service_minutes = int(row.get('ServiceMinutes', 60)) if pd.notna(row.get('ServiceMinutes')) else 60
+                print(f"Service minutes: {service_minutes}")
+                
+                window_start_raw = row.get('WindowStart')
+                window_end_raw = row.get('WindowEnd')
+                print(f"WindowStart raw: {window_start_raw} (type: {type(window_start_raw)})")
+                print(f"WindowEnd raw: {window_end_raw} (type: {type(window_end_raw)})")
                 
                 window_start = self._parse_datetime(row.get('WindowStart'), row_num)
                 window_end = self._parse_datetime(row.get('WindowEnd'), row_num)
                 
+                print(f"WindowStart parsed: {window_start}")
+                print(f"WindowEnd parsed: {window_end}")
+                
                 if not window_start or not window_end:
+                    print(f"ERROR: DateTime parsing failed for row {row_num}")
                     return
                 
                 # Parse priority
                 priority_str = str(row.get('Priority', '')).strip().lower()
                 priority_map = {'high': 1, 'medium': 2, 'low': 3}
                 priority = priority_map.get(priority_str, 2)
+                print(f"Priority: {priority_str} -> {priority}")
                 
                 # Create service request
+                service_name = str(row.get('ServiceType', 'Service Request')).strip()
+                print(f"Service name: {service_name}")
+                
+                print(f"Creating ServiceRequest with:")
+                print(f"  customer: {user.username}")
+                print(f"  address: {address}")
+                print(f"  lat: {lat}, lon: {lon}")
+                print(f"  service_minutes: {service_minutes}")
+                print(f"  window_start: {window_start}")
+                print(f"  window_end: {window_end}")
+                print(f"  priority: {priority}")
+                
                 service_request = ServiceRequest.objects.create(
                     customer=user,
-                    name=str(row.get('ServiceType', 'Service Request')).strip(),
+                    name=service_name,
                     address=address,
                     lat=lat,
                     lon=lon,
@@ -132,17 +162,30 @@ class BulkUploadService:
                     priority=priority,
                     status='pending'
                 )
+                print(f"ServiceRequest created with id: {service_request.id}")
                 
                 # Add required skill (only first skill from the list)
                 skills_str = str(row.get('RequiredSkills', '')).strip()
+                print(f"RequiredSkills from Excel: {skills_str}")
                 if skills_str:
                     # Take only the first skill
                     first_skill = skills_str.split(',')[0].strip()
+                    print(f"Adding skill: {first_skill}")
                     self._add_skill_to_service_request(service_request, first_skill, row_num)
+                else:
+                    print("No skills provided")
                 
                 self.results['created_requests'].append(service_request)
+                print(f"SUCCESS: Service request created for row {row_num}")
+                print(f"{'='*60}\n")
                 
             except Exception as e:
+                import traceback
+                print(f"\n{'='*60}")
+                print(f"ERROR in row {row_num}: {str(e)}")
+                print(f"{'='*60}")
+                traceback.print_exc()
+                print(f"{'='*60}\n")
                 self.results['errors'].append(f"Row {row_num}: Error creating service request: {str(e)}")
     
     def _process_technician(self, row, row_num):
