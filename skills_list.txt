@@ -1,0 +1,22 @@
+11 objects imported automatically (use -v 2 for details).
+
+Active Skills in Database:
+============================================================
+  - Carpentry
+  - Cleaning
+  - Electric
+  - Gas
+  - HVAC
+  - IT
+  - Plumbing
+  - Roofing
+  - Security
+  - Solar
+  - electrical
+  - heating
+============================================================
+
+Total skills: 12
+
+Skill names as comma-separated list:
+Carpentry, Cleaning, Electric, Gas, HVAC, IT, Plumbing, Roofing, Security, Solar, electrical, heating

@@ -49,29 +49,48 @@ class RoutingService:
         t_i_j = {}  # Customer to customer
         t_i_e = {}  # Customer to depot
         
+        # Validate data and calculate matrices
+        import math
+        
         for k in range(K):
             for i in range(I):
-                t_s_i[(k, i)] = self.distance_service.travel_minutes(
+                travel_time = self.distance_service.travel_minutes(
                     techs[k].depot_lat, techs[k].depot_lon,
                     reqs[i].lat, reqs[i].lon,
                     self.avg_kph
                 )
-                t_i_e[(k, i)] = self.distance_service.travel_minutes(
+                # Check for valid values
+                if travel_time is None or math.isnan(travel_time) or travel_time < 0:
+                    print(f"Invalid travel time for tech {k} to request {i}: {travel_time}")
+                    travel_time = 999999  # Use a large penalty for invalid routes
+                t_s_i[(k, i)] = travel_time
+                
+                travel_time_e = self.distance_service.travel_minutes(
                     reqs[i].lat, reqs[i].lon,
                     techs[k].depot_lat, techs[k].depot_lon,
                     self.avg_kph
                 )
+                if travel_time_e is None or math.isnan(travel_time_e) or travel_time_e < 0:
+                    print(f"Invalid travel time from request {i} to tech {k}: {travel_time_e}")
+                    travel_time_e = 999999
+                t_i_e[(k, i)] = travel_time_e
         
         for i in range(I):
             for j in range(I):
                 if i == j:
                     t_i_j[(i, j)] = 0.0
                 else:
-                    t_i_j[(i, j)] = self.distance_service.travel_minutes(
+                    travel_time = self.distance_service.travel_minutes(
                         reqs[i].lat, reqs[i].lon,
                         reqs[j].lat, reqs[j].lon,
                         self.avg_kph
                     )
+                    if travel_time is None or math.isnan(travel_time) or travel_time < 0:
+                        print(f"Invalid travel time from request {i} to request {j}: {travel_time}")
+                        travel_time = 999999
+                    t_i_j[(i, j)] = travel_time
+        
+        print(f"Distance matrices built: K={K} techs, I={I} requests")
         
         # Node indices
         start_nodes = list(range(K))
@@ -259,9 +278,15 @@ class RoutingService:
         search_params.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
         search_params.time_limit.FromSeconds(self.config.time_limit_seconds)
         
-        solution = routing.SolveWithParameters(search_params)
+        try:
+            solution = routing.SolveWithParameters(search_params)
+        except Exception as e:
+            print(f"OR-Tools solver error: {str(e)}")
+            print(f"K={K}, I={I}, num_nodes={num_nodes}")
+            return [], reqs, 0.0
         
         if solution is None:
+            print("OR-Tools returned no solution")
             return [], reqs, 0.0
         
         # Extract solution
