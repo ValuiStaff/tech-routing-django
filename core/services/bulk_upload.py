@@ -433,12 +433,17 @@ class BulkUploadService:
                     window_start = post_data.get(f'window_start_{row_count}', '').strip()
                     window_end = post_data.get(f'window_end_{row_count}', '').strip()
                     # Handle multi-select skills field (returns a list)
-                    # Try with and without row_count suffix since we don't know exact format
                     required_skills_list = post_data.getlist(f'required_skills_{row_count}')
+                    print(f"Row {row_count}: Required skills list from form: {required_skills_list}")
+                    
+                    # Also try alternative naming
                     if not required_skills_list:
                         # Try without row_count
                         required_skills_list = post_data.getlist('required_skills')
+                        print(f"Row {row_count}: Trying without row_count: {required_skills_list}")
+                    
                     required_skills = ', '.join(required_skills_list) if required_skills_list else ''
+                    print(f"Row {row_count}: Final required skills string: {required_skills}")
                     
                     priority = post_data.get(f'priority_{row_count}', 'medium').strip()
                     notes = post_data.get(f'notes_{row_count}', '').strip()
@@ -488,12 +493,17 @@ class BulkUploadService:
                     shift_end = post_data.get(f'shift_end_{row_count}', '').strip()
                     
                     # Handle multi-select skills field (returns a list)
-                    # Try with and without row_count suffix since we don't know exact format
                     skills_list = post_data.getlist(f'skills_{row_count}')
+                    print(f"Row {row_count}: Skills list from form: {skills_list}")
+                    
+                    # Also try alternative naming
                     if not skills_list:
                         # Try without row_count
                         skills_list = post_data.getlist('skills')
+                        print(f"Row {row_count}: Trying without row_count: {skills_list}")
+                    
                     skills = ', '.join(skills_list) if skills_list else ''
+                    print(f"Row {row_count}: Final skills string: {skills}")
                     
                     color_hex = post_data.get(f'color_hex_{row_count}', '#4285F4').strip()
                     
