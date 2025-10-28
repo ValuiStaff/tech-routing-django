@@ -436,16 +436,22 @@ class RoutingService:
             route_assignments = []
             
             print(f"Tech {k} ({techs[k].user.username}):")
+            step = 0
             while not routing.IsEnd(idx):
                 node = manager.IndexToNode(idx)
+                print(f"  Step {step}: node={node} (cust_base={cust_base}, I={I})")
                 if cust_base <= node < cust_base + I:
                     order += 1
                     req = reqs[node - cust_base]
-                    t_start_min = solution.Value(time_dim.CumulVar(idx))
-                    start_dt = earliest + timedelta(minutes=t_start_min)
-                    finish_dt = start_dt + timedelta(minutes=req.service_minutes)
-                    
-                    print(f"  Assignment {order}: {req.name} at {start_dt.strftime('%Y-%m-%d %H:%M')}")
+                    try:
+                        t_start_min = solution.Value(time_dim.CumulVar(idx))
+                        start_dt = earliest + timedelta(minutes=t_start_min)
+                        finish_dt = start_dt + timedelta(minutes=req.service_minutes)
+                        
+                        print(f"  Assignment {order}: {req.name} at {start_dt.strftime('%Y-%m-%d %H:%M')}")
+                    except Exception as e:
+                        print(f"  ERROR extracting assignment for node {node}: {e}")
+                        break
                     
                     assignments.append({
                         'service_request': req,
@@ -459,6 +465,7 @@ class RoutingService:
                     served_ids.add(req.id)
                 
                 idx = solution.Value(routing.NextVar(idx))
+                step += 1
             
             if not route_assignments:
                 print(f"  No assignments for this tech")
