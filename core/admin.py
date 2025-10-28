@@ -64,9 +64,12 @@ class AssignmentAdminViews:
                             timezone.make_aware(datetime.combine(assigned_date, datetime.min.time()))
                         )
                         
+                        print(f"\nDEBUG: assignments_data count: {len(assignments_data)}")
+                        
                         # Save assignments
                         saved_count = 0
                         for assignment_data in assignments_data:
+                            print(f"DEBUG: Processing assignment for {assignment_data['service_request'].name}")
                             # Create assignment
                             assignment = Assignment.objects.create(
                                 service_request=assignment_data['service_request'],
