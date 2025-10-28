@@ -313,14 +313,21 @@ function populateSkillsDropdowns(rowNum, selectId) {
     try {
         console.log('Populating skills for dropdown:', selectId, 'row:', rowNum);
         console.log('Skills data available:', typeof skillsData !== 'undefined' ? 'Yes' : 'No');
+        console.log('Skills data:', skillsData);
         
-        if (typeof skillsData === 'undefined') {
-            console.error('Skills data not available!');
+        if (typeof skillsData === 'undefined' || !skillsData || !Array.isArray(skillsData)) {
+            console.error('Skills data not available or invalid!', skillsData);
             return;
         }
         
+        console.log('Looking for element with id:', selectId);
         const skillsSelect = document.getElementById(selectId);
+        console.log('Found element:', skillsSelect);
+        
         if (skillsSelect) {
+            // Clear existing options first
+            skillsSelect.innerHTML = '';
+            
             skillsData.forEach(function(skill) {
                 const option = document.createElement('option');
                 option.value = skill.name;
@@ -329,7 +336,7 @@ function populateSkillsDropdowns(rowNum, selectId) {
             });
             console.log('Populated dropdown', selectId, 'with', skillsData.length, 'skills');
         } else {
-            console.log('Dropdown not found:', selectId);
+            console.error('Dropdown not found:', selectId);
         }
     } catch (error) {
         console.error('Error populating skills dropdown:', error);
@@ -338,17 +345,26 @@ function populateSkillsDropdowns(rowNum, selectId) {
 
 // Function to initialize Google Places Autocomplete
 function initAutocomplete(rowNum) {
+    console.log('Initializing autocomplete for row:', rowNum);
+    
     // Only initialize if Google Maps API is loaded
     if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
-        console.log('Google Maps API not loaded yet');
+        console.log('Google Maps API not loaded yet, retrying in 1 second...');
+        setTimeout(function() {
+            initAutocomplete(rowNum);
+        }, 1000);
         return;
     }
     
     const addressInput = document.getElementById('address_input_' + rowNum);
     const depotInput = document.getElementById('depot_address_input_' + rowNum);
     
+    console.log('Looking for address input with id: address_input_' + rowNum, addressInput);
+    console.log('Looking for depot input with id: depot_address_input_' + rowNum, depotInput);
+    
     // Initialize for customer address
     if (addressInput) {
+        console.log('Initializing autocomplete for customer address');
         const autocomplete = new google.maps.places.Autocomplete(addressInput, {
             types: ['address'],
             componentRestrictions: { country: 'au' },
@@ -361,10 +377,14 @@ function initAutocomplete(rowNum) {
                 console.log('Address selected:', place.formatted_address);
             }
         });
+        console.log('Autocomplete initialized for customer address');
+    } else {
+        console.log('Customer address input not found');
     }
     
     // Initialize for technician depot address
     if (depotInput) {
+        console.log('Initializing autocomplete for depot address');
         const autocomplete = new google.maps.places.Autocomplete(depotInput, {
             types: ['address'],
             componentRestrictions: { country: 'au' },
@@ -377,6 +397,9 @@ function initAutocomplete(rowNum) {
                 console.log('Depot address selected:', place.formatted_address);
             }
         });
+        console.log('Autocomplete initialized for depot address');
+    } else {
+        console.log('Depot address input not found');
     }
 }
 
