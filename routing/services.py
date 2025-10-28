@@ -211,11 +211,16 @@ class RoutingService:
             # Service request now has single required_skill
             required_skill = req.required_skill if hasattr(req, 'required_skill') else None
             if required_skill:
-                need = {required_skill}
-                allowed = [k for k, t in enumerate(techs) if required_skill in t.skills.all()]
+                # Get the skill object and check if any technician has it
+                allowed = []
+                for k, t in enumerate(techs):
+                    if t.skills.filter(id=required_skill.id).exists():
+                        allowed.append(k)
+                print(f"Request {i} needs skill '{required_skill.name}', allowed techs: {allowed}")
             else:
                 # No skill requirement, allow all technicians
                 allowed = list(range(K))
+                print(f"Request {i} has no skill requirement, allowing all {K} techs")
             allowed_vehicles[cust_base + i] = allowed
         
         # Create manager and routing
