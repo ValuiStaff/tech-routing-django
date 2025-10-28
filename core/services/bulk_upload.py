@@ -377,6 +377,14 @@ class BulkUploadService:
     
     def process_manual_entries(self, post_data):
         """Process manual entry data from form submission"""
+        # Debug: log all post data
+        print("=" * 50)
+        print("MANUAL ENTRY POST DATA:")
+        print("=" * 50)
+        for key in post_data.keys():
+            print(f"{key}: {post_data.get(key)}")
+        print("=" * 50)
+        
         row_count = 0
         processed = 0
         
@@ -425,7 +433,11 @@ class BulkUploadService:
                     window_start = post_data.get(f'window_start_{row_count}', '').strip()
                     window_end = post_data.get(f'window_end_{row_count}', '').strip()
                     # Handle multi-select skills field (returns a list)
+                    # Try with and without row_count suffix since we don't know exact format
                     required_skills_list = post_data.getlist(f'required_skills_{row_count}')
+                    if not required_skills_list:
+                        # Try without row_count
+                        required_skills_list = post_data.getlist('required_skills')
                     required_skills = ', '.join(required_skills_list) if required_skills_list else ''
                     
                     priority = post_data.get(f'priority_{row_count}', 'medium').strip()
@@ -476,7 +488,11 @@ class BulkUploadService:
                     shift_end = post_data.get(f'shift_end_{row_count}', '').strip()
                     
                     # Handle multi-select skills field (returns a list)
+                    # Try with and without row_count suffix since we don't know exact format
                     skills_list = post_data.getlist(f'skills_{row_count}')
+                    if not skills_list:
+                        # Try without row_count
+                        skills_list = post_data.getlist('skills')
                     skills = ', '.join(skills_list) if skills_list else ''
                     
                     color_hex = post_data.get(f'color_hex_{row_count}', '#4285F4').strip()
