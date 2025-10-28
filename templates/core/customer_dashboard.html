@@ -46,9 +46,10 @@
                                 <tr>
                                     <th>Request Name</th>
                                     <th>Address</th>
-                                    <th>Time Window</th>
+                                    <th>Requested Time Window</th>
                                     <th>Status</th>
                                     <th>Assigned Technician</th>
+                                    <th>Time Window Match</th>
                                     <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
@@ -74,8 +75,56 @@
                                     </td>
                                     <td>
                                         {% for assign in assignments %}
+                                            {% if assign.service_request.id == req.id and assign.technician %}
+                                                <div>
+                                                    <strong>{{ assign.technician.user.username }}</strong>
+                                                    <div class="small text-muted mt-1">
+                                                        {% with skills_info=assign.get_skills_match_info %}
+                                                            {% if skills_info %}
+                                                                <div><small>
+                                                                    <strong>Required:</strong> 
+                                                                    {% for skill in skills_info.required %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                                                    {% if not skills_info.required %}None{% endif %}
+                                                                </small></div>
+                                                                <div><small>
+                                                                    <strong>Technician Has:</strong> 
+                                                                    {% for skill in skills_info.tech_has %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                                                    {% if not skills_info.tech_has %}None{% endif %}
+                                                                </small></div>
+                                                                {% if not skills_info.is_match and skills_info.missing %}
+                                                                    <div class="text-danger"><small><strong>Missing:</strong> 
+                                                                        {% for skill in skills_info.missing %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                                                    </small></div>
+                                                                {% else %}
+                                                                    <div class="text-success"><small><i class="bi bi-check-circle"></i> All skills matched</small></div>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for assign in assignments %}
                                             {% if assign.service_request.id == req.id %}
-                                                {{ assign.technician.user.username }}
+                                                {% with time_info=assign.get_time_window_info %}
+                                                    {% if time_info %}
+                                                        {% if time_info.is_within_window %}
+                                                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Match</span>
+                                                            <br><small class="text-muted">
+                                                                Customer: {{ time_info.customer_window_start|date:"H:i" }}-{{ time_info.customer_window_end|date:"H:i" }}
+                                                                <br>Tech: {{ time_info.tech_shift_start|date:"H:i" }}-{{ time_info.tech_shift_end|date:"H:i" }}
+                                                            </small>
+                                                        {% else %}
+                                                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> No Match</span>
+                                                            <br><small class="text-danger">
+                                                                Customer needs: {{ time_info.customer_window_start|date:"H:i" }}-{{ time_info.customer_window_end|date:"H:i" }}
+                                                                <br>Tech available: {{ time_info.tech_shift_start|date:"H:i" }}-{{ time_info.tech_shift_end|date:"H:i" }}
+                                                            </small>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endwith %}
                                             {% endif %}
                                         {% endfor %}
                                     </td>

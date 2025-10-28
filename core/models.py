@@ -159,3 +159,53 @@ class Assignment(models.Model):
     
     def __str__(self):
         return f"{self.technician.user.username} - {self.service_request.name} ({self.assigned_date})"
+    
+    def get_skills_match_info(self):
+        """Get info about required skills vs technician's skills"""
+        if not self.technician or not self.service_request:
+            return None
+        
+        required_skills = set(self.service_request.required_skills.values_list('name', flat=True))
+        tech_skills = set(self.technician.skills.values_list('name', flat=True))
+        
+        matched = required_skills & tech_skills
+        missing = required_skills - tech_skills
+        extra = tech_skills - required_skills
+        
+        return {
+            'required': sorted(required_skills),
+            'tech_has': sorted(tech_skills),
+            'matched': sorted(matched),
+            'missing': sorted(missing),
+            'extra': sorted(extra),
+            'is_match': len(missing) == 0,
+        }
+    
+    def get_time_window_info(self):
+        """Get info about whether technician is available within customer's time window"""
+        if not self.technician:
+            return None
+        
+        from django.utils import timezone
+        from datetime import datetime
+        
+        # Get customer's requested time window
+        customer_start = self.service_request.window_start
+        customer_end = self.service_request.window_end
+        
+        # Get technician's shift for the assigned date
+        shift_start = datetime.combine(self.assigned_date, self.technician.shift_start)
+        shift_end = datetime.combine(self.assigned_date, self.technician.shift_end)
+        shift_start = timezone.make_aware(shift_start)
+        shift_end = timezone.make_aware(shift_end)
+        
+        # Check if customer window is within technician shift
+        is_within_window = (shift_start <= customer_start <= shift_end) and (shift_start <= customer_end <= shift_end)
+        
+        return {
+            'customer_window_start': customer_start,
+            'customer_window_end': customer_end,
+            'tech_shift_start': shift_start,
+            'tech_shift_end': shift_end,
+            'is_within_window': is_within_window,
+        }

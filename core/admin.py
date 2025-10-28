@@ -154,7 +154,7 @@ class AssignmentInline(admin.TabularInline):
 
 @admin.register(ServiceRequest)
 class ServiceRequestAdmin(admin.ModelAdmin):
-    list_display = ['name', 'customer', 'address', 'status', 'priority', 'created_at']
+    list_display = ['name', 'customer', 'address', 'status', 'priority', 'assigned_technician', 'assigned_skills_info']
     list_filter = ['status', 'priority', 'created_at']
     search_fields = ['name', 'customer__username', 'address']
     filter_horizontal = ['required_skills']
@@ -167,6 +167,44 @@ class ServiceRequestAdmin(admin.ModelAdmin):
     )
     
     actions = ['mark_as_pending', 'mark_as_assigned']
+    
+    def assigned_technician(self, obj):
+        """Show assigned technician"""
+        assignment = obj.assignments.filter(status__in=['assigned', 'in_progress']).first()
+        if assignment and assignment.technician:
+            return assignment.technician.user.username
+        return "-"
+    assigned_technician.short_description = 'Assigned To'
+    
+    def assigned_skills_info(self, obj):
+        """Show skills comparison for assigned technician"""
+        assignment = obj.assignments.filter(status__in=['assigned', 'in_progress']).first()
+        if not assignment or not assignment.technician:
+            return "-"
+        
+        info = assignment.get_skills_match_info()
+        if not info:
+            return "-"
+        
+        required = ', '.join(info['required']) or 'None'
+        tech_has = ', '.join(info['tech_has']) or 'None'
+        
+        if info['is_match']:
+            icon = '✓'
+            color = 'green'
+        else:
+            icon = '✗'
+            color = 'red'
+        
+        html = f'<div style="font-size: 11px;">'
+        html += f'<div><strong>Required:</strong> {required}</div>'
+        html += f'<div><strong>Tech Has:</strong> {tech_has}</div>'
+        if not info['is_match'] and info['missing']:
+            html += f'<div style="color: red;"><strong>Missing:</strong> {", ".join(info["missing"])}</div>'
+        html += f'</div>'
+        
+        return format_html(html)
+    assigned_skills_info.short_description = 'Skills Comparison'
     
     def mark_as_pending(self, request, queryset):
         queryset.update(status='pending')
@@ -181,7 +219,8 @@ class ServiceRequestAdmin(admin.ModelAdmin):
 
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
-    list_display = ['service_request', 'technician', 'assigned_date', 'sequence_order', 'status']
+    list_display = ['service_request', 'technician', 'assigned_date', 'sequence_order', 'status', 
+                    'skills_comparison', 'time_window_status']
     list_filter = ['status', 'assigned_date']
     search_fields = ['service_request__name', 'technician__user__username']
     date_hierarchy = 'assigned_date'
@@ -190,6 +229,68 @@ class AssignmentAdmin(admin.ModelAdmin):
         ('Timing', {'fields': ('planned_start', 'planned_finish', 'actual_start', 'actual_finish')}),
         ('Status', {'fields': ('status', 'travel_time_minutes')}),
     )
+    
+    def skills_comparison(self, obj):
+        """Show required skills vs technician's skills"""
+        if not obj.technician:
+            return "-"
+        
+        info = obj.get_skills_match_info()
+        if not info:
+            return "-"
+        
+        required = ', '.join(info['required']) or 'None'
+        tech_has = ', '.join(info['tech_has']) or 'None'
+        
+        if info['is_match']:
+            icon = '✓'
+            color = 'green'
+        else:
+            icon = '✗'
+            color = 'red'
+            missing = ', '.join(info['missing']) if info['missing'] else 'All matched'
+        
+        html = f'<div style="font-size: 12px;">'
+        html += f'<div><strong>Required:</strong> {required}</div>'
+        html += f'<div><strong>Technician Has:</strong> {tech_has}</div>'
+        if not info['is_match'] and info['missing']:
+            html += f'<div style="color: red;"><strong>Missing:</strong> {", ".join(info["missing"])}</div>'
+        html += f'</div>'
+        
+        return format_html(html)
+    skills_comparison.short_description = 'Skills'
+    
+    def time_window_status(self, obj):
+        """Show time window match status"""
+        if not obj.technician:
+            return "-"
+        
+        info = obj.get_time_window_info()
+        if not info:
+            return "-"
+        
+        if info['is_within_window']:
+            icon = '✓'
+            status_text = 'Within Window'
+            color = 'green'
+        else:
+            icon = '✗'
+            status_text = 'Outside Window'
+            color = 'red'
+        
+        customer_start = info['customer_window_start'].strftime('%H:%M')
+        customer_end = info['customer_window_end'].strftime('%H:%M')
+        tech_start = info['tech_shift_start'].strftime('%H:%M')
+        tech_end = info['tech_shift_end'].strftime('%H:%M')
+        
+        html = f'<div style="font-size: 12px;">'
+        html += f'<div style="color: {color};"><strong>{icon} {status_text}</strong></div>'
+        html += f'<div><strong>Customer needs:</strong> {customer_start} - {customer_end}</div>'
+        html += f'<div><strong>Tech available:</strong> {tech_start} - {tech_end}</div>'
+        html += f'</div>'
+        
+        return format_html(html)
+    time_window_status.short_description = 'Time Window'
     
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
