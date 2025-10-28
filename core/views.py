@@ -92,6 +92,15 @@ def admin_assign_view(request):
             return redirect(f'/admin/core/assignment/?assigned_date={assigned_date}')
             
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"\n{'='*80}")
+            print(f"ASSIGNMENT ERROR")
+            print(f"{'='*80}")
+            print(f"Error: {str(e)}")
+            print(f"Traceback:")
+            print(error_details)
+            print(f"{'='*80}\n")
             messages.error(request, f'Assignment failed: {str(e)}')
             return redirect('core:admin_assign')
     
