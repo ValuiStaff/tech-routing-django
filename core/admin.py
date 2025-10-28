@@ -202,8 +202,13 @@ class AssignmentAdmin(admin.ModelAdmin):
     list_display = ['service_request', 'technician', 'assigned_date', 'sequence_order', 'status', 
                     'skills_comparison', 'time_window_status']
     list_filter = ['status', 'assigned_date']
-    search_fields = ['service_request__name', 'technician__user__username']
+    search_fields = ['service_request__name']
     date_hierarchy = 'assigned_date'
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        # Only show assignments with valid technicians
+        return qs.filter(technician__isnull=False)
     fieldsets = (
         ('Job Info', {'fields': ('service_request', 'technician', 'assigned_date', 'sequence_order')}),
         ('Timing', {'fields': ('planned_start', 'planned_finish', 'actual_start', 'actual_finish')}),
