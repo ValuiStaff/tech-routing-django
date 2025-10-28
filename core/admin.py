@@ -132,7 +132,7 @@ class SkillAdmin(admin.ModelAdmin):
 
 @admin.register(Technician)
 class TechnicianAdmin(admin.ModelAdmin):
-    list_display = ['user', 'depot_address', 'capacity_minutes', 'skills_display', 'is_active']
+    list_display = ['user', 'depot_address', 'availability_display', 'capacity_minutes', 'skills_display', 'is_active']
     list_filter = ['is_active', 'skills']
     search_fields = ['user__username', 'depot_address']
     filter_horizontal = ['skills']
@@ -152,6 +152,32 @@ class TechnicianAdmin(admin.ModelAdmin):
             return skill_names
         return "No skills"
     skills_display.short_description = 'Skills'
+    
+    def availability_display(self, obj):
+        """Display shift times and location"""
+        from django.utils.html import format_html
+        
+        # Get depot address and coordinates
+        depot = obj.depot_address or "No depot"
+        coords = ""
+        if obj.depot_lat and obj.depot_lon:
+            coords = f" ({obj.depot_lat:.4f}, {obj.depot_lon:.4f})"
+        
+        # Get shift times
+        if obj.shift_start and obj.shift_end:
+            shift = f"{obj.shift_start.strftime('%H:%M')} - {obj.shift_end.strftime('%H:%M')}"
+        else:
+            shift = "No shift times"
+        
+        # Format HTML
+        html = f'<div style="font-size: 11px;">'
+        html += f'<div><strong>⌚ Shift:</strong> {shift}</div>'
+        html += f'<div><strong>📍 Location:</strong> {depot}{coords}</div>'
+        html += f'<div><strong>⚡ Capacity:</strong> {obj.capacity_minutes // 60}h {obj.capacity_minutes % 60}m</div>'
+        html += '</div>'
+        
+        return format_html(html)
+    availability_display.short_description = 'Availability & Location'
 
 
 class AssignmentInline(admin.TabularInline):
