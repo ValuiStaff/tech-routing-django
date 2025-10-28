@@ -32,9 +32,21 @@ class RoutingService:
         Solve routing problem using OR-Tools
         Returns: (assignments, unserved_requests, total_travel_time)
         """
+        import sys
+        print(f"\n{'='*80}")
+        print(f"ROUTING SERVICE - SOLVE CALLED")
+        print(f"{'='*80}")
+        print(f"Technicians provided: {len(technicians)}")
+        print(f"Service requests provided: {len(service_requests)}")
+        sys.stdout.flush()
+        
         # Filter valid technicians and requests
         techs = [t for t in technicians if t.depot_lat is not None and t.depot_lon is not None]
         reqs = [r for r in service_requests if r.lat is not None and r.lon is not None and r.status == 'pending']
+        
+        print(f"Valid technicians: {len(techs)}")
+        print(f"Valid pending requests: {len(reqs)}")
+        sys.stdout.flush()
         
         if not techs:
             raise ValueError("No technicians with valid depot coordinates.")
@@ -308,6 +320,8 @@ class RoutingService:
         search_params.time_limit.FromSeconds(self.config.time_limit_seconds)
         
         print(f"Attempting to solve...")
+        import sys
+        sys.stdout.flush()  # Force flush output
         
         # Try multiple solution strategies if first fails
         solution = None
@@ -323,20 +337,35 @@ class RoutingService:
             try:
                 search_params.first_solution_strategy = strategy
                 print(f"Trying strategy: {strategy}")
+                sys.stdout.flush()
                 solution = routing.SolveWithParameters(search_params)
                 if solution:
                     print(f"Solver found solution with strategy: {strategy}")
+                    sys.stdout.flush()
                     break
+                else:
+                    print(f"Strategy {strategy} returned no solution")
+                    sys.stdout.flush()
             except Exception as e:
                 print(f"Strategy {strategy} failed: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                sys.stdout.flush()
                 continue
         
         if solution is None:
-            print("OR-Tools returned no solution after trying all strategies")
-            print(f"Parameters: K={K}, I={I}, num_nodes={num_nodes}")
+            print("ERROR: OR-Tools returned no solution after trying all strategies")
+            print(f"Parameters: K={K} techs, I={I} requests, num_nodes={num_nodes}")
+            print("This means the solver could not find a valid assignment.")
+            print("Possible reasons:")
+            print("  - No technicians match the required skills")
+            print("  - Time windows are incompatible")
+            print("  - Service requests exceed technician capacity")
+            sys.stdout.flush()
             return [], reqs, 0.0
         
         print(f"Solver result: Solution found")
+        sys.stdout.flush()
         
         # Extract solution
         assignments = []
