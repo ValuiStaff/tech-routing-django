@@ -398,10 +398,14 @@ def bulk_upload_view(request):
     else:
         form = BulkUploadForm()
     
+    # Get Google Maps API key for autocomplete
+    config = GoogleMapsConfig.load()
+    
     context = {
         'form': form,
         'title': 'Bulk Upload Users',
         'opts': {'app_label': 'core', 'model_name': 'bulk_upload'},
+        'api_key': config.api_key if config else '',
     }
     
     return render(request, 'admin/bulk_upload.html', context)

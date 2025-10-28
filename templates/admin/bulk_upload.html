@@ -40,8 +40,10 @@
 
 <!-- Manual Entry Section -->
 <div class="module" id="manualSection" style="display: none;">
-    <h2>Manual Entry</h2>
-    <p>Add users manually in a table format. Click "Add Row" to add more entries.</p>
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+        <h2 style="color: white; margin: 0;">📝 Manual Entry</h2>
+        <p style="color: #f0f0f0; margin: 10px 0 0 0;">Add users manually with a guided form. Follow the step-by-step process for each entry.</p>
+    </div>
     
     <form method="post" id="manualForm" style="margin-top: 20px;">
         {% csrf_token %}
@@ -142,9 +144,9 @@ function addRow() {
                     <label>Service Type</label>
                     <input type="text" name="service_type_${rowCount}" placeholder="e.g., Emergency Repair" style="width: 100%; padding: 5px;">
                 </div>
-                <div>
-                    <label>Address *</label>
-                    <input type="text" name="address_${rowCount}" placeholder="123 Collins St, Melbourne VIC 3000" required style="width: 100%; padding: 5px;">
+                <div style="grid-column: 1 / -1;">
+                    <label>Address * <small style="color: #666;">(Start typing for Melbourne suggestions)</small></label>
+                    <input type="text" name="address_${rowCount}" id="address_input_${rowCount}" placeholder="Start typing a Melbourne address..." required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px;" autocomplete="off">
                 </div>
                 <div>
                     <label>Service Minutes *</label>
@@ -182,9 +184,8 @@ function addRow() {
             <h4 style="margin-bottom: 10px; color: #34A853;">Technician Profile Details</h4>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
                 <div style="grid-column: 1 / -1;">
-                    <label>Depot Address *</label>
-                    <input type="text" name="depot_address_${rowCount}" placeholder="456 Bourke St, Melbourne VIC 3000" required style="width: 100%; padding: 5px;">
-                    <small style="color: #666;">Must be a Melbourne address</small>
+                    <label>Depot Address * <small style="color: #666;">(Start typing for Melbourne suggestions)</small></label>
+                    <input type="text" name="depot_address_${rowCount}" id="depot_address_input_${rowCount}" placeholder="Start typing a Melbourne depot address..." required style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px;" autocomplete="off">
                 </div>
                 <div>
                     <label>Capacity Hours *</label>
@@ -251,10 +252,77 @@ function addRow() {
     };
     
     rowCount++;
+    
+    // Initialize Google Places Autocomplete for address fields
+    setTimeout(function() {
+        initAutocomplete(rowCount - 1);
+    }, 100);
+}
+
+// Function to initialize Google Places Autocomplete
+function initAutocomplete(rowNum) {
+    // Only initialize if Google Maps API is loaded
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+        console.log('Google Maps API not loaded yet');
+        return;
+    }
+    
+    const addressInput = document.getElementById('address_input_' + rowNum);
+    const depotInput = document.getElementById('depot_address_input_' + rowNum);
+    
+    // Initialize for customer address
+    if (addressInput) {
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+            types: ['address'],
+            componentRestrictions: { country: 'au' },
+            fields: ['formatted_address', 'geometry', 'place_id', 'address_components']
+        });
+        
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            if (place.geometry) {
+                console.log('Address selected:', place.formatted_address);
+            }
+        });
+    }
+    
+    // Initialize for technician depot address
+    if (depotInput) {
+        const autocomplete = new google.maps.places.Autocomplete(depotInput, {
+            types: ['address'],
+            componentRestrictions: { country: 'au' },
+            fields: ['formatted_address', 'geometry', 'place_id', 'address_components']
+        });
+        
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            if (place.geometry) {
+                console.log('Depot address selected:', place.formatted_address);
+            }
+        });
+    }
 }
 
 // Add initial row when manual section is first shown
 showUploadSection(); // Default to upload section
+</script>
+
+<!-- Load Google Maps API if not already loaded -->
+<script>
+// Check if Google Maps API key is available from Django context
+{% if api_key %}
+    // Load Google Maps API with Places library
+    if (typeof google === 'undefined') {
+        function initGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+        initGoogleMaps();
+    }
+{% endif %}
 </script>
 
 <div class="module">
