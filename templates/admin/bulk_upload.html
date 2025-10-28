@@ -4,6 +4,10 @@
 {% block title %}Bulk Upload Users{% endblock %}
 
 {% block content %}
+<!-- Skills data for JavaScript -->
+<script>
+const skillsData = {{ skills|safe }};
+</script>
 <h1>Bulk Upload Users</h1>
 
 <div class="module" style="margin-bottom: 20px;">
@@ -141,8 +145,21 @@ function addRow() {
             <h4 style="margin-bottom: 10px; color: #417690;">Service Request Details</h4>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
                 <div>
-                    <label>Service Type</label>
-                    <input type="text" name="service_type_${rowCount}" placeholder="e.g., Emergency Repair" style="width: 100%; padding: 5px;">
+                    <label>Service Type *</label>
+                    <select name="service_type_${rowCount}" required style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
+                        <option value="">Select service type...</option>
+                        <option value="Gas Leak Repair">Gas Leak Repair</option>
+                        <option value="Electrical Fault">Electrical Fault</option>
+                        <option value="Plumbing Issue">Plumbing Issue</option>
+                        <option value="HVAC Maintenance">HVAC Maintenance</option>
+                        <option value="Appliance Installation">Appliance Installation</option>
+                        <option value="Emergency Callout">Emergency Callout</option>
+                        <option value="Routine Service">Routine Service</option>
+                        <option value="Maintenance Check">Maintenance Check</option>
+                        <option value="Safety Inspection">Safety Inspection</option>
+                        <option value="System Upgrade">System Upgrade</option>
+                        <option value="Custom">Custom (specify in notes)</option>
+                    </select>
                 </div>
                 <div style="grid-column: 1 / -1;">
                     <label>Address * <small style="color: #666;">(Start typing for Melbourne suggestions)</small></label>
@@ -170,7 +187,10 @@ function addRow() {
                 </div>
                 <div style="grid-column: 1 / -1;">
                     <label>Required Skills</label>
-                    <input type="text" name="required_skills_${rowCount}" placeholder="electric, hvac, plumbing (comma separated)" style="width: 100%; padding: 5px;">
+                    <select name="required_skills_${rowCount}" id="required_skills_select_${rowCount}" multiple style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; min-height: 100px;">
+                        <!-- Skills will be populated dynamically -->
+                    </select>
+                    <small style="color: #666;">Hold Ctrl/Cmd to select multiple skills</small>
                 </div>
                 <div style="grid-column: 1 / -1;">
                     <label>Notes</label>
@@ -204,8 +224,10 @@ function addRow() {
                 </div>
                 <div style="grid-column: 1 / -1;">
                     <label>Skills</label>
-                    <input type="text" name="skills_${rowCount}" placeholder="electric, plumbing, hvac (comma separated)" style="width: 100%; padding: 5px;">
-                    <small style="color: #666;">Skills this technician has</small>
+                    <select name="skills_${rowCount}" id="skills_select_${rowCount}" multiple style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; min-height: 100px;">
+                        <!-- Skills will be populated dynamically -->
+                    </select>
+                    <small style="color: #666;">Hold Ctrl/Cmd to select multiple skills</small>
                 </div>
                 <div>
                     <label>Color Hex</label>
@@ -253,10 +275,40 @@ function addRow() {
     
     rowCount++;
     
+    // Populate skills dropdowns
+    populateSkillsDropdowns(rowCount - 1);
+    
     // Initialize Google Places Autocomplete for address fields
     setTimeout(function() {
         initAutocomplete(rowCount - 1);
     }, 100);
+}
+
+// Function to populate skills dropdowns from Django data
+function populateSkillsDropdowns(rowNum) {
+    // Skills data is already available in global scope
+    
+    // Populate customer required skills dropdown
+    const customerSkillsSelect = document.getElementById('required_skills_select_' + rowNum);
+    if (customerSkillsSelect) {
+        skillsData.forEach(function(skill) {
+            const option = document.createElement('option');
+            option.value = skill.name;
+            option.textContent = skill.name;
+            customerSkillsSelect.appendChild(option);
+        });
+    }
+    
+    // Populate technician skills dropdown
+    const technicianSkillsSelect = document.getElementById('skills_select_' + rowNum);
+    if (technicianSkillsSelect) {
+        skillsData.forEach(function(skill) {
+            const option = document.createElement('option');
+            option.value = skill.name;
+            option.textContent = skill.name;
+            technicianSkillsSelect.appendChild(option);
+        });
+    }
 }
 
 // Function to initialize Google Places Autocomplete

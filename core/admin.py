@@ -401,11 +401,17 @@ def bulk_upload_view(request):
     # Get Google Maps API key for autocomplete
     config = GoogleMapsConfig.load()
     
+    # Get all active skills for dropdown
+    from core.models import Skill
+    all_skills = Skill.objects.filter(is_active=True).order_by('name')
+    skills_data = [{'id': skill.id, 'name': skill.name} for skill in all_skills]
+    
     context = {
         'form': form,
         'title': 'Bulk Upload Users',
         'opts': {'app_label': 'core', 'model_name': 'bulk_upload'},
         'api_key': config.api_key if config else '',
+        'skills': skills_data,
     }
     
     return render(request, 'admin/bulk_upload.html', context)
