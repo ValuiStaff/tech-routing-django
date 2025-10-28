@@ -93,7 +93,7 @@ function addRow() {
     row.style.borderRadius = '5px';
     
     row.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
             <div>
                 <label>Type *</label>
                 <select name="type_${rowCount}" required style="width: 100%; padding: 5px;">
@@ -111,6 +111,10 @@ function addRow() {
                 <input type="email" name="email_${rowCount}" required style="width: 100%; padding: 5px;">
             </div>
             <div>
+                <label>Phone</label>
+                <input type="text" name="phone_${rowCount}" placeholder="Optional" style="width: 100%; padding: 5px;">
+            </div>
+            <div>
                 <label>Password</label>
                 <input type="text" name="password_${rowCount}" value="Welcome123" style="width: 100%; padding: 5px;">
             </div>
@@ -118,26 +122,27 @@ function addRow() {
         
         <!-- Customer specific fields -->
         <div id="customer_fields_${rowCount}" style="display: none; margin-top: 10px;">
+            <h4 style="margin-bottom: 10px; color: #417690;">Service Request Details</h4>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
                 <div>
-                    <label>Address</label>
-                    <input type="text" name="address_${rowCount}" style="width: 100%; padding: 5px;">
+                    <label>Service Type</label>
+                    <input type="text" name="service_type_${rowCount}" placeholder="e.g., Emergency Repair" style="width: 100%; padding: 5px;">
                 </div>
                 <div>
-                    <label>Service Minutes</label>
-                    <input type="number" name="service_minutes_${rowCount}" value="60" style="width: 100%; padding: 5px;">
+                    <label>Address *</label>
+                    <input type="text" name="address_${rowCount}" placeholder="123 Collins St, Melbourne VIC 3000" required style="width: 100%; padding: 5px;">
                 </div>
                 <div>
-                    <label>Window Start</label>
-                    <input type="datetime-local" name="window_start_${rowCount}" style="width: 100%; padding: 5px;">
+                    <label>Service Minutes *</label>
+                    <input type="number" name="service_minutes_${rowCount}" value="60" min="15" max="480" required style="width: 100%; padding: 5px;">
                 </div>
                 <div>
-                    <label>Window End</label>
-                    <input type="datetime-local" name="window_end_${rowCount}" style="width: 100%; padding: 5px;">
+                    <label>Window Start *</label>
+                    <input type="datetime-local" name="window_start_${rowCount}" required style="width: 100%; padding: 5px;">
                 </div>
                 <div>
-                    <label>Required Skills</label>
-                    <input type="text" name="required_skills_${rowCount}" placeholder="comma separated" style="width: 100%; padding: 5px;">
+                    <label>Window End *</label>
+                    <input type="datetime-local" name="window_end_${rowCount}" required style="width: 100%; padding: 5px;">
                 </div>
                 <div>
                     <label>Priority</label>
@@ -147,35 +152,50 @@ function addRow() {
                         <option value="low">Low</option>
                     </select>
                 </div>
+                <div style="grid-column: 1 / -1;">
+                    <label>Required Skills</label>
+                    <input type="text" name="required_skills_${rowCount}" placeholder="electric, hvac, plumbing (comma separated)" style="width: 100%; padding: 5px;">
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <label>Notes</label>
+                    <textarea name="notes_${rowCount}" placeholder="Additional notes or details about the service request" rows="2" style="width: 100%; padding: 5px;"></textarea>
+                </div>
             </div>
         </div>
         
         <!-- Technician specific fields -->
         <div id="technician_fields_${rowCount}" style="display: none; margin-top: 10px;">
+            <h4 style="margin-bottom: 10px; color: #34A853;">Technician Profile Details</h4>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                <div>
+                <div style="grid-column: 1 / -1;">
                     <label>Depot Address *</label>
-                    <input type="text" name="depot_address_${rowCount}" required style="width: 100%; padding: 5px;">
+                    <input type="text" name="depot_address_${rowCount}" placeholder="456 Bourke St, Melbourne VIC 3000" required style="width: 100%; padding: 5px;">
+                    <small style="color: #666;">Must be a Melbourne address</small>
                 </div>
                 <div>
-                    <label>Capacity Hours</label>
-                    <input type="number" name="capacity_hours_${rowCount}" value="8" style="width: 100%; padding: 5px;">
+                    <label>Capacity Hours *</label>
+                    <input type="number" name="capacity_hours_${rowCount}" value="8" min="1" max="24" required style="width: 100%; padding: 5px;">
+                    <small style="color: #666;">Daily work capacity</small>
                 </div>
                 <div>
-                    <label>Shift Start</label>
+                    <label>Shift Start *</label>
                     <input type="time" name="shift_start_${rowCount}" value="08:00" required style="width: 100%; padding: 5px;">
+                    <small style="color: #666;">Daily start time</small>
                 </div>
                 <div>
-                    <label>Shift End</label>
+                    <label>Shift End *</label>
                     <input type="time" name="shift_end_${rowCount}" value="17:00" required style="width: 100%; padding: 5px;">
+                    <small style="color: #666;">Daily end time</small>
                 </div>
-                <div>
+                <div style="grid-column: 1 / -1;">
                     <label>Skills</label>
-                    <input type="text" name="skills_${rowCount}" placeholder="comma separated" style="width: 100%; padding: 5px;">
+                    <input type="text" name="skills_${rowCount}" placeholder="electric, plumbing, hvac (comma separated)" style="width: 100%; padding: 5px;">
+                    <small style="color: #666;">Skills this technician has</small>
                 </div>
                 <div>
                     <label>Color Hex</label>
                     <input type="color" name="color_hex_${rowCount}" value="#4285F4" style="width: 100%; padding: 5px;">
+                    <small style="color: #666;">Route display color</small>
                 </div>
             </div>
         </div>
