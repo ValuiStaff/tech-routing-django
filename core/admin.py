@@ -384,7 +384,7 @@ def bulk_upload_view(request):
                     window_end = request.POST.get('window_end_0', '')
                     priority = request.POST.get('priority_0', 'medium')
                     notes = request.POST.get('notes_0', '')
-                    required_skills = request.POST.getlist('required_skills_0')
+                    required_skill_name = request.POST.get('required_skill_0', '')
                     
                     # Geocode address
                     geocoding = GeocodingService()
@@ -430,12 +430,12 @@ def bulk_upload_view(request):
                         notes=notes
                     )
                     
-                    # Add required skills
-                    if required_skills:
+                    # Add required skill
+                    if required_skill_name:
                         from core.models import Skill
-                        for skill_name in required_skills:
-                            skill, _ = Skill.objects.get_or_create(name=skill_name, defaults={'is_active': True})
-                            service_request.required_skills.add(skill)
+                        skill, _ = Skill.objects.get_or_create(name=required_skill_name, defaults={'is_active': True})
+                        service_request.required_skill = skill
+                        service_request.save()
                     
                     return JsonResponse({
                         'success': True,

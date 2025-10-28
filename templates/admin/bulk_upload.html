@@ -192,11 +192,12 @@ function addCustomerRow() {
                 </select>
             </div>
             <div style="grid-column: 1 / -1;">
-                <label>Required Skills</label>
-                <select name="required_skills_${rowCount}" id="required_skills_customer_${rowCount}" multiple style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; min-height: 100px;">
+                <label>Required Skill *</label>
+                <select name="required_skill_${rowCount}" id="required_skill_customer_${rowCount}" required style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
+                    <option value="">Select a skill...</option>
                     <!-- Skills will be populated dynamically -->
                 </select>
-                <small style="color: #666;">Hold Ctrl/Cmd to select multiple skills</small>
+                <small style="color: #666;">Select one skill for this service request</small>
             </div>
             <div style="grid-column: 1 / -1;">
                 <label>Notes</label>
@@ -222,9 +223,9 @@ function addCustomerRow() {
     // Store the current rowCount before incrementing
     const currentRowCount = rowCount;
     
-    // Populate skills dropdown for this customer
+    // Populate skill dropdown for this customer (single select now)
     setTimeout(function() {
-        populateSkillsDropdowns(currentRowCount, 'required_skills_customer_' + currentRowCount);
+        populateSkillsDropdowns(currentRowCount, 'required_skill_customer_' + currentRowCount);
         initAutocomplete(currentRowCount);
     }, 300);
     
@@ -500,8 +501,7 @@ function saveCustomerServiceRequest(rowCount) {
     const windowEnd = document.querySelector('[name="window_end_' + rowCount + '"]').value;
     const priority = document.querySelector('[name="priority_' + rowCount + '"]').value;
     const notes = document.querySelector('[name="notes_' + rowCount + '"]').value;
-    const requiredSkills = Array.from(document.querySelector('#required_skills_customer_' + rowCount).selectedOptions)
-        .map(option => option.value);
+    const requiredSkill = document.querySelector('#required_skill_customer_' + rowCount).value;
     
     // Create form data
     const formData = new FormData();
@@ -514,9 +514,7 @@ function saveCustomerServiceRequest(rowCount) {
     formData.append('window_end_' + rowCount, windowEnd);
     formData.append('priority_' + rowCount, priority);
     formData.append('notes_' + rowCount, notes);
-    requiredSkills.forEach(skill => {
-        formData.append('required_skills_' + rowCount, skill);
-    });
+    formData.append('required_skill_' + rowCount, requiredSkill);
     
     // Get CSRF token
     const csrfToken = getCookie('csrftoken');
