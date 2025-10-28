@@ -261,15 +261,32 @@ function addRow() {
             if (selectedType === 'Customer') {
                 customerFields.style.display = 'block';
                 technicianFields.style.display = 'none';
+                
+                // Disable technician fields and enable customer fields
+                const custRequired = customerFields.querySelectorAll('[required]');
+                custRequired.forEach(el => el.disabled = false);
+                
+                const techRequired = technicianFields.querySelectorAll('[required]');
+                techRequired.forEach(el => el.disabled = true);
             } else if (selectedType === 'Technician') {
                 customerFields.style.display = 'none';
                 technicianFields.style.display = 'block';
+                
+                // Disable customer fields and enable technician fields
+                const custRequired = customerFields.querySelectorAll('[required]');
+                custRequired.forEach(el => el.disabled = true);
+                
+                const techRequired = technicianFields.querySelectorAll('[required]');
+                techRequired.forEach(el => el.disabled = false);
             }
         } else {
-            // Hide everything if no type selected
+            // Hide everything if no type selected and disable all required fields
             step2.style.display = 'none';
             customerFields.style.display = 'none';
             technicianFields.style.display = 'none';
+            
+            const allRequired = row.querySelectorAll('[required]');
+            allRequired.forEach(el => el.disabled = true);
         }
     };
     
