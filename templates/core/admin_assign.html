@@ -63,9 +63,11 @@
                     <td>{{ req.name }}</td>
                     <td>{{ req.address|truncatewords:8 }}</td>
                     <td>
-                        {% for skill in req.required_skills.all %}
-                            <span style="background: #417690; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">{{ skill.name }}</span>
-                        {% endfor %}
+                        {% if req.required_skill %}
+                            <span style="background: #417690; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">{{ req.required_skill.name }}</span>
+                        {% else %}
+                            <span style="color: #999;">No skill specified</span>
+                        {% endif %}
                     </td>
                     <td>{{ req.window_start|date:"H:i" }} - {{ req.window_end|date:"H:i" }}</td>
                 </tr>
