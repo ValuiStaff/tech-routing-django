@@ -81,12 +81,6 @@ const skillsData = {{ skills|safe|default:"[]" }};
                 </button>
             </div>
         </div>
-        
-        <div style="margin: 20px 0; text-align: center;">
-            <button type="submit" class="button" style="background: #28a745; color: white; padding: 15px 40px; border: none; cursor: pointer; font-size: 16px; font-weight: bold; border-radius: 5px;">
-                💾 Save All Entries
-            </button>
-        </div>
     </form>
 </div>
 
@@ -462,12 +456,16 @@ function saveCustomerAccount(rowCount) {
     formData.append('phone_' + rowCount, phone);
     formData.append('password_' + rowCount, password);
     
+    // Get CSRF token
+    const csrfToken = getCookie('csrftoken');
+    
     // Send AJAX request
     fetch('/core/admin/bulk-upload/', {
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
     .then(response => response.json())
@@ -476,15 +474,18 @@ function saveCustomerAccount(rowCount) {
         if (data.success) {
             // Show success message
             document.getElementById('customer_account_status_' + rowCount).style.display = 'block';
-            // Show service request section
+            // Hide account section and show service request section
+            document.getElementById('customer_account_' + rowCount).style.display = 'none';
             document.getElementById('customer_service_request_' + rowCount).style.display = 'block';
+            // Store user_id for service request creation
+            window['customer_user_id_' + rowCount] = data.user_id;
         } else {
             alert('Error: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving account');
+        alert('Error saving account: ' + error.message);
     });
 }
 
@@ -517,12 +518,19 @@ function saveCustomerServiceRequest(rowCount) {
         formData.append('required_skills_' + rowCount, skill);
     });
     
+    // Get CSRF token
+    const csrfToken = getCookie('csrftoken');
+    
+    // Add user_id to form data
+    formData.append('user_id_' + rowCount, window['customer_user_id_' + rowCount]);
+    
     // Send AJAX request
     fetch('/core/admin/bulk-upload/', {
         method: 'POST',
         body: formData,
         headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
     .then(response => response.json())
@@ -537,8 +545,24 @@ function saveCustomerServiceRequest(rowCount) {
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving service request');
+        alert('Error saving service request: ' + error.message);
     });
+}
+
+// Helper function to get cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 // Add initial row when manual section is first shown

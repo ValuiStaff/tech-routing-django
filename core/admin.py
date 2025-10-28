@@ -373,22 +373,99 @@ def bulk_upload_view(request):
             elif mode == 'manual_service':
                 # Create service request only
                 try:
-                    # Get user first (we'll use a simple approach for now)
-                    # In production, you'd store user_id from previous step
-                    service = BulkUploadService()
-                    results = service.process_manual_entries(request.POST)
+                    from core.models import ServiceRequest
+                    from django.contrib.gis.geos import Point
+                    from maps.services import GeocodingService
                     
-                    if results['created_requests']:
-                        return JsonResponse({
-                            'success': True,
-                            'message': 'Service request created successfully'
-                        })
-                    else:
+                    # Get user_id from previous step
+                    user_id = request.POST.get('user_id_0')
+                    if not user_id:
                         return JsonResponse({
                             'success': False,
-                            'message': 'Failed to create service request'
+                            'message': 'User ID not found. Please create account first.'
                         })
+                    
+                    # Get user
+                    from django.contrib.auth import get_user_model
+                    User = get_user_model()
+                    try:
+                        user = User.objects.get(id=user_id)
+                    except User.DoesNotExist:
+                        return JsonResponse({
+                            'success': False,
+                            'message': 'User not found'
+                        })
+                    
+                    # Get service request fields
+                    address = request.POST.get('address_0', '')
+                    service_type = request.POST.get('service_type_0', '')
+                    service_minutes = request.POST.get('service_minutes_0', '60')
+                    window_start = request.POST.get('window_start_0', '')
+                    window_end = request.POST.get('window_end_0', '')
+                    priority = request.POST.get('priority_0', 'medium')
+                    notes = request.POST.get('notes_0', '')
+                    required_skills = request.POST.getlist('required_skills_0')
+                    
+                    # Geocode address
+                    geocoding = GeocodingService()
+                    try:
+                        location = geocoding.geocode(address)
+                        if not location or location['status'] != 'OK':
+                            raise ValueError(f"Could not geocode address: {address}")
+                        lat = location['lat']
+                        lon = location['lon']
+                    except Exception as e:
+                        return JsonResponse({
+                            'success': False,
+                            'message': f'Geocoding failed: {str(e)}'
+                        })
+                    
+                    # Parse datetime fields
+                    from datetime import datetime
+                    from django.utils import timezone
+                    
+                    try:
+                        window_start_dt = timezone.make_aware(datetime.fromisoformat(window_start.replace('Z', '+00:00')))
+                        window_end_dt = timezone.make_aware(datetime.fromisoformat(window_end.replace('Z', '+00:00')))
+                    except Exception as e:
+                        return JsonResponse({
+                            'success': False,
+                            'message': f'Invalid date format: {str(e)}'
+                        })
+                    
+                    # Create service request
+                    priority_map = {'high': 1, 'medium': 2, 'low': 3}
+                    priority_int = priority_map.get(priority, 2)
+                    
+                    service_request = ServiceRequest.objects.create(
+                        customer=user,
+                        name=service_type or 'Service Request',
+                        address=address,
+                        lat=lat,
+                        lon=lon,
+                        service_minutes=int(service_minutes),
+                        window_start=window_start_dt,
+                        window_end=window_end_dt,
+                        priority=priority_int,
+                        status='pending',
+                        notes=notes
+                    )
+                    
+                    # Add required skills
+                    if required_skills:
+                        from core.models import Skill
+                        for skill_name in required_skills:
+                            skill, _ = Skill.objects.get_or_create(name=skill_name, defaults={'is_active': True})
+                            service_request.required_skills.add(skill)
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Service request created successfully'
+                    })
+                    
                 except Exception as e:
+                    import traceback
+                    traceback.print_exc()
                     return JsonResponse({
                         'success': False,
                         'message': str(e)
