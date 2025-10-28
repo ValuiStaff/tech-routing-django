@@ -6,7 +6,7 @@
 {% block content %}
 <!-- Skills data for JavaScript -->
 <script>
-const skillsData = {{ skills|safe }};
+const skillsData = {{ skills|safe|default:"[]" }};
 </script>
 <h1>Bulk Upload Users</h1>
 
@@ -286,28 +286,44 @@ function addRow() {
 
 // Function to populate skills dropdowns from Django data
 function populateSkillsDropdowns(rowNum) {
-    // Skills data is already available in global scope
-    
-    // Populate customer required skills dropdown
-    const customerSkillsSelect = document.getElementById('required_skills_select_' + rowNum);
-    if (customerSkillsSelect) {
-        skillsData.forEach(function(skill) {
-            const option = document.createElement('option');
-            option.value = skill.name;
-            option.textContent = skill.name;
-            customerSkillsSelect.appendChild(option);
-        });
-    }
-    
-    // Populate technician skills dropdown
-    const technicianSkillsSelect = document.getElementById('skills_select_' + rowNum);
-    if (technicianSkillsSelect) {
-        skillsData.forEach(function(skill) {
-            const option = document.createElement('option');
-            option.value = skill.name;
-            option.textContent = skill.name;
-            technicianSkillsSelect.appendChild(option);
-        });
+    try {
+        console.log('Populating skills for row:', rowNum);
+        console.log('Skills data available:', typeof skillsData !== 'undefined' ? 'Yes' : 'No');
+        
+        if (typeof skillsData === 'undefined') {
+            console.error('Skills data not available!');
+            return;
+        }
+        
+        // Populate customer required skills dropdown
+        const customerSkillsSelect = document.getElementById('required_skills_select_' + rowNum);
+        if (customerSkillsSelect) {
+            skillsData.forEach(function(skill) {
+                const option = document.createElement('option');
+                option.value = skill.name;
+                option.textContent = skill.name;
+                customerSkillsSelect.appendChild(option);
+            });
+            console.log('Populated customer skills dropdown with', skillsData.length, 'skills');
+        } else {
+            console.log('Customer skills dropdown not found for row', rowNum);
+        }
+        
+        // Populate technician skills dropdown
+        const technicianSkillsSelect = document.getElementById('skills_select_' + rowNum);
+        if (technicianSkillsSelect) {
+            skillsData.forEach(function(skill) {
+                const option = document.createElement('option');
+                option.value = skill.name;
+                option.textContent = skill.name;
+                technicianSkillsSelect.appendChild(option);
+            });
+            console.log('Populated technician skills dropdown with', skillsData.length, 'skills');
+        } else {
+            console.log('Technician skills dropdown not found for row', rowNum);
+        }
+    } catch (error) {
+        console.error('Error populating skills dropdowns:', error);
     }
 }
 
