@@ -49,7 +49,7 @@ const skillsData = {{ skills|safe|default:"[]" }};
         <p style="color: #f0f0f0; margin: 10px 0 0 0;">Add users manually with a guided form. Follow the step-by-step process for each entry.</p>
     </div>
     
-    <form method="post" id="manualForm" style="margin-top: 20px;">
+    <form method="post" id="manualForm" style="margin-top: 20px;" onsubmit="return validateAndSubmit(event)">
         {% csrf_token %}
         <input type="hidden" name="mode" value="manual">
         
@@ -373,6 +373,104 @@ function initAutocomplete(rowNum) {
 
 // Add initial row when manual section is first shown
 showUploadSection(); // Default to upload section
+
+// Validation function before form submission
+function validateAndSubmit(event) {
+    console.log('Form submission triggered!');
+    
+    // Check if there are any entries
+    const container = document.getElementById('entriesContainer');
+    const entries = container.querySelectorAll('.manual-entry-row');
+    
+    if (entries.length === 0) {
+        alert('Please add at least one entry before saving!');
+        event.preventDefault();
+        return false;
+    }
+    
+    // Validate each entry
+    let hasErrors = false;
+    let errorMessages = [];
+    
+    entries.forEach(function(entry, index) {
+        const type = entry.querySelector('select[name^="type_"]');
+        const username = entry.querySelector('input[name^="username_"]');
+        const email = entry.querySelector('input[name^="email_"]');
+        
+        if (type && type.value) {
+            if (!username || !username.value) {
+                hasErrors = true;
+                errorMessages.push(`Entry ${index + 1}: Username is required`);
+            }
+            
+            if (!email || !email.value) {
+                hasErrors = true;
+                errorMessages.push(`Entry ${index + 1}: Email is required`);
+            }
+            
+            // Additional validation for customer
+            if (type.value === 'Customer') {
+                const address = entry.querySelector('input[name^="address_"]');
+                const windowStart = entry.querySelector('input[name^="window_start_"]');
+                const windowEnd = entry.querySelector('input[name^="window_end_"]');
+                
+                if (!address || !address.value) {
+                    hasErrors = true;
+                    errorMessages.push(`Entry ${index + 1}: Address is required for customers`);
+                }
+                
+                if (!windowStart || !windowStart.value) {
+                    hasErrors = true;
+                    errorMessages.push(`Entry ${index + 1}: Window Start is required for customers`);
+                }
+                
+                if (!windowEnd || !windowEnd.value) {
+                    hasErrors = true;
+                    errorMessages.push(`Entry ${index + 1}: Window End is required for customers`);
+                }
+            }
+            
+            // Additional validation for technician
+            if (type.value === 'Technician') {
+                const depotAddress = entry.querySelector('input[name^="depot_address_"]');
+                const shiftStart = entry.querySelector('input[name^="shift_start_"]');
+                const shiftEnd = entry.querySelector('input[name^="shift_end_"]');
+                
+                if (!depotAddress || !depotAddress.value) {
+                    hasErrors = true;
+                    errorMessages.push(`Entry ${index + 1}: Depot Address is required for technicians`);
+                }
+                
+                if (!shiftStart || !shiftStart.value) {
+                    hasErrors = true;
+                    errorMessages.push(`Entry ${index + 1}: Shift Start is required for technicians`);
+                }
+                
+                if (!shiftEnd || !shiftEnd.value) {
+                    hasErrors = true;
+                    errorMessages.push(`Entry ${index + 1}: Shift End is required for technicians`);
+                }
+            }
+        }
+    });
+    
+    if (hasErrors) {
+        alert('Please fix the following errors:\n\n' + errorMessages.join('\n'));
+        event.preventDefault();
+        return false;
+    }
+    
+    console.log('Form validation passed, submitting...');
+    
+    // Show loading indicator
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = '💾 Saving...';
+    }
+    
+    return true; // Allow form submission
+}
 </script>
 
 <!-- Load Google Maps API if not already loaded -->
