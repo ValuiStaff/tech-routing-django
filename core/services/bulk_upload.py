@@ -424,7 +424,10 @@ class BulkUploadService:
                     service_minutes = post_data.get(f'service_minutes_{row_count}', '60')
                     window_start = post_data.get(f'window_start_{row_count}', '').strip()
                     window_end = post_data.get(f'window_end_{row_count}', '').strip()
-                    required_skills = post_data.get(f'required_skills_{row_count}', '').strip()
+                    # Handle multi-select skills field (returns a list)
+                    required_skills_list = post_data.getlist(f'required_skills_{row_count}')
+                    required_skills = ', '.join(required_skills_list) if required_skills_list else ''
+                    
                     priority = post_data.get(f'priority_{row_count}', 'medium').strip()
                     notes = post_data.get(f'notes_{row_count}', '').strip()
                     
@@ -471,7 +474,11 @@ class BulkUploadService:
                     capacity_hours = post_data.get(f'capacity_hours_{row_count}', '8')
                     shift_start = post_data.get(f'shift_start_{row_count}', '').strip()
                     shift_end = post_data.get(f'shift_end_{row_count}', '').strip()
-                    skills = post_data.get(f'skills_{row_count}', '').strip()
+                    
+                    # Handle multi-select skills field (returns a list)
+                    skills_list = post_data.getlist(f'skills_{row_count}')
+                    skills = ', '.join(skills_list) if skills_list else ''
+                    
                     color_hex = post_data.get(f'color_hex_{row_count}', '#4285F4').strip()
                     
                     if not depot_address:
