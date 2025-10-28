@@ -215,7 +215,7 @@ function addCustomerRow() {
     setTimeout(function() {
         populateSkillsDropdowns(currentRowCount, 'required_skills_customer_' + currentRowCount);
         initAutocomplete(currentRowCount);
-    }, 100);
+    }, 300);
     
     rowCount++;
 }
@@ -308,7 +308,7 @@ function addTechnicianRow() {
     setTimeout(function() {
         populateSkillsDropdowns(currentRowCount, 'skills_technician_' + currentRowCount);
         initAutocomplete(currentRowCount);
-    }, 100);
+    }, 300);
     
     rowCount++;
 }
@@ -327,26 +327,44 @@ function populateSkillsDropdowns(rowNum, selectId) {
         }
         
         console.log('Looking for element with id:', selectId);
-        const skillsSelect = document.getElementById(selectId);
-        console.log('Found element:', skillsSelect);
         
-        if (skillsSelect) {
-            // Clear existing options first
-            skillsSelect.innerHTML = '';
-            
-            skillsData.forEach(function(skill) {
-                const option = document.createElement('option');
-                option.value = skill.name;
-                option.textContent = skill.name;
-                skillsSelect.appendChild(option);
-            });
-            console.log('Populated dropdown', selectId, 'with', skillsData.length, 'skills');
-        } else {
-            console.error('Dropdown not found:', selectId);
+        // Try to find the element, retry if not found
+        let skillsSelect = document.getElementById(selectId);
+        
+        // If not found, wait a bit and try again (element might not be attached to DOM yet)
+        if (!skillsSelect) {
+            console.log('Element not found yet, waiting 200ms and retrying...');
+            setTimeout(function() {
+                const retrySelect = document.getElementById(selectId);
+                console.log('Retry found element:', retrySelect);
+                if (retrySelect) {
+                    populateDropdown(retrySelect, selectId);
+                } else {
+                    console.error('Dropdown still not found after retry:', selectId);
+                    console.log('All IDs in document:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
+                }
+            }, 200);
+            return;
         }
+        
+        populateDropdown(skillsSelect, selectId);
+        
     } catch (error) {
         console.error('Error populating skills dropdown:', error);
     }
+}
+
+function populateDropdown(skillsSelect, selectId) {
+    // Clear existing options first
+    skillsSelect.innerHTML = '';
+    
+    skillsData.forEach(function(skill) {
+        const option = document.createElement('option');
+        option.value = skill.name;
+        option.textContent = skill.name;
+        skillsSelect.appendChild(option);
+    });
+    console.log('Populated dropdown', selectId, 'with', skillsData.length, 'skills');
 }
 
 // Function to initialize Google Places Autocomplete
