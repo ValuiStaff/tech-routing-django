@@ -154,15 +154,14 @@ class AssignmentInline(admin.TabularInline):
 
 @admin.register(ServiceRequest)
 class ServiceRequestAdmin(admin.ModelAdmin):
-    list_display = ['name', 'customer', 'address', 'status', 'priority', 'assigned_technician', 'assigned_skills_info']
+    list_display = ['name', 'customer', 'address', 'status', 'priority', 'assigned_technician', 'assigned_skill_info']
     list_filter = ['status', 'priority', 'created_at']
     search_fields = ['name', 'customer__username', 'address']
-    filter_horizontal = ['required_skills']
     inlines = [AssignmentInline]
     fieldsets = (
         ('Customer Info', {'fields': ('customer', 'name')}),
         ('Location', {'fields': ('address', 'lat', 'lon')}),
-        ('Service Details', {'fields': ('service_minutes', 'window_start', 'window_end', 'required_skills')}),
+        ('Service Details', {'fields': ('service_minutes', 'window_start', 'window_end', 'required_skill')}),
         ('Status', {'fields': ('priority', 'status', 'notes')}),
     )
     
@@ -176,35 +175,12 @@ class ServiceRequestAdmin(admin.ModelAdmin):
         return "-"
     assigned_technician.short_description = 'Assigned To'
     
-    def assigned_skills_info(self, obj):
-        """Show skills comparison for assigned technician"""
-        assignment = obj.assignments.filter(status__in=['assigned', 'in_progress']).first()
-        if not assignment or not assignment.technician:
-            return "-"
-        
-        info = assignment.get_skills_match_info()
-        if not info:
-            return "-"
-        
-        required = ', '.join(info['required']) or 'None'
-        tech_has = ', '.join(info['tech_has']) or 'None'
-        
-        if info['is_match']:
-            icon = '✓'
-            color = 'green'
-        else:
-            icon = '✗'
-            color = 'red'
-        
-        html = f'<div style="font-size: 11px;">'
-        html += f'<div><strong>Required:</strong> {required}</div>'
-        html += f'<div><strong>Tech Has:</strong> {tech_has}</div>'
-        if not info['is_match'] and info['missing']:
-            html += f'<div style="color: red;"><strong>Missing:</strong> {", ".join(info["missing"])}</div>'
-        html += f'</div>'
-        
-        return format_html(html)
-    assigned_skills_info.short_description = 'Skills Comparison'
+    def assigned_skill_info(self, obj):
+        """Show skill for this service request"""
+        if obj.required_skill:
+            return obj.required_skill.name
+        return "-"
+    assigned_skill_info.short_description = 'Required Skill'
     
     def mark_as_pending(self, request, queryset):
         queryset.update(status='pending')

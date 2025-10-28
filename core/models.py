@@ -114,7 +114,7 @@ class ServiceRequest(models.Model):
     service_minutes = models.IntegerField(help_text="Service duration in minutes")
     window_start = models.DateTimeField(help_text="Earliest acceptable arrival time")
     window_end = models.DateTimeField(help_text="Latest acceptable arrival time")
-    required_skills = models.ManyToManyField(Skill, related_name='service_requests')
+    required_skill = models.ForeignKey(Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='service_requests', help_text="Required skill for this service (one skill per request)")
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     notes = models.TextField(blank=True)

@@ -133,10 +133,12 @@ class BulkUploadService:
                     status='pending'
                 )
                 
-                # Add required skills
+                # Add required skill (only first skill from the list)
                 skills_str = str(row.get('RequiredSkills', '')).strip()
                 if skills_str:
-                    self._add_skills_to_service_request(service_request, skills_str, row_num)
+                    # Take only the first skill
+                    first_skill = skills_str.split(',')[0].strip()
+                    self._add_skill_to_service_request(service_request, first_skill, row_num)
                 
                 self.results['created_requests'].append(service_request)
                 
@@ -345,20 +347,22 @@ class BulkUploadService:
             self.results['errors'].append(f"Row {row_num}: Time parse error: {str(e)}")
             return None
     
-    def _add_skills_to_service_request(self, service_request, skills_str, row_num):
-        """Add skills to service request"""
-        skill_names = [s.strip() for s in skills_str.split(',') if s.strip()]
+    def _add_skill_to_service_request(self, service_request, skill_name, row_num):
+        """Add single skill to service request"""
+        if not skill_name:
+            return
         
-        for skill_name in skill_names:
-            skill = Skill.objects.filter(name__iexact=skill_name, is_active=True).first()
-            if skill:
-                service_request.required_skills.add(skill)
-            else:
-                self.results['warnings'].append(
-                    f"Row {row_num}: Skill '{skill_name}' not found. Creating new skill."
-                )
-                skill = Skill.objects.create(name=skill_name, is_active=True)
-                service_request.required_skills.add(skill)
+        skill = Skill.objects.filter(name__iexact=skill_name.strip(), is_active=True).first()
+        if skill:
+            service_request.required_skill = skill
+            service_request.save()
+        else:
+            self.results['warnings'].append(
+                f"Row {row_num}: Skill '{skill_name}' not found. Creating new skill."
+            )
+            skill = Skill.objects.create(name=skill_name.strip(), is_active=True)
+            service_request.required_skill = skill
+            service_request.save()
     
     def _add_skills_to_technician(self, technician, skills_str, row_num):
         """Add skills to technician"""
@@ -504,9 +508,11 @@ class BulkUploadService:
                                     
                                     print(f"SUCCESS: Created service request for customer")
                                     
-                                    # Add required skills
+                                    # Add required skill (only first skill from the list)
                                     if required_skills:
-                                        self._add_skills_to_service_request(service_request, required_skills, row_count + 1)
+                                        # Take only the first skill
+                                        first_skill = required_skills.split(',')[0].strip()
+                                        self._add_skill_to_service_request(service_request, first_skill, row_count + 1)
                                     
                                     self.results['created_requests'].append(service_request)
                                 else:
