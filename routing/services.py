@@ -208,8 +208,14 @@ class RoutingService:
         # Skills matching
         allowed_vehicles = {}
         for i, req in enumerate(reqs):
-            need = set(req.required_skills.all())
-            allowed = [k for k, t in enumerate(techs) if (not need or need.issubset(set(t.skills.all())))]
+            # Service request now has single required_skill
+            required_skill = req.required_skill if hasattr(req, 'required_skill') else None
+            if required_skill:
+                need = {required_skill}
+                allowed = [k for k, t in enumerate(techs) if required_skill in t.skills.all()]
+            else:
+                # No skill requirement, allow all technicians
+                allowed = list(range(K))
             allowed_vehicles[cust_base + i] = allowed
         
         # Create manager and routing

@@ -140,7 +140,8 @@ class Command(BaseCommand):
             if coord:
                 req1.lat, req1.lon = coord
                 req1.save()
-        req1.required_skills.add(skills['gas'])
+        req1.required_skill = skills['gas']
+        req1.save()
         
         # Customer 2 requests
         req2, _ = ServiceRequest.objects.get_or_create(
@@ -160,7 +161,8 @@ class Command(BaseCommand):
             if coord:
                 req2.lat, req2.lon = coord
                 req2.save()
-        req2.required_skills.add(skills['plumbing'])
+        req2.required_skill = skills['plumbing']
+        req2.save()
         
         self.stdout.write(self.style.SUCCESS('Test data created successfully!'))
         self.stdout.write('')
