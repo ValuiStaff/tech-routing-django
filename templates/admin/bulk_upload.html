@@ -292,6 +292,10 @@ function addRow() {
     
     rowCount++;
     
+    // Initially disable all required fields until type is selected
+    const allRequiredFields = row.querySelectorAll('[required]');
+    allRequiredFields.forEach(el => el.disabled = true);
+    
     // Populate skills dropdowns
     populateSkillsDropdowns(rowCount - 1);
     
