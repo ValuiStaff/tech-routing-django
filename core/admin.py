@@ -150,6 +150,10 @@ class AssignmentInline(admin.TabularInline):
     extra = 0
     fields = ['technician', 'assigned_date', 'sequence_order', 'planned_start', 'status']
     readonly_fields = ['created_at']
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(technician__isnull=False)
 
 
 @admin.register(ServiceRequest)
