@@ -6,12 +6,25 @@
 {% block content %}
 <h1>Bulk Upload Users</h1>
 
-<div class="module">
+<div class="module" style="margin-bottom: 20px;">
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button onclick="showUploadSection()" class="button" id="uploadBtn" style="background: #417690; color: white; padding: 10px 30px; border: none; cursor: pointer; font-size: 14px; font-weight: bold;">
+            📤 Upload Excel File
+        </button>
+        <button onclick="showManualSection()" class="button" id="manualBtn" style="background: #28a745; color: white; padding: 10px 30px; border: none; cursor: pointer; font-size: 14px; font-weight: bold;">
+            ✏️ Manual Entry
+        </button>
+    </div>
+</div>
+
+<!-- Excel Upload Section -->
+<div class="module" id="uploadSection">
     <h2>Upload Excel File</h2>
     <p>Upload an Excel file (.xlsx or .xls) to create multiple users, technicians, and service requests at once.</p>
     
     <form method="post" enctype="multipart/form-data" style="margin-top: 20px;">
         {% csrf_token %}
+        <input type="hidden" name="mode" value="upload">
         
         <div style="margin: 20px 0;">
             {{ form.as_p }}
@@ -24,6 +37,179 @@
         </div>
     </form>
 </div>
+
+<!-- Manual Entry Section -->
+<div class="module" id="manualSection" style="display: none;">
+    <h2>Manual Entry</h2>
+    <p>Add users manually in a table format. Click "Add Row" to add more entries.</p>
+    
+    <form method="post" id="manualForm" style="margin-top: 20px;">
+        {% csrf_token %}
+        <input type="hidden" name="mode" value="manual">
+        
+        <div style="margin: 20px 0;">
+            <div id="entriesContainer">
+                <!-- Entries will be added dynamically -->
+            </div>
+            
+            <button type="button" onclick="addRow()" class="button" style="background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 5px;">
+                ➕ Add Row
+            </button>
+            
+            <button type="submit" class="button" style="background: #417690; color: white; padding: 10px 30px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; margin: 10px 5px;">
+                💾 Save All Entries
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+let rowCount = 0;
+
+function showUploadSection() {
+    document.getElementById('uploadSection').style.display = 'block';
+    document.getElementById('manualSection').style.display = 'none';
+    document.getElementById('uploadBtn').style.background = '#417690';
+    document.getElementById('manualBtn').style.background = '#28a745';
+}
+
+function showManualSection() {
+    document.getElementById('uploadSection').style.display = 'none';
+    document.getElementById('manualSection').style.display = 'block';
+    document.getElementById('uploadBtn').style.background = '#417690';
+    document.getElementById('manualBtn').style.background = '#28a745';
+    if (rowCount === 0) {
+        addRow(); // Add initial row
+    }
+}
+
+function addRow() {
+    const container = document.getElementById('entriesContainer');
+    const row = document.createElement('div');
+    row.className = 'manual-entry-row';
+    row.style.marginBottom = '15px';
+    row.style.padding = '15px';
+    row.style.border = '1px solid #ddd';
+    row.style.borderRadius = '5px';
+    
+    row.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+            <div>
+                <label>Type *</label>
+                <select name="type_${rowCount}" required style="width: 100%; padding: 5px;">
+                    <option value="">Select...</option>
+                    <option value="Customer">Customer</option>
+                    <option value="Technician">Technician</option>
+                </select>
+            </div>
+            <div>
+                <label>Username *</label>
+                <input type="text" name="username_${rowCount}" required style="width: 100%; padding: 5px;">
+            </div>
+            <div>
+                <label>Email *</label>
+                <input type="email" name="email_${rowCount}" required style="width: 100%; padding: 5px;">
+            </div>
+            <div>
+                <label>Password</label>
+                <input type="text" name="password_${rowCount}" value="Welcome123" style="width: 100%; padding: 5px;">
+            </div>
+        </div>
+        
+        <!-- Customer specific fields -->
+        <div id="customer_fields_${rowCount}" style="display: none; margin-top: 10px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                <div>
+                    <label>Address</label>
+                    <input type="text" name="address_${rowCount}" style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Service Minutes</label>
+                    <input type="number" name="service_minutes_${rowCount}" value="60" style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Window Start</label>
+                    <input type="datetime-local" name="window_start_${rowCount}" style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Window End</label>
+                    <input type="datetime-local" name="window_end_${rowCount}" style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Required Skills</label>
+                    <input type="text" name="required_skills_${rowCount}" placeholder="comma separated" style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Priority</label>
+                    <select name="priority_${rowCount}" style="width: 100%; padding: 5px;">
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technician specific fields -->
+        <div id="technician_fields_${rowCount}" style="display: none; margin-top: 10px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                <div>
+                    <label>Depot Address *</label>
+                    <input type="text" name="depot_address_${rowCount}" required style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Capacity Hours</label>
+                    <input type="number" name="capacity_hours_${rowCount}" value="8" style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Shift Start</label>
+                    <input type="time" name="shift_start_${rowCount}" value="08:00" required style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Shift End</label>
+                    <input type="time" name="shift_end_${rowCount}" value="17:00" required style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Skills</label>
+                    <input type="text" name="skills_${rowCount}" placeholder="comma separated" style="width: 100%; padding: 5px;">
+                </div>
+                <div>
+                    <label>Color Hex</label>
+                    <input type="color" name="color_hex_${rowCount}" value="#4285F4" style="width: 100%; padding: 5px;">
+                </div>
+            </div>
+        </div>
+        
+        <button type="button" onclick="this.parentElement.remove()" style="background: #dc3545; color: white; padding: 5px 15px; border: none; cursor: pointer; margin-top: 10px;">
+            ❌ Remove Row
+        </button>
+    `;
+    
+    container.appendChild(row);
+    
+    // Add event listener for type change
+    const typeSelect = row.querySelector(`select[name="type_${rowCount}"]`);
+    typeSelect.onchange = function() {
+        const customerFields = row.querySelector(`#customer_fields_${rowCount}`);
+        const technicianFields = row.querySelector(`#technician_fields_${rowCount}`);
+        if (this.value === 'Customer') {
+            customerFields.style.display = 'block';
+            technicianFields.style.display = 'none';
+        } else if (this.value === 'Technician') {
+            customerFields.style.display = 'none';
+            technicianFields.style.display = 'block';
+        } else {
+            customerFields.style.display = 'none';
+            technicianFields.style.display = 'none';
+        }
+    };
+    
+    rowCount++;
+}
+
+// Add initial row when manual section is first shown
+showUploadSection(); // Default to upload section
+</script>
 
 <div class="module">
     <h2>Excel File Format</h2>

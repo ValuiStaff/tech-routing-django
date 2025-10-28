@@ -28,11 +28,11 @@ class UserAdmin(BaseUserAdmin):
     
     def save_model(self, request, obj, form, change):
         """Override to capture plaintext password before saving"""
-        if change and 'password' in form.changed_data:
-            # If password is being changed via admin
-            if hasattr(obj, 'plaintext_password'):
-                # Store the plaintext temporarily
-                obj._plaintext_password = obj.plaintext_password
+        # Check if a password field was in the form data
+        if request.method == 'POST':
+            plaintext = request.POST.get('plaintext_password', '').strip()
+            if plaintext:
+                obj.plaintext_password = plaintext
         
         super().save_model(request, obj, form, change)
     
