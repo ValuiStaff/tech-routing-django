@@ -161,11 +161,14 @@ class Assignment(models.Model):
         return f"{self.technician.user.username} - {self.service_request.name} ({self.assigned_date})"
     
     def get_skills_match_info(self):
-        """Get info about required skills vs technician's skills"""
+        """Get info about required skill vs technician's skills"""
         if not self.technician or not self.service_request:
             return None
         
-        required_skills = set(self.service_request.required_skills.values_list('name', flat=True))
+        # Service request now has single required skill
+        required_skill_name = self.service_request.required_skill.name if self.service_request.required_skill else None
+        required_skills = {required_skill_name} if required_skill_name else set()
+        
         tech_skills = set(self.technician.skills.values_list('name', flat=True))
         
         matched = required_skills & tech_skills

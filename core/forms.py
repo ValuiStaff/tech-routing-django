@@ -55,7 +55,7 @@ class ServiceRequestForm(forms.ModelForm):
     class Meta:
         model = ServiceRequest
         fields = ['address', 'service_minutes', 'window_start', 'window_end', 
-                  'required_skills', 'priority', 'notes']
+                  'required_skill', 'priority', 'notes']
         widgets = {
             'address': forms.TextInput(attrs={
                 'class': 'form-control', 
@@ -66,7 +66,7 @@ class ServiceRequestForm(forms.ModelForm):
             'service_minutes': forms.NumberInput(attrs={'class': 'form-control', 'min': 15, 'max': 480}),
             'window_start': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'window_end': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'required_skills': forms.SelectMultiple(attrs={'class': 'form-select', 'multiple': 'multiple', 'size': '4'}),
+            'required_skill': forms.Select(attrs={'class': 'form-select'}),
             'priority': forms.Select(attrs={'class': 'form-select'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
@@ -79,8 +79,7 @@ class ServiceRequestForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['required_skills'].queryset = Skill.objects.filter(is_active=True)
-        self.fields['required_skills'].widget.attrs.update({'size': '3'})
+        self.fields['required_skill'].queryset = Skill.objects.filter(is_active=True)
     
     def clean(self):
         cleaned_data = super().clean()
