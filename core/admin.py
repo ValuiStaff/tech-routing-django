@@ -374,7 +374,6 @@ def bulk_upload_view(request):
                 # Create service request only
                 try:
                     from core.models import ServiceRequest
-                    from django.contrib.gis.geos import Point
                     from maps.services import GeocodingService
                     
                     # Get user_id from previous step
@@ -409,11 +408,10 @@ def bulk_upload_view(request):
                     # Geocode address
                     geocoding = GeocodingService()
                     try:
-                        location = geocoding.geocode(address)
-                        if not location or location['status'] != 'OK':
+                        coords, method = geocoding.geocode(address)
+                        if not coords:
                             raise ValueError(f"Could not geocode address: {address}")
-                        lat = location['lat']
-                        lon = location['lon']
+                        lat, lon = coords
                     except Exception as e:
                         return JsonResponse({
                             'success': False,
