@@ -266,7 +266,7 @@ class BulkUploadService:
     def _geocode_address(self, address, row_num):
         """Geocode address and validate Melbourne location"""
         try:
-            coords, full_address = self.geocoding_service.geocode(address)
+            coords, method = self.geocoding_service.geocode(address)
             
             if not coords:
                 self.results['errors'].append(f"Row {row_num}: Could not geocode address: {address}")
@@ -275,9 +275,9 @@ class BulkUploadService:
             lat, lon = coords
             
             # Check if address is in Melbourne
-            if not self._is_melbourne_address(full_address):
+            if not self._is_melbourne_address(address):
                 self.results['errors'].append(
-                    f"Row {row_num}: Address '{address}' is not in Melbourne. Full address: {full_address}"
+                    f"Row {row_num}: Address '{address}' is not in Melbourne."
                 )
                 return None
             
