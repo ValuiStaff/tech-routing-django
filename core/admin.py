@@ -251,7 +251,7 @@ class ServiceRequestAdmin(admin.ModelAdmin):
         ('Status', {'fields': ('priority', 'status', 'notes')}),
     )
     
-    actions = ['mark_as_pending', 'mark_as_assigned']
+    actions = ['mark_as_pending', 'mark_as_assigned', 'mark_as_completed', 'mark_as_cancelled']
     
     def assigned_technician(self, obj):
         """Show assigned technician"""
@@ -269,35 +269,78 @@ class ServiceRequestAdmin(admin.ModelAdmin):
     assigned_skill_info.short_description = 'Required Skill'
     
     def mark_as_pending(self, request, queryset):
-        """Mark service requests as pending and remove all related assignments"""
-        count = 0
-        total_assignments = 0
+        """Mark service requests as pending and delete associated assignments"""
+        deleted_count = 0
+        updated_count = 0
         
-        for service_request in queryset:
+        for request in queryset:
             # Delete all assignments for this service request
-            assignments = service_request.assignments.all()
-            assignment_count = assignments.count()
-            assignments.delete()
-            total_assignments += assignment_count
+            assignments = Assignment.objects.filter(service_request=request)
+            if assignments.exists():
+                deleted_count += assignments.count()
+                assignments.delete()
             
-            # Update status to pending
-            service_request.status = 'pending'
-            service_request.save()
-            count += 1
+            # Mark as pending
+            if request.status != 'pending':
+                request.status = 'pending'
+                request.save()
+                updated_count += 1
         
-        if total_assignments > 0:
-            self.message_user(
-                request, 
-                f"Marked {count} request(s) as pending and removed {total_assignments} assignment(s)."
-            )
-        else:
-            self.message_user(request, f"Marked {count} request(s) as pending.")
+        messages.success(
+            request,
+            f"Marked {updated_count} requests as pending and deleted {deleted_count} assignments."
+        )
     mark_as_pending.short_description = "Mark as pending (remove assignments)"
     
     def mark_as_assigned(self, request, queryset):
         queryset.update(status='assigned')
         self.message_user(request, f"Marked {queryset.count()} requests as assigned.")
     mark_as_assigned.short_description = "Mark as assigned"
+    
+    def mark_as_completed(self, request, queryset):
+        """Mark service requests as completed and update assignments"""
+        updated_count = 0
+        
+        for request_obj in queryset:
+            # Update status
+            if request_obj.status != 'completed':
+                request_obj.status = 'completed'
+                request_obj.save()
+                updated_count += 1
+            
+            # Mark all related assignments as completed
+            assignments = Assignment.objects.filter(service_request=request_obj)
+            assignments.update(status='completed')
+        
+        messages.success(
+            request,
+            f"Marked {updated_count} requests and their assignments as completed."
+        )
+    mark_as_completed.short_description = "Mark as completed"
+    
+    def mark_as_cancelled(self, request, queryset):
+        """Mark service requests as cancelled and cancel assignments"""
+        updated_count = 0
+        cancelled_assignments = 0
+        
+        for request_obj in queryset:
+            # Update status
+            if request_obj.status != 'cancelled':
+                request_obj.status = 'cancelled'
+                request_obj.save()
+                updated_count += 1
+            
+            # Cancel all related assignments
+            assignments = Assignment.objects.filter(service_request=request_obj)
+            if assignments.exists():
+                cancelled_assignments += assignments.count()
+                assignments.update(status='cancelled')
+        
+        messages.success(
+            request,
+            f"Marked {updated_count} requests as cancelled and cancelled {cancelled_assignments} assignments."
+        )
+    mark_as_cancelled.short_description = "Mark as cancelled"
 
 
 @admin.register(Assignment)
