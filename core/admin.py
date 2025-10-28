@@ -269,9 +269,30 @@ class ServiceRequestAdmin(admin.ModelAdmin):
     assigned_skill_info.short_description = 'Required Skill'
     
     def mark_as_pending(self, request, queryset):
-        queryset.update(status='pending')
-        self.message_user(request, f"Marked {queryset.count()} requests as pending.")
-    mark_as_pending.short_description = "Mark as pending"
+        """Mark service requests as pending and remove all related assignments"""
+        count = 0
+        total_assignments = 0
+        
+        for service_request in queryset:
+            # Delete all assignments for this service request
+            assignments = service_request.assignments.all()
+            assignment_count = assignments.count()
+            assignments.delete()
+            total_assignments += assignment_count
+            
+            # Update status to pending
+            service_request.status = 'pending'
+            service_request.save()
+            count += 1
+        
+        if total_assignments > 0:
+            self.message_user(
+                request, 
+                f"Marked {count} request(s) as pending and removed {total_assignments} assignment(s)."
+            )
+        else:
+            self.message_user(request, f"Marked {count} request(s) as pending.")
+    mark_as_pending.short_description = "Mark as pending (remove assignments)"
     
     def mark_as_assigned(self, request, queryset):
         queryset.update(status='assigned')
