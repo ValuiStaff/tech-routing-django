@@ -374,4 +374,228 @@ class BulkUploadService:
                 )
                 skill = Skill.objects.create(name=skill_name, is_active=True)
                 technician.skills.add(skill)
+    
+    def process_manual_entries(self, post_data):
+        """Process manual entry data from form submission"""
+        row_count = 0
+        processed = 0
+        
+        # Find all entries (rows) by counting unique type fields
+        while True:
+            type_key = f'type_{row_count}'
+            if type_key not in post_data:
+                break
+            
+            user_type = post_data.get(type_key, '').strip().upper()
+            if not user_type:
+                row_count += 1
+                continue
+            
+            username = post_data.get(f'username_{row_count}', '').strip()
+            email = post_data.get(f'email_{row_count}', '').strip()
+            password = post_data.get(f'password_{row_count}', 'Welcome123').strip()
+            phone = post_data.get(f'phone_{row_count}', '').strip()
+            
+            if not username or not email:
+                self.results['errors'].append(f"Row {row_count + 1}: Username and Email are required")
+                row_count += 1
+                processed += 1
+                continue
+            
+            try:
+                # Create or update user
+                user, created = self._get_or_create_user_manual(username, email, password, phone, user_type)
+                
+                if not user:
+                    self.results['errors'].append(f"Row {row_count + 1}: Could not create user")
+                    row_count += 1
+                    processed += 1
+                    continue
+                
+                if created:
+                    self.results['created_users'].append(user)
+                else:
+                    self.results['updated_users'].append(user)
+                
+                # Process customer specific fields
+                if user_type == 'CUSTOMER':
+                    address = post_data.get(f'address_{row_count}', '').strip()
+                    service_type = post_data.get(f'service_type_{row_count}', '').strip()
+                    service_minutes = post_data.get(f'service_minutes_{row_count}', '60')
+                    window_start = post_data.get(f'window_start_{row_count}', '').strip()
+                    window_end = post_data.get(f'window_end_{row_count}', '').strip()
+                    required_skills = post_data.get(f'required_skills_{row_count}', '').strip()
+                    priority = post_data.get(f'priority_{row_count}', 'medium').strip()
+                    notes = post_data.get(f'notes_{row_count}', '').strip()
+                    
+                    if address:
+                        # Create service request
+                        try:
+                            coords = self._geocode_address(address, row_count + 1)
+                            if coords:
+                                lat, lon = coords
+                                
+                                # Parse datetime fields
+                                window_start_dt = self._parse_datetime_manual(window_start, row_count + 1)
+                                window_end_dt = self._parse_datetime_manual(window_end, row_count + 1)
+                                
+                                if window_start_dt and window_end_dt:
+                                    priority_map = {'high': 1, 'medium': 2, 'low': 3}
+                                    priority_int = priority_map.get(priority, 2)
+                                    
+                                    service_request = ServiceRequest.objects.create(
+                                        customer=user,
+                                        name=service_type or 'Service Request',
+                                        address=address,
+                                        lat=lat,
+                                        lon=lon,
+                                        service_minutes=int(service_minutes),
+                                        window_start=window_start_dt,
+                                        window_end=window_end_dt,
+                                        priority=priority_int,
+                                        status='pending',
+                                        notes=notes
+                                    )
+                                    
+                                    # Add required skills
+                                    if required_skills:
+                                        self._add_skills_to_service_request(service_request, required_skills, row_count + 1)
+                                    
+                                    self.results['created_requests'].append(service_request)
+                        except Exception as e:
+                            self.results['errors'].append(f"Row {row_count + 1}: Error creating service request: {str(e)}")
+                
+                # Process technician specific fields
+                elif user_type == 'TECHNICIAN':
+                    depot_address = post_data.get(f'depot_address_{row_count}', '').strip()
+                    capacity_hours = post_data.get(f'capacity_hours_{row_count}', '8')
+                    shift_start = post_data.get(f'shift_start_{row_count}', '').strip()
+                    shift_end = post_data.get(f'shift_end_{row_count}', '').strip()
+                    skills = post_data.get(f'skills_{row_count}', '').strip()
+                    color_hex = post_data.get(f'color_hex_{row_count}', '#4285F4').strip()
+                    
+                    if not depot_address:
+                        self.results['errors'].append(f"Row {row_count + 1}: DepotAddress is required for technicians")
+                        row_count += 1
+                        processed += 1
+                        continue
+                    
+                    try:
+                        coords = self._geocode_address(depot_address, row_count + 1)
+                        if not coords:
+                            row_count += 1
+                            processed += 1
+                            continue
+                        
+                        depot_lat, depot_lon = coords
+                        capacity_minutes = int(float(capacity_hours) * 60)
+                        
+                        # Parse time fields
+                        shift_start_time = self._parse_time_manual(shift_start, row_count + 1)
+                        shift_end_time = self._parse_time_manual(shift_end, row_count + 1)
+                        
+                        if not shift_start_time or not shift_end_time:
+                            row_count += 1
+                            processed += 1
+                            continue
+                        
+                        # Create or update technician profile
+                        technician, tech_created = Technician.objects.get_or_create(
+                            user=user,
+                            defaults={
+                                'depot_address': depot_address,
+                                'depot_lat': depot_lat,
+                                'depot_lon': depot_lon,
+                                'capacity_minutes': capacity_minutes,
+                                'shift_start': shift_start_time,
+                                'shift_end': shift_end_time,
+                                'color_hex': color_hex,
+                                'is_active': True
+                            }
+                        )
+                        
+                        if not tech_created:
+                            # Update existing
+                            technician.depot_address = depot_address
+                            technician.depot_lat = depot_lat
+                            technician.depot_lon = depot_lon
+                            technician.capacity_minutes = capacity_minutes
+                            technician.shift_start = shift_start_time
+                            technician.shift_end = shift_end_time
+                            technician.color_hex = color_hex
+                            technician.save()
+                        
+                        # Add skills
+                        if skills:
+                            self._add_skills_to_technician(technician, skills, row_count + 1)
+                        
+                        if tech_created:
+                            self.results['created_technicians'].append(technician)
+                        
+                    except Exception as e:
+                        self.results['errors'].append(f"Row {row_count + 1}: Error creating technician: {str(e)}")
+                
+                row_count += 1
+                processed += 1
+                
+            except Exception as e:
+                self.results['errors'].append(f"Row {row_count + 1}: {str(e)}")
+                row_count += 1
+                processed += 1
+        
+        return self.results
+    
+    def _get_or_create_user_manual(self, username, email, password, phone, role):
+        """Get or create user with password handling for manual entry"""
+        user = User.objects.filter(username=username).first()
+        created = False
+        
+        if user:
+            # Update existing user
+            user.email = email
+            user.role = role
+            user.phone = phone
+            user.plaintext_password = password
+            user.set_password(password)
+            user.save()
+        else:
+            # Create new user
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                role=role
+            )
+            user.phone = phone
+            user.plaintext_password = password
+            user.save()
+            created = True
+        
+        return user, created
+    
+    def _parse_datetime_manual(self, value, row_num):
+        """Parse datetime string from manual entry form"""
+        if not value:
+            return None
+        
+        try:
+            # Handle datetime-local format
+            if 'T' in value:
+                return datetime.fromisoformat(value.replace('Z', '+00:00'))
+            else:
+                return datetime.strptime(value, '%Y-%m-%d %H:%M')
+        except ValueError as e:
+            self.results['errors'].append(f"Row {row_num}: Could not parse datetime '{value}': {str(e)}")
+            return None
+    
+    def _parse_time_manual(self, value, row_num):
+        """Parse time string from manual entry form"""
+        if not value:
+            return None
+        
+        try:
+            return datetime.strptime(value, '%H:%M').time()
+        except ValueError:
+            self.results['errors'].append(f"Row {row_num}: Could not parse time '{value}'")
+            return None
 
