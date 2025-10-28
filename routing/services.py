@@ -425,13 +425,17 @@ class RoutingService:
         sys.stdout.flush()
         
         # Extract solution
+        print(f"\nExtracting assignments from solution...")
+        sys.stdout.flush()
         assignments = []
         served_ids = set()
         
         for k in range(K):
             idx = routing.Start(k)
             order = 0
+            route_assignments = []
             
+            print(f"Tech {k} ({techs[k].user.username}):")
             while not routing.IsEnd(idx):
                 node = manager.IndexToNode(idx)
                 if cust_base <= node < cust_base + I:
@@ -440,6 +444,8 @@ class RoutingService:
                     t_start_min = solution.Value(time_dim.CumulVar(idx))
                     start_dt = earliest + timedelta(minutes=t_start_min)
                     finish_dt = start_dt + timedelta(minutes=req.service_minutes)
+                    
+                    print(f"  Assignment {order}: {req.name} at {start_dt.strftime('%Y-%m-%d %H:%M')}")
                     
                     assignments.append({
                         'service_request': req,
@@ -453,8 +459,20 @@ class RoutingService:
                     served_ids.add(req.id)
                 
                 idx = solution.Value(routing.NextVar(idx))
+            
+            if not route_assignments:
+                print(f"  No assignments for this tech")
+            sys.stdout.flush()
+        
+        print(f"Extracted {len(assignments)} assignments")
+        sys.stdout.flush()
         
         unserved = [req for req in reqs if req.id not in served_ids]
+        print(f"Unserved requests: {len(unserved)}")
+        if unserved:
+            for req in unserved:
+                print(f"  - {req.name} (skill: {req.required_skill.name if req.required_skill else 'None'})")
+        sys.stdout.flush()
         
         # Calculate total travel time
         total_travel = 0.0
