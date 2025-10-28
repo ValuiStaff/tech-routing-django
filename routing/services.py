@@ -308,20 +308,35 @@ class RoutingService:
         search_params.time_limit.FromSeconds(self.config.time_limit_seconds)
         
         print(f"Attempting to solve...")
-        try:
-            solution = routing.SolveWithParameters(search_params)
-            print(f"Solver result: {solution is not None}")
-        except Exception as e:
-            print(f"OR-Tools solver error: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            print(f"Parameters: K={K}, I={I}, num_nodes={num_nodes}")
-            print(f"{'='*80}")
-            return [], reqs, 0.0
+        
+        # Try multiple solution strategies if first fails
+        solution = None
+        
+        strategies = [
+            routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
+            routing_enums_pb2.FirstSolutionStrategy.PATH_MOST_CONSTRAINED_ARC,
+            routing_enums_pb2.FirstSolutionStrategy.SAVINGS,
+            routing_enums_pb2.FirstSolutionStrategy.SWEEP,
+        ]
+        
+        for strategy in strategies:
+            try:
+                search_params.first_solution_strategy = strategy
+                print(f"Trying strategy: {strategy}")
+                solution = routing.SolveWithParameters(search_params)
+                if solution:
+                    print(f"Solver found solution with strategy: {strategy}")
+                    break
+            except Exception as e:
+                print(f"Strategy {strategy} failed: {str(e)}")
+                continue
         
         if solution is None:
-            print("OR-Tools returned no solution")
+            print("OR-Tools returned no solution after trying all strategies")
+            print(f"Parameters: K={K}, I={I}, num_nodes={num_nodes}")
             return [], reqs, 0.0
+        
+        print(f"Solver result: Solution found")
         
         # Extract solution
         assignments = []
