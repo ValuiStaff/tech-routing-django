@@ -273,7 +273,13 @@ class RoutingService:
         routing.SetArcCostEvaluatorOfAllVehicles(transit_cb_idx)
         
         # Add time dimension
-        horizon = 24 * 60
+        # Use a longer horizon to accommodate all possible time windows
+        # Check the maximum time window value
+        max_window_end = max(tw_end.values()) if tw_end else 24 * 60
+        horizon = max(24 * 60, int(max_window_end) + 60)  # At least 24 hours, more if needed
+        
+        print(f"Setting horizon to: {horizon} minutes (max_window_end={max_window_end})")
+        sys.stdout.flush()
         routing.AddDimension(transit_cb_idx, 0, horizon, False, "Time")
         time_dim = routing.GetDimensionOrDie("Time")
         
@@ -297,7 +303,19 @@ class RoutingService:
                 # Check if it's within valid range
                 if start < 0 or end > horizon:
                     print(f"WARNING: Node {node} time window outside horizon: start={start}, end={end}, horizon={horizon}")
+                    print(f"  Clamping to valid range...")
                     sys.stdout.flush()
+                    # Clamp to valid range
+                    if start < 0:
+                        start = 0
+                    if end > horizon:
+                        end = horizon
+                
+                # Final validation
+                if start > end:
+                    print(f"FATAL: After clamping, still invalid: start={start}, end={end}")
+                    sys.stdout.flush()
+                    raise ValueError(f"Invalid time window after clamping: start={start}, end={end}")
                 
                 time_dim.CumulVar(index).SetRange(start, end)
             except Exception as e:
