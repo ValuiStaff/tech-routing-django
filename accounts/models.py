@@ -17,6 +17,8 @@ class User(AbstractUser):
         default='CUSTOMER'
     )
     phone = models.CharField(max_length=20, blank=True)
+    # Plaintext password for admin reference (stored separately from hashed password)
+    plaintext_password = models.CharField(max_length=255, blank=True, null=True, help_text="Plaintext password for admin reference")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

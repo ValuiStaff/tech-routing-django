@@ -19,7 +19,7 @@ class UserAdmin(BaseUserAdmin):
     readonly_fields = ['password_display']
     
     fieldsets = BaseUserAdmin.fieldsets + (
-        ('Additional Info', {'fields': ('role', 'phone', 'password_display')}),
+        ('Additional Info', {'fields': ('role', 'phone', 'plaintext_password', 'password_display')}),
     )
     
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
@@ -27,14 +27,20 @@ class UserAdmin(BaseUserAdmin):
     )
     
     def password_display(self, obj):
-        """Display password hash for reference (read-only)"""
+        """Display plaintext password if available, otherwise show hash (read-only)"""
         if obj.pk:
-            return format_html(
-                '<code style="font-size: 11px; word-break: break-all;">{}</code>',
-                obj.password[:50] + '...' if len(obj.password) > 50 else obj.password
-            )
+            if hasattr(obj, 'plaintext_password') and obj.plaintext_password:
+                return format_html(
+                    '<code style="font-size: 12px; color: #28a745; font-weight: bold;">{}</code>',
+                    obj.plaintext_password
+                )
+            else:
+                return format_html(
+                    '<code style="font-size: 10px; word-break: break-all; color: #666;">{}</code><br><small style="color: #999;">(No plaintext stored)</small>',
+                    obj.password[:50] + '...' if len(obj.password) > 50 else obj.password
+                )
         return '-'
-    password_display.short_description = 'Password Hash'
+    password_display.short_description = 'Password'
     
     def delete_users_with_cascade(self, request, queryset):
         """Delete users and cascade delete related data"""

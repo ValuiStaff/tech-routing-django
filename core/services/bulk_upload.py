@@ -246,6 +246,8 @@ class BulkUploadService:
             # Update existing user
             user.email = email
             user.role = role
+            user.plaintext_password = password  # Store plaintext password
+            user.set_password(password)  # Set hashed password
             user.save()
         else:
             # Create new user
@@ -255,6 +257,8 @@ class BulkUploadService:
                 password=password,
                 role=role
             )
+            user.plaintext_password = password  # Store plaintext password
+            user.save()
             created = True
         
         return user, created
