@@ -232,7 +232,7 @@ class RoutingService:
                 for k, t in enumerate(techs):
                     if t.skills.filter(id=required_skill.id).exists():
                         allowed.append(k)
-                print(f"Request {i} needs skill '{required_skill.name}', allowed techs: {allowed}")
+                print(f"Request {i} ({req.name}) needs skill '{required_skill.name}', allowed techs: {allowed}")
                 
                 # If no tech has the required skill, allow all (job will be dropped later)
                 if not allowed:
@@ -243,6 +243,14 @@ class RoutingService:
                 allowed = list(range(K))
                 print(f"Request {i} has no skill requirement, allowing all {K} techs")
             allowed_vehicles[cust_base + i] = allowed
+
+        print(f"\nSummary of allowed vehicles:")
+        for i in range(I):
+            node = cust_base + i
+            allowed = allowed_vehicles.get(node, [])
+            req_name = reqs[i].name
+            print(f"  Request '{req_name}' (node {node}): allowed techs = {allowed}")
+        sys.stdout.flush()
         
         # Create manager and routing
         manager = pywrapcp.RoutingIndexManager(num_nodes, K, start_nodes, start_nodes)
