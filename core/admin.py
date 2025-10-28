@@ -132,7 +132,7 @@ class SkillAdmin(admin.ModelAdmin):
 
 @admin.register(Technician)
 class TechnicianAdmin(admin.ModelAdmin):
-    list_display = ['user', 'depot_address', 'capacity_minutes', 'is_active']
+    list_display = ['user', 'depot_address', 'capacity_minutes', 'skills_display', 'is_active']
     list_filter = ['is_active', 'skills']
     search_fields = ['user__username', 'depot_address']
     filter_horizontal = ['skills']
@@ -143,6 +143,15 @@ class TechnicianAdmin(admin.ModelAdmin):
         ('Skills & Styling', {'fields': ('skills', 'color_hex')}),
         ('Status', {'fields': ('is_active',)}),
     )
+    
+    def skills_display(self, obj):
+        """Display skills as comma-separated list"""
+        skills = obj.skills.all()
+        if skills:
+            skill_names = ', '.join([skill.name for skill in skills])
+            return skill_names
+        return "No skills"
+    skills_display.short_description = 'Skills'
 
 
 class AssignmentInline(admin.TabularInline):
