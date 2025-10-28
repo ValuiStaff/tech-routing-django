@@ -277,9 +277,40 @@ class RoutingService:
         routing.AddDimension(transit_cb_idx, 0, horizon, False, "Time")
         time_dim = routing.GetDimensionOrDie("Time")
         
+        # Add time windows with validation
+        print(f"\nAdding time windows...")
+        import sys
+        sys.stdout.flush()
+        
         for node in range(num_nodes):
-            index = manager.NodeToIndex(node)
-            time_dim.CumulVar(index).SetRange(tw_start[node], tw_end[node])
+            try:
+                index = manager.NodeToIndex(node)
+                start = tw_start.get(node, 0)
+                end = tw_end.get(node, horizon)
+                
+                # Validate time window
+                if start > end:
+                    print(f"ERROR: Node {node} has invalid time window: {start} > {end}")
+                    sys.stdout.flush()
+                    raise ValueError(f"Invalid time window for node {node}: start={start}, end={end}")
+                
+                # Check if it's within valid range
+                if start < 0 or end > horizon:
+                    print(f"WARNING: Node {node} time window outside horizon: start={start}, end={end}, horizon={horizon}")
+                    sys.stdout.flush()
+                
+                time_dim.CumulVar(index).SetRange(start, end)
+            except Exception as e:
+                print(f"ERROR setting time window for node {node}: {str(e)}")
+                print(f"  tw_start[{node}] = {tw_start.get(node, 'NOT SET')}")
+                print(f"  tw_end[{node}] = {tw_end.get(node, 'NOT SET')}")
+                sys.stdout.flush()
+                import traceback
+                traceback.print_exc()
+                raise
+        
+        print(f"Time windows set successfully for {num_nodes} nodes")
+        sys.stdout.flush()
         
         # Add capacity dimension
         def demand_callback(from_index):
