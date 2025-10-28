@@ -352,12 +352,17 @@ def bulk_upload_view(request):
                     email = request.POST.get('email_0', '')
                     password = request.POST.get('password_0', 'Welcome123')
                     phone = request.POST.get('phone_0', '')
-                    user_type = request.POST.get('type_0', 'Customer')
+                    user_type = request.POST.get('type_0', 'CUSTOMER').upper()
+                    
+                    print(f"Creating user account with role: {user_type}")
+                    print(f"Username: {username}, Email: {email}")
                     
                     # Get or create user
                     user, created = BulkUploadService()._get_or_create_user_manual(
                         username, email, password, phone, user_type
                     )
+                    
+                    print(f"User created: {user.username}, Role: {user.role}")
                     
                     return JsonResponse({
                         'success': True,
