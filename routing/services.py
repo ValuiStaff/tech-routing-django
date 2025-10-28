@@ -221,27 +221,39 @@ class RoutingService:
         capacities = [t.capacity_minutes for t in techs]
         demands = {(cust_base + i): reqs[i].service_minutes for i in range(I)}
         
-        # Skills matching
+        # Skills matching - inspired by Gurobi technician routing
+        # Only allow technicians with the required skill
         allowed_vehicles = {}
         for i, req in enumerate(reqs):
-            # Service request now has single required_skill
+            allowed = []
             required_skill = req.required_skill if hasattr(req, 'required_skill') else None
+            
             if required_skill:
-                # Get the skill object and check if any technician has it
-                allowed = []
+                # Only allow technicians with the required skill
                 for k, t in enumerate(techs):
                     if t.skills.filter(id=required_skill.id).exists():
-                        allowed.append(k)
-                print(f"Request {i} ({req.name}) needs skill '{required_skill.name}', allowed techs: {allowed}")
+                        # Also check if technician is available during customer's time window
+                        if tw_start[cust_base + i] <= tw_end[k] and tw_end[cust_base + i] >= tw_start[k]:
+                            allowed.append(k)
+                        else:
+                            print(f"Request {i} ({req.name}) needs '{required_skill.name}' but tech {k} ({t.user.username}) has incompatible time window")
                 
-                # If no tech has the required skill, allow all (job will be dropped later)
                 if not allowed:
-                    print(f"WARNING: No technician has required skill '{required_skill.name}' for request {i}")
-                    allowed = list(range(K))  # Allow all, OR-Tools will handle drop penalty
+                    print(f"WARNING: No technician has required skill '{required_skill.name}' with compatible time window for request {i}")
+                    # Don't allow all - let the job be dropped if no matching tech
+                else:
+                    print(f"Request {i} ({req.name}) needs skill '{required_skill.name}', allowed techs: {allowed}")
             else:
-                # No skill requirement, allow all technicians
-                allowed = list(range(K))
-                print(f"Request {i} has no skill requirement, allowing all {K} techs")
+                # No skill requirement - check time window compatibility
+                for k, t in enumerate(techs):
+                    if tw_start[cust_base + i] <= tw_end[k] and tw_end[cust_base + i] >= tw_start[k]:
+                        allowed.append(k)
+                
+                if not allowed:
+                    print(f"WARNING: Request {i} ({req.name}) has no compatible time window with any technician")
+                else:
+                    print(f"Request {i} has no skill requirement, allowing all {len(allowed)} techs with compatible time windows")
+            
             allowed_vehicles[cust_base + i] = allowed
 
         print(f"\nSummary of allowed vehicles:")
