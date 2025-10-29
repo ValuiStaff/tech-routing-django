@@ -136,18 +136,79 @@ def admin_assign_view(request):
             return redirect('core:admin_assign')
     
     # GET request - show assignment form
+    from datetime import datetime, date, timedelta
+    
     pending_count = ServiceRequest.objects.filter(status='pending').count()
-    active_tech_count = Technician.objects.filter(
+    active_technicians = Technician.objects.filter(
         is_active=True, 
         depot_lat__isnull=False, 
         depot_lon__isnull=False
-    ).count()
+    ).prefetch_related('skills', 'user')
+    
+    active_tech_count = active_technicians.count()
+    
+    # Get pending requests with details
+    pending_requests = ServiceRequest.objects.filter(
+        status='pending'
+    ).select_related('required_skill', 'customer').order_by('window_start')[:20]
+    
+    # Get technician availability info
+    technicians_data = []
+    for tech in active_technicians:
+        skills_list = [skill.name for skill in tech.skills.all()]
+        
+        # Get existing assignments for today and tomorrow
+        today = timezone.now().date()
+        tomorrow = today + timedelta(days=1)
+        
+        today_assignments = Assignment.objects.filter(
+            technician=tech,
+            assigned_date=today,
+            status__in=['assigned', 'in_progress']
+        ).select_related('service_request')
+        
+        tomorrow_assignments = Assignment.objects.filter(
+            technician=tech,
+            assigned_date=tomorrow,
+            status__in=['assigned', 'in_progress']
+        ).select_related('service_request')
+        
+        technicians_data.append({
+            'technician': tech,
+            'username': tech.user.username,
+            'skills': skills_list,
+            'shift': f"{tech.shift_start.strftime('%H:%M')} - {tech.shift_end.strftime('%H:%M')}",
+            'capacity': f"{tech.capacity_minutes // 60}h {tech.capacity_minutes % 60}m",
+            'today_assignments': today_assignments.count(),
+            'tomorrow_assignments': tomorrow_assignments.count(),
+            'is_available_today': today_assignments.count() == 0,
+            'is_available_tomorrow': tomorrow_assignments.count() == 0,
+        })
+    
+    # Get pending requests with required skills and dates
+    pending_requests_data = []
+    for req in pending_requests:
+        required_skill = req.required_skill.name if req.required_skill else 'No skill required'
+        window_date = req.window_start.date() if req.window_start else None
+        
+        pending_requests_data.append({
+            'request': req,
+            'name': req.name,
+            'customer': req.customer.username,
+            'required_skill': required_skill,
+            'window_date': window_date,
+            'window_start': req.window_start.strftime('%Y-%m-%d %H:%M') if req.window_start else 'N/A',
+            'window_end': req.window_end.strftime('%Y-%m-%d %H:%M') if req.window_end else 'N/A',
+            'priority': req.get_priority_display() if hasattr(req, 'get_priority_display') else req.priority,
+        })
     
     context = {
         'pending_count': pending_count,
         'active_tech_count': active_tech_count,
         'today': timezone.now().date(),
-        'pending_requests': ServiceRequest.objects.filter(status='pending')[:10],
+        'pending_requests': pending_requests,  # Keep for backward compatibility
+        'technicians_data': technicians_data,
+        'pending_requests_data': pending_requests_data,
     }
     
     return render(request, 'core/admin_assign.html', context)

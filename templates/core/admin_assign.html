@@ -3,7 +3,7 @@
 {% block extrastyle %}
 <style>
     .assign-form {
-        max-width: 600px;
+        max-width: 1200px;
         margin: 20px 0;
     }
     .stats-box {
@@ -11,6 +11,48 @@
         padding: 15px;
         border-radius: 5px;
         margin: 15px 0;
+    }
+    .info-section {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+    .tech-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 8px 0;
+        display: inline-block;
+        width: 48%;
+        vertical-align: top;
+    }
+    .skill-badge {
+        background: #417690;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        margin: 2px;
+        display: inline-block;
+    }
+    .available-badge {
+        background: #4CAF50;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: bold;
+    }
+    .busy-badge {
+        background: #FF9800;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: bold;
     }
 </style>
 {% endblock %}
@@ -43,33 +85,91 @@
         </div>
     </form>
     
-    {% if pending_requests %}
-    <div style="margin-top: 30px;">
-        <h2>Pending Requests Preview</h2>
-        <table id="result_list">
+    <!-- Available Technicians Section -->
+    {% if technicians_data %}
+    <div class="info-section" style="margin-top: 30px;">
+        <h2>👷 Available Technicians & Skills</h2>
+        <p><strong>Total Active Technicians:</strong> {{ active_tech_count }}</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            {% for tech_data in technicians_data %}
+            <div class="tech-card">
+                <strong>{{ tech_data.username }}</strong>
+                <div style="margin-top: 5px;">
+                    {% if tech_data.is_available_today %}
+                        <span class="available-badge">✓ Available Today</span>
+                    {% else %}
+                        <span class="busy-badge">⚠ {{ tech_data.today_assignments }} job(s) today</span>
+                    {% endif %}
+                    {% if tech_data.tomorrow_assignments > 0 %}
+                        <span class="busy-badge" style="background: #2196F3;">{{ tech_data.tomorrow_assignments }} job(s) tomorrow</span>
+                    {% endif %}
+                </div>
+                <div style="margin-top: 8px; font-size: 12px;">
+                    <strong>Skills:</strong><br>
+                    {% for skill in tech_data.skills %}
+                        <span class="skill-badge">{{ skill }}</span>
+                    {% empty %}
+                        <span style="color: #999;">No skills</span>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 5px; font-size: 11px; color: #666;">
+                    <strong>Shift:</strong> {{ tech_data.shift }}<br>
+                    <strong>Capacity:</strong> {{ tech_data.capacity }}/day
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Pending Requests Section -->
+    {% if pending_requests_data %}
+    <div class="info-section" style="margin-top: 30px;">
+        <h2>📋 Pending Service Requests</h2>
+        <p><strong>Total Pending:</strong> {{ pending_count }}</p>
+        <table id="result_list" style="width: 100%; margin-top: 15px;">
             <thead>
                 <tr>
+                    <th>Date</th>
                     <th>Customer</th>
                     <th>Service</th>
-                    <th>Address</th>
-                    <th>Required Skills</th>
+                    <th>Required Skill</th>
                     <th>Time Window</th>
+                    <th>Priority</th>
                 </tr>
             </thead>
             <tbody>
-                {% for req in pending_requests %}
+                {% for req_data in pending_requests_data %}
                 <tr>
-                    <td>{{ req.customer.username }}</td>
-                    <td>{{ req.name }}</td>
-                    <td>{{ req.address|truncatewords:8 }}</td>
                     <td>
-                        {% if req.required_skill %}
-                            <span style="background: #417690; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">{{ req.required_skill.name }}</span>
+                        {% if req_data.window_date %}
+                            <strong>{{ req_data.window_date|date:"Y-m-d" }}</strong>
                         {% else %}
-                            <span style="color: #999;">No skill specified</span>
+                            <span style="color: #999;">N/A</span>
                         {% endif %}
                     </td>
-                    <td>{{ req.window_start|date:"H:i" }} - {{ req.window_end|date:"H:i" }}</td>
+                    <td>{{ req_data.customer }}</td>
+                    <td>{{ req_data.name }}</td>
+                    <td>
+                        {% if req_data.required_skill != 'No skill required' %}
+                            <span class="skill-badge">{{ req_data.required_skill }}</span>
+                        {% else %}
+                            <span style="color: #999;">No skill required</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 11px;">
+                        {{ req_data.window_start }}<br>
+                        <span style="color: #666;">to {{ req_data.window_end }}</span>
+                    </td>
+                    <td>
+                        {% if req_data.priority == 'High' %}
+                            <span style="color: #F44336; font-weight: bold;">High</span>
+                        {% elif req_data.priority == 'Medium' %}
+                            <span style="color: #FF9800;">Medium</span>
+                        {% else %}
+                            <span style="color: #4CAF50;">Low</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
