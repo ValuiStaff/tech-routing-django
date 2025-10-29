@@ -56,13 +56,19 @@ class RoutingService:
         K = len(techs)
         I = len(reqs)
         
-        # Build travel time matrices
+        # Build travel time matrices with timing
+        import time
+        import math
+        
+        print(f"\nBuilding distance matrices...")
+        start_time = time.time()
+        
         t_s_i = {}  # Tech depot to customer
         t_i_j = {}  # Customer to customer
         t_i_e = {}  # Customer to depot
         
-        # Validate data and calculate matrices
-        import math
+        # Calculate matrices (using fast Haversine - no API calls)
+        matrix_calc_start = time.time()
         
         for k in range(K):
             for i in range(I):
@@ -101,6 +107,9 @@ class RoutingService:
                         print(f"Invalid travel time from request {i} to request {j}: {travel_time}")
                         travel_time = 999999
                     t_i_j[(i, j)] = travel_time
+        
+        matrix_time = time.time() - matrix_calc_start
+        print(f"✓ Distance matrix built in {matrix_time:.2f} seconds ({K*I*2 + I*I} calculations)")
         
         print(f"\n{'='*80}")
         print(f"OR-TOOLS SOLVER SETUP")
@@ -433,39 +442,52 @@ class RoutingService:
                 print(f"  Node {k}: {tw_start[k]} - {tw_end[k]} minutes")
         
         search_params = pywrapcp.DefaultRoutingSearchParameters()
+        # Optimize for nearby locations - use faster strategy first
         search_params.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
-        search_params.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
-        search_params.time_limit.FromSeconds(self.config.time_limit_seconds)
         
-        print(f"Attempting to solve...")
+        # For nearby locations, reduce time limit and use simpler search
+        # If all locations are nearby Melbourne, solver should find solution quickly
+        time_limit = min(self.config.time_limit_seconds, 30)  # Max 30 seconds for nearby locations
+        search_params.time_limit.FromSeconds(time_limit)
+        
+        # Use faster local search for nearby locations (TABU_SEARCH is faster than GUIDED_LOCAL_SEARCH)
+        search_params.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.TABU_SEARCH
+        
+        print(f"Attempting to solve (time limit: {time_limit}s)...")
         import sys
-        sys.stdout.flush()  # Force flush output
+        sys.stdout.flush()
         
-        # Try multiple solution strategies if first fails
+        solver_start = time.time()
+        
+        # For nearby locations, try fastest strategy first
         solution = None
-        
         strategies = [
-            routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,
-            routing_enums_pb2.FirstSolutionStrategy.PATH_MOST_CONSTRAINED_ARC,
-            routing_enums_pb2.FirstSolutionStrategy.SAVINGS,
-            routing_enums_pb2.FirstSolutionStrategy.SWEEP,
+            routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC,  # Fastest
+            routing_enums_pb2.FirstSolutionStrategy.PATH_MOST_CONSTRAINED_ARC,  # Second fastest
         ]
         
         for strategy in strategies:
             try:
                 search_params.first_solution_strategy = strategy
-                print(f"Trying strategy: {strategy}")
+                strategy_start = time.time()
+                print(f"Trying strategy: {strategy} (max {time_limit}s)")
                 sys.stdout.flush()
                 solution = routing.SolveWithParameters(search_params)
+                strategy_time = time.time() - strategy_start
+                
                 if solution:
-                    print(f"Solver found solution with strategy: {strategy}")
+                    total_solver_time = time.time() - solver_start
+                    print(f"✓ Solution found with strategy: {strategy}")
+                    print(f"  Strategy took: {strategy_time:.2f} seconds")
+                    print(f"  Total solver time: {total_solver_time:.2f} seconds")
                     sys.stdout.flush()
                     break
                 else:
-                    print(f"Strategy {strategy} returned no solution")
+                    print(f"  Strategy returned no solution in {strategy_time:.2f}s")
                     sys.stdout.flush()
             except Exception as e:
-                print(f"Strategy {strategy} failed: {str(e)}")
+                strategy_time = time.time() - strategy_start
+                print(f"  Strategy failed in {strategy_time:.2f}s: {str(e)}")
                 import traceback
                 traceback.print_exc()
                 sys.stdout.flush()
@@ -486,6 +508,7 @@ class RoutingService:
         sys.stdout.flush()
         
         # Extract solution
+        extraction_start = time.time()
         print(f"\nExtracting assignments from solution...")
         sys.stdout.flush()
         assignments = []
@@ -532,7 +555,8 @@ class RoutingService:
                 print(f"  No assignments for this tech")
             sys.stdout.flush()
         
-        print(f"Extracted {len(assignments)} assignments")
+        extraction_time = time.time() - extraction_start
+        print(f"Extracted {len(assignments)} assignments in {extraction_time:.3f}s")
         sys.stdout.flush()
         
         unserved = [req for req in reqs if req.id not in served_ids]
@@ -618,6 +642,21 @@ class RoutingService:
                         if prev_idx >= 0:
                             prev = assignments[prev_idx]
                             total_travel += t_i_j.get((prev_idx, prev_idx + 1), 0.0)
+        
+        # Print total time summary
+        solver_end_time = time.time()
+        total_time = solver_end_time - start_time
+        solver_total_time = solver_end_time - solver_start
+        
+        print(f"\n{'='*80}")
+        print(f"⏱️  TIME SUMMARY")
+        print(f"{'='*80}")
+        print(f"Distance matrix calculation: {matrix_time:.3f}s ({K*I*2 + I*I} calculations, Haversine formula)")
+        print(f"Solver execution: {solver_total_time:.3f}s (OR-Tools CP-SAT solver)")
+        print(f"Assignment extraction: {extraction_time:.3f}s (parsing solution)")
+        print(f"{'─'*60}")
+        print(f"TOTAL TIME: {total_time:.3f}s")
+        print(f"{'='*80}\n")
         
         return assignments, unserved, total_travel
 
