@@ -206,25 +206,82 @@ class TechnicianAdmin(admin.ModelAdmin):
         else:
             shift = "No shift times"
         
-        # Get upcoming assignments dates
+        # Get all assignment dates with details
         from core.models import Assignment
-        upcoming = Assignment.objects.filter(
-            technician=obj,
-            status__in=['assigned', 'in_progress']
-        ).values_list('assigned_date', flat=True).distinct().order_by('assigned_date')[:3]
+        from django.utils import timezone
+        from datetime import date
         
-        dates_str = ", ".join([date.strftime('%Y-%m-%d') for date in upcoming]) if upcoming else "No upcoming assignments"
+        today = timezone.now().date()
+        
+        # Get all assignments grouped by date
+        all_assignments = Assignment.objects.filter(technician=obj).order_by('assigned_date')
+        
+        # Group assignments by date
+        assignments_by_date = {}
+        for assignment in all_assignments:
+            assign_date = assignment.assigned_date
+            if assign_date not in assignments_by_date:
+                assignments_by_date[assign_date] = []
+            assignments_by_date[assign_date].append(assignment)
+        
+        # Separate into today, upcoming, and past
+        today_assignments = assignments_by_date.get(today, [])
+        upcoming_dates = [d for d in sorted(assignments_by_date.keys()) if d > today]
+        past_dates = [d for d in sorted(assignments_by_date.keys(), reverse=True) if d < today]
+        
+        # Format dates display
+        dates_html = []
+        
+        # Show today's assignments
+        if today_assignments:
+            today_count = len(today_assignments)
+            active = [a for a in today_assignments if a.status in ['assigned', 'in_progress']]
+            status = today_assignments[0].status if today_assignments else 'assigned'
+            status_color = {'assigned': '#2196F3', 'in_progress': '#FF9800', 'completed': '#4CAF50', 'cancelled': '#F44336'}.get(status, '#666')
+            dates_html.append(
+                f'<div><strong>📅 Today ({today.strftime("%Y-%m-%d")}):</strong> '
+                f'<span style="color: {status_color}; font-weight: bold;">{today_count} job(s) - {status.replace("_", " ").upper()}</span></div>'
+            )
+        
+        # Show upcoming dates (next 10)
+        if upcoming_dates:
+            upcoming_str = ", ".join([d.strftime('%Y-%m-%d') for d in upcoming_dates[:10]])
+            if len(upcoming_dates) > 10:
+                upcoming_str += f" (+{len(upcoming_dates) - 10} more)"
+            
+            # Count jobs per date
+            job_counts = []
+            for d in upcoming_dates[:5]:
+                count = len(assignments_by_date[d])
+                job_counts.append(f"{d.strftime('%m-%d')}({count})")
+            
+            dates_html.append(
+                f'<div><strong>📅 Upcoming Dates:</strong> {", ".join(job_counts)}'
+                + (f" ... ({len(upcoming_dates)} dates total)" if len(upcoming_dates) > 5 else "")
+                + '</div>'
+            )
+        
+        # Show recent past dates (last 5)
+        if past_dates:
+            recent_past = past_dates[:5]
+            recent_str = ", ".join([d.strftime('%Y-%m-%d') for d in recent_past])
+            dates_html.append(
+                f'<div><strong>📅 Recent Past:</strong> <span style="color: #999; font-size: 10px;">{recent_str}</span></div>'
+            )
+        
+        if not dates_html:
+            dates_html.append('<div><strong>📅 No assignments scheduled</strong></div>')
         
         # Format HTML
-        html = f'<div style="font-size: 11px;">'
-        html += f'<div><strong>⌚ Shift:</strong> {shift}</div>'
-        html += f'<div><strong>📍 Location:</strong> {depot}{coords}</div>'
-        html += f'<div><strong>📅 Upcoming:</strong> {dates_str}</div>'
-        html += f'<div><strong>⚡ Capacity:</strong> {obj.capacity_minutes // 60}h {obj.capacity_minutes % 60}m</div>'
+        html = f'<div style="font-size: 11px; line-height: 1.6;">'
+        html += f'<div><strong>⌚ Daily Shift:</strong> {shift}</div>'
+        html += f'<div><strong>📍 Depot:</strong> {depot}{coords}</div>'
+        html += ''.join(dates_html)
+        html += f'<div><strong>⚡ Capacity:</strong> {obj.capacity_minutes // 60}h {obj.capacity_minutes % 60}m/day</div>'
         html += '</div>'
         
         return format_html(html)
-    availability_display.short_description = 'Availability & Location'
+    availability_display.short_description = 'Availability & Dates'
 
 
 class AssignmentInline(admin.TabularInline):
