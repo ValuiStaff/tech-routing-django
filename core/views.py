@@ -152,26 +152,46 @@ def admin_assign_view(request):
         status='pending'
     ).select_related('required_skill', 'customer').order_by('window_start')[:20]
     
-    # Get technician availability info
+    # Get technician availability info - OPTIMIZED with batch queries
+    today = timezone.now().date()
+    tomorrow = today + timedelta(days=1)
+    
+    # Batch fetch all assignments for today and tomorrow in 2 queries
+    today_all_assignments = Assignment.objects.filter(
+        assigned_date=today,
+        status__in=['assigned', 'in_progress'],
+        technician__in=active_technicians
+    ).select_related('technician', 'service_request')
+    
+    tomorrow_all_assignments = Assignment.objects.filter(
+        assigned_date=tomorrow,
+        status__in=['assigned', 'in_progress'],
+        technician__in=active_technicians
+    ).select_related('technician', 'service_request')
+    
+    # Group assignments by technician ID
+    today_by_tech = {}
+    tomorrow_by_tech = {}
+    
+    for assign in today_all_assignments:
+        tech_id = assign.technician.id
+        if tech_id not in today_by_tech:
+            today_by_tech[tech_id] = []
+        today_by_tech[tech_id].append(assign)
+    
+    for assign in tomorrow_all_assignments:
+        tech_id = assign.technician.id
+        if tech_id not in tomorrow_by_tech:
+            tomorrow_by_tech[tech_id] = []
+        tomorrow_by_tech[tech_id].append(assign)
+    
+    # Build technician data (skills already prefetched)
     technicians_data = []
     for tech in active_technicians:
-        skills_list = [skill.name for skill in tech.skills.all()]
+        skills_list = [skill.name for skill in tech.skills.all()]  # Already prefetched
         
-        # Get existing assignments for today and tomorrow
-        today = timezone.now().date()
-        tomorrow = today + timedelta(days=1)
-        
-        today_assignments = Assignment.objects.filter(
-            technician=tech,
-            assigned_date=today,
-            status__in=['assigned', 'in_progress']
-        ).select_related('service_request')
-        
-        tomorrow_assignments = Assignment.objects.filter(
-            technician=tech,
-            assigned_date=tomorrow,
-            status__in=['assigned', 'in_progress']
-        ).select_related('service_request')
+        tech_today_count = len(today_by_tech.get(tech.id, []))
+        tech_tomorrow_count = len(tomorrow_by_tech.get(tech.id, []))
         
         technicians_data.append({
             'technician': tech,
@@ -179,10 +199,10 @@ def admin_assign_view(request):
             'skills': skills_list,
             'shift': f"{tech.shift_start.strftime('%H:%M')} - {tech.shift_end.strftime('%H:%M')}",
             'capacity': f"{tech.capacity_minutes // 60}h {tech.capacity_minutes % 60}m",
-            'today_assignments': today_assignments.count(),
-            'tomorrow_assignments': tomorrow_assignments.count(),
-            'is_available_today': today_assignments.count() == 0,
-            'is_available_tomorrow': tomorrow_assignments.count() == 0,
+            'today_assignments': tech_today_count,
+            'tomorrow_assignments': tech_tomorrow_count,
+            'is_available_today': tech_today_count == 0,
+            'is_available_tomorrow': tech_tomorrow_count == 0,
         })
     
     # Get pending requests with required skills and dates
