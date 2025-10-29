@@ -55,3 +55,7 @@ django_deployment.zip
 *.pyc
 logs/
 
+
+# Exported data files
+data_export.json
+data_for_koyeb.json

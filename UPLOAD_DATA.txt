@@ -1,0 +1,47 @@
+========================================
+QUICK GUIDE: Upload Local Data to Koyeb
+========================================
+
+DATA FILE: data_for_koyeb.json (20KB)
+
+WHAT'S INCLUDED:
+✓ Users (15)
+✓ Skills (12)
+✓ Technicians (3)
+✓ Service Requests (8)
+✓ Google Maps Config
+
+STEPS TO UPLOAD:
+
+1. Open Koyeb Dashboard
+   https://app.koyeb.com/
+
+2. Open Console
+   - Click your app: tech-routing-django
+   - Click "Console" tab (left sidebar)
+   - Click "Open Console"
+
+3. Create file in console
+   nano data_for_koyeb.json
+
+4. Paste content
+   - Open data_for_koyeb.json from this folder
+   - Copy entire content (Cmd+A, Cmd+C)
+   - In nano, paste (Cmd+V)
+   - Save: Ctrl+X, then Y, then Enter
+
+5. Load data
+   python manage.py loaddata data_for_koyeb.json
+
+6. Verify
+   python manage.py shell
+   >>> from accounts.models import User
+   >>> User.objects.count()
+   >>> exit()
+
+ALTERNATIVE: Use Bulk Upload feature in admin panel
+- Login to admin
+- Go to "Bulk Upload Users"
+- Use Manual Entry to create data
+
+========================================
