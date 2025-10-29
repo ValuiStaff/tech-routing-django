@@ -487,10 +487,73 @@ class RoutingService:
         sys.stdout.flush()
         
         unserved = [req for req in reqs if req.id not in served_ids]
-        print(f"Unserved requests: {len(unserved)}")
+        print(f"\n{'='*80}")
+        print(f"ASSIGNMENT VERIFICATION")
+        print(f"{'='*80}")
+        print(f"Total requests: {len(reqs)}")
+        print(f"Assigned: {len(assignments)}")
+        print(f"Unserved: {len(unserved)}")
+        
         if unserved:
+            print(f"\nUnserved requests and reasons:")
             for req in unserved:
-                print(f"  - {req.name} (skill: {req.required_skill.name if req.required_skill else 'None'})")
+                req_idx = reqs.index(req)
+                node = cust_base + req_idx
+                allowed_techs = allowed_vehicles.get(node, [])
+                required_skill = req.required_skill.name if req.required_skill else 'None'
+                
+                if not allowed_techs:
+                    # Check why no techs allowed
+                    if required_skill != 'None':
+                        # Find techs with this skill
+                        techs_with_skill = [k for k, t in enumerate(techs) if t.skills.filter(name=required_skill).exists()]
+                        if not techs_with_skill:
+                            reason = f"No technician has skill '{required_skill}'"
+                        else:
+                            # Check time windows
+                            time_incompatible = []
+                            for k in techs_with_skill:
+                                if not (tw_start[node] <= tw_end[k] and tw_end[node] >= tw_start[k]):
+                                    time_incompatible.append(k)
+                            if len(time_incompatible) == len(techs_with_skill):
+                                reason = f"Techs with skill '{required_skill}' have incompatible time windows"
+                            else:
+                                reason = f"Skill '{required_skill}' available but other constraints failed"
+                    else:
+                        reason = "No skill requirement but no compatible time windows"
+                else:
+                    reason = f"{len(allowed_techs)} tech(s) allowed but not assigned (capacity/constraint issue)"
+                
+                print(f"  - {req.name}")
+                print(f"    Required skill: {required_skill}")
+                print(f"    Reason: {reason}")
+                if allowed_techs:
+                    tech_names = [techs[k].user.username for k in allowed_techs]
+                    print(f"    Allowed techs: {', '.join(tech_names)}")
+        else:
+            print(f"\n✓ All requests successfully assigned!")
+        
+        # Verify skill matching for assigned jobs
+        print(f"\n✓ Skill matching verification for assigned jobs:")
+        skill_match_errors = []
+        for assignment in assignments:
+            req = assignment['service_request']
+            tech = assignment['technician']
+            required_skill = req.required_skill
+            
+            if required_skill:
+                if not tech.skills.filter(id=required_skill.id).exists():
+                    skill_match_errors.append(
+                        f"ERROR: {req.name} assigned to {tech.user.username} but tech doesn't have skill '{required_skill.name}'"
+                    )
+        
+        if skill_match_errors:
+            for error in skill_match_errors:
+                print(f"  ✗ {error}")
+        else:
+            print(f"  ✓ All {len(assignments)} assignments have matching skills!")
+        
+        print(f"{'='*80}\n")
         sys.stdout.flush()
         
         # Calculate total travel time
