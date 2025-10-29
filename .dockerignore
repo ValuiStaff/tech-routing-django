@@ -1,47 +1,47 @@
+# Git
+.git
+.gitignore
+
 # Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+__pycache__
+*.pyc
+*.pyo
+*.pyd
 .Python
 venv/
 env/
 ENV/
-*.egg-info/
-dist/
-build/
 
 # Django
 *.log
+local_settings.py
 db.sqlite3
 db.sqlite3-journal
-local_settings.py
 
-# IDE
+# Media and static files (will be generated)
+/media
+/staticfiles
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-
-# Git
-.git/
-.gitignore
-
-# Docs
-*.md
-!README.md
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Docker
-Dockerfile*
-docker-compose*.yml
-.dockerignore
+# Documentation
+*.md
+README.md
+KOYEB_DEPLOYMENT.md
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Deployment
+koyeb.toml
+docker-compose.yml

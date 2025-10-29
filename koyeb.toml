@@ -1,0 +1,14 @@
+[build]
+type = "dockerfile"
+
+[deploy]
+type = "web"
+
+[[services]]
+name = "web"
+runtime = "docker"
+
+[services.env]
+DJANGO_SETTINGS_MODULE = "tech_routing.production_settings"
+PORT = "8000"
+

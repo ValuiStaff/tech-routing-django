@@ -64,8 +64,8 @@ MEDIA_ROOT = str(BASE_DIR / 'media')
 # Remove non-existent STATICFILES_DIRS for production
 STATICFILES_DIRS = []
 
-# Add WhiteNoise for static files serving
-MIDDLEWARE = MIDDLEWARE + ['whitenoise.middleware.WhiteNoiseMiddleware']
+# Add WhiteNoise for static files serving (must be after SecurityMiddleware)
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Security settings (disable if behind proxy)
