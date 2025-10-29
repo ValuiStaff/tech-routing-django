@@ -330,17 +330,17 @@ class ServiceRequestAdmin(admin.ModelAdmin):
         deleted_count = 0
         updated_count = 0
         
-        for request in queryset:
+        for service_request in queryset:
             # Delete all assignments for this service request
-            assignments = Assignment.objects.filter(service_request=request)
+            assignments = Assignment.objects.filter(service_request=service_request)
             if assignments.exists():
                 deleted_count += assignments.count()
                 assignments.delete()
             
             # Mark as pending
-            if request.status != 'pending':
-                request.status = 'pending'
-                request.save()
+            if service_request.status != 'pending':
+                service_request.status = 'pending'
+                service_request.save()
                 updated_count += 1
         
         messages.success(
