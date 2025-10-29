@@ -221,38 +221,87 @@ class RoutingService:
         capacities = [t.capacity_minutes for t in techs]
         demands = {(cust_base + i): reqs[i].service_minutes for i in range(I)}
         
+        # Get existing assignments for each technician on the assigned date
+        # This prevents double-booking technicians who already have jobs
+        existing_assignments_by_tech = {}
+        for k, tech in enumerate(techs):
+            existing = Assignment.objects.filter(
+                technician=tech,
+                assigned_date=assigned_date.date(),
+                status__in=['assigned', 'in_progress']
+            ).select_related('service_request')
+            
+            # Store time windows of existing assignments
+            existing_windows = []
+            for assign in existing:
+                # Convert to minutes from reference
+                planned_start_mins = mins_from_ref(assign.planned_start)
+                planned_finish_mins = mins_from_ref(assign.planned_finish) + assign.service_request.service_minutes
+                existing_windows.append((planned_start_mins, planned_finish_mins))
+            
+            existing_assignments_by_tech[k] = existing_windows
+        
+        print(f"\nExisting assignments check:")
+        for k, tech in enumerate(techs):
+            if existing_assignments_by_tech[k]:
+                print(f"  Tech {k} ({tech.user.username}): {len(existing_assignments_by_tech[k])} existing assignment(s)")
+        
         # Skills matching - inspired by Gurobi technician routing
-        # Only allow technicians with the required skill
+        # Only allow technicians with the required skill AND available time slots
         allowed_vehicles = {}
         for i, req in enumerate(reqs):
             allowed = []
             required_skill = req.required_skill if hasattr(req, 'required_skill') else None
             
+            # Get request time window in minutes
+            req_start_mins = tw_start[cust_base + i]
+            req_end_mins = tw_end[cust_base + i]
+            req_duration = req.service_minutes
+            
             if required_skill:
                 # Only allow technicians with the required skill
                 for k, t in enumerate(techs):
                     if t.skills.filter(id=required_skill.id).exists():
-                        # Also check if technician is available during customer's time window
+                        # Check 1: Technician shift overlaps with customer window
                         if tw_start[cust_base + i] <= tw_end[k] and tw_end[cust_base + i] >= tw_start[k]:
-                            allowed.append(k)
+                            # Check 2: No existing assignments conflict (technician is available)
+                            has_conflict = False
+                            for existing_start, existing_end in existing_assignments_by_tech[k]:
+                                # Check if request window overlaps with existing assignment
+                                # Overlap if: req_start < existing_end AND req_end > existing_start
+                                if req_start_mins < existing_end and (req_start_mins + req_duration) > existing_start:
+                                    has_conflict = True
+                                    print(f"  Tech {k} ({t.user.username}) has conflict: existing ({existing_start}-{existing_end}) vs request ({req_start_mins}-{req_start_mins + req_duration})")
+                                    break
+                            
+                            if not has_conflict:
+                                allowed.append(k)
                         else:
-                            print(f"Request {i} ({req.name}) needs '{required_skill.name}' but tech {k} ({t.user.username}) has incompatible time window")
+                            print(f"Request {i} ({req.name}) needs '{required_skill.name}' but tech {k} ({t.user.username}) has incompatible shift time window")
                 
                 if not allowed:
-                    print(f"WARNING: No technician has required skill '{required_skill.name}' with compatible time window for request {i}")
+                    print(f"WARNING: No technician has required skill '{required_skill.name}' with available time slot for request {i}")
                     # Don't allow all - let the job be dropped if no matching tech
                 else:
                     print(f"Request {i} ({req.name}) needs skill '{required_skill.name}', allowed techs: {allowed}")
             else:
-                # No skill requirement - check time window compatibility
+                # No skill requirement - check time window compatibility and availability
                 for k, t in enumerate(techs):
                     if tw_start[cust_base + i] <= tw_end[k] and tw_end[cust_base + i] >= tw_start[k]:
-                        allowed.append(k)
+                        # Check if technician has available time slot
+                        has_conflict = False
+                        for existing_start, existing_end in existing_assignments_by_tech[k]:
+                            if req_start_mins < existing_end and (req_start_mins + req_duration) > existing_start:
+                                has_conflict = True
+                                break
+                        
+                        if not has_conflict:
+                            allowed.append(k)
                 
                 if not allowed:
-                    print(f"WARNING: Request {i} ({req.name}) has no compatible time window with any technician")
+                    print(f"WARNING: Request {i} ({req.name}) has no available technician with compatible time window")
                 else:
-                    print(f"Request {i} has no skill requirement, allowing all {len(allowed)} techs with compatible time windows")
+                    print(f"Request {i} has no skill requirement, allowing all {len(allowed)} techs with available time slots")
             
             allowed_vehicles[cust_base + i] = allowed
 
