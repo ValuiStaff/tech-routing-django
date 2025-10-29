@@ -345,7 +345,7 @@ class ServiceRequestAdmin(admin.ModelAdmin):
 
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
-    list_display = ['service_request', 'technician', 'assigned_date', 'sequence_order', 'status', 
+    list_display = ['service_request', 'technician_display', 'assigned_date', 'sequence_order', 'status', 
                     'skills_comparison', 'time_window_status']
     list_filter = ['status', 'assigned_date']
     search_fields = ['service_request__name']
@@ -353,8 +353,15 @@ class AssignmentAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        # Only show assignments with valid technicians
-        return qs.filter(technician__isnull=False)
+        # Show all assignments, even those with None technicians
+        return qs
+    
+    def technician_display(self, obj):
+        """Safely display technician username"""
+        if obj.technician and obj.technician.user:
+            return obj.technician.user.username
+        return "-"
+    technician_display.short_description = 'Technician'
     fieldsets = (
         ('Job Info', {'fields': ('service_request', 'technician', 'assigned_date', 'sequence_order')}),
         ('Timing', {'fields': ('planned_start', 'planned_finish', 'actual_start', 'actual_finish')}),

@@ -76,7 +76,9 @@ class Technician(models.Model):
         ordering = ['user__username']
     
     def __str__(self):
-        return f"{self.user.username} - {self.depot_address}"
+        if self.user:
+            return f"{self.user.username} - {self.depot_address}"
+        return f"Technician (ID: {self.id}) - {self.depot_address}"
     
     def clean(self):
         # Validate color_hex format
@@ -158,7 +160,11 @@ class Assignment(models.Model):
         unique_together = ['service_request', 'assigned_date']
     
     def __str__(self):
-        return f"{self.technician.user.username} - {self.service_request.name} ({self.assigned_date})"
+        if self.technician and self.technician.user:
+            tech_name = self.technician.user.username
+        else:
+            tech_name = "Unassigned"
+        return f"{tech_name} - {self.service_request.name} ({self.assigned_date})"
     
     def get_skills_match_info(self):
         """Get info about required skill vs technician's skills"""
