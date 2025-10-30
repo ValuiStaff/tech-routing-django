@@ -43,15 +43,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:${PORT:-8000}/health/ || exit 1
 
-# Run migrations and start server
-CMD python manage.py migrate --noinput && \
-    gunicorn tech_routing.wsgi:application \
-    --bind 0.0.0.0:${PORT:-8000} \
-    --workers ${GUNICORN_WORKERS:-3} \
-    --threads ${GUNICORN_THREADS:-2} \
-    --timeout ${GUNICORN_TIMEOUT:-120} \
-    --keep-alive 5 \
-    --access-logfile - \
-    --error-logfile - \
-    --capture-output \
-    --log-level info
+# Entrypoint to handle migrate, optional loaddata, optional admin creation, then start server
+RUN chmod +x docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
