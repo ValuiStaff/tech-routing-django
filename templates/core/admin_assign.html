@@ -62,46 +62,240 @@
     <h1>🚀 Assign Jobs with OR-Tools</h1>
     <p class="description">Automatically match pending service requests to technicians based on skills, time windows, and capacity.</p>
     
+    <!-- Date Filter -->
+    <div class="info-section" style="background: #e3f2fd; border-color: #2196F3;">
+        <h2 style="margin-top: 0;">📅 Date Filter</h2>
+        <form method="get" style="display: inline-block;">
+            <label for="filter_date" style="font-weight: bold; margin-right: 10px;">Filter by Date:</label>
+            <input type="date" id="filter_date" name="filter_date" 
+                   value="{{ filter_date_str }}" 
+                   onchange="this.form.submit()"
+                   style="width: 200px; padding: 5px; font-size: 14px;">
+            <button type="submit" class="button" style="margin-left: 10px;">Apply Filter</button>
+        </form>
+        <div style="margin-top: 10px; font-size: 14px; color: #555;">
+            <strong>Viewing:</strong> {{ filter_date|date:"F d, Y" }} 
+            {% if filter_date == today %}<span style="color: #4CAF50;">(Today)</span>{% endif %}
+        </div>
+    </div>
+    
+    <script>
+    // Sync the assignment date with the filter and refresh tables
+    (function() {
+        var filterInput = document.getElementById('filter_date');
+        var assignedInput = document.getElementById('assigned_date');
+        if (filterInput && assignedInput) {
+            // When top date filter changes, also update assignment date input (done after reload via value)
+            // When assignment date changes, navigate to same page with filter_date to refresh tables
+            assignedInput.addEventListener('change', function() {
+                var d = assignedInput.value;
+                if (d) {
+                    var url = new URL(window.location.href);
+                    url.searchParams.set('filter_date', d);
+                    window.location.href = url.toString();
+                }
+            });
+        }
+    })();
+    </script>
+    
+    <!-- Stats Summary -->
+    <div class="stats-box">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+                <strong>All Jobs ({{ filter_date|date:"M d" }}):</strong><br>
+                <span style="font-size: 24px; color: #2196F3;">{{ all_requests_count|default:0 }}</span>
+            </div>
+            <div>
+                <strong>Pending Requests:</strong><br>
+                <span style="font-size: 24px; color: #F44336;">{{ pending_count }}</span>
+            </div>
+            <div>
+                <strong>Assigned Jobs:</strong><br>
+                <span style="font-size: 24px; color: #4CAF50;">{{ assigned_count|default:0 }}</span>
+            </div>
+            <div>
+                <strong>Active Technicians:</strong><br>
+                <span style="font-size: 24px; color: #2196F3;">{{ active_tech_count }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Assignment Form -->
     <form method="post">
         {% csrf_token %}
         
-        <div class="stats-box">
-            <strong>Pending Requests:</strong> {{ pending_count }}<br>
-            <strong>Active Technicians:</strong> {{ active_tech_count }}
-        </div>
-        
         <div class="form-row">
-            <label for="assigned_date">Select Date:</label>
+            <label for="assigned_date">Assignment Date (for new assignments):</label>
             <input type="date" class="vTextField" id="assigned_date" name="assigned_date" 
-                   value="{{ today|date:'Y-m-d' }}" required style="width: 200px;">
+                   value="{{ filter_date_str }}" required style="width: 200px;">
         </div>
         
         <div style="margin: 20px 0;">
             <button type="submit" class="default" style="font-size: 16px; padding: 10px 20px;">
-                ▶️ Run Assignment
+                ▶️ Run Assignment for {{ filter_date|date:"M d, Y" }}
             </button>
-            <a href="/admin/core/assignment/" class="button" style="margin-left: 10px;">View Assignments</a>
-            <a href="/admin/core/servicerequest/" class="button" style="margin-left: 10px;">View Requests</a>
+            <a href="/admin/core/assignment/" class="button" style="margin-left: 10px;">View All Assignments</a>
+            <a href="/admin/core/servicerequest/" class="button" style="margin-left: 10px;">View All Requests</a>
+            <a href="{% url 'core:admin_technician' %}?date={{ filter_date_str }}" class="button" style="margin-left: 10px;">👷 Technician View</a>
         </div>
     </form>
+    
+    <!-- Travel Time Analysis Dashboard -->
+    {% if travel_time_analysis and travel_time_analysis.max_distance > 0 %}
+    <div class="info-section" style="margin-top: 30px; background: {% if travel_time_analysis.issues %}#fff3cd{% else %}#d4edda{% endif %}; border-color: {% if travel_time_analysis.issues %}#ffc107{% else %}#28a745{% endif %};">
+        <h2>⏱️ Travel Time Analysis</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+            <div style="background: white; padding: 10px; border-radius: 5px;">
+                <strong>Max Distance</strong><br>
+                <span style="font-size: 24px; color: #2196F3;">{{ travel_time_analysis.max_distance|floatformat:1 }} km</span>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 5px;">
+                <strong>Avg Distance</strong><br>
+                <span style="font-size: 24px; color: #4CAF50;">{{ travel_time_analysis.avg_distance|floatformat:1 }} km</span>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 5px;">
+                <strong>Speed Setting</strong><br>
+                <span style="font-size: 24px; color: #FF9800;">{{ travel_time_analysis.avg_speed_kph }} km/h</span>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 5px;">
+                <strong>Max Travel Time</strong><br>
+                <span style="font-size: 24px; color: #F44336;">
+                    {{ travel_time_analysis.max_travel_minutes|floatformat:0 }} min
+                </span>
+            </div>
+        </div>
+        
+        {% if travel_time_analysis.issues %}
+        <div style="margin-top: 20px;">
+            <h3 style="color: #856404;">⚠️ Issues Found:</h3>
+            {% for issue in travel_time_analysis.issues %}
+            <div style="background: white; padding: 12px; margin: 10px 0; border-radius: 5px; border-left: 4px solid 
+                {% if issue.severity == 'warning' %}#ffc107
+                {% elif issue.severity == 'suggestion' %}#17a2b8
+                {% else %}#28a745
+                {% endif %};">
+                <strong>
+                    {% if issue.severity == 'warning' %}⚠️ Warning:
+                    {% elif issue.severity == 'suggestion' %}💡 Suggestion:
+                    {% else %}ℹ️ Info:
+                    {% endif %}
+                </strong>
+                {{ issue.message }}
+                <br><small style="color: #666;">{{ issue.reason }}</small>
+                
+                {% if issue.type == 'high_travel_time' %}
+                <div style="margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 3px;">
+                    <strong>Details:</strong><br>
+                    Maximum distance: {{ issue.max_distance_km }} km<br>
+                    Current speed: {{ issue.speed_setting }} km/h<br>
+                    <strong>Recommendation:</strong> If locations are nearby, increase speed to 35-50 km/h in 
+                    <a href="/admin/core/googlemapsconfig/1/change/" target="_blank">Google Maps Config</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 5px; color: #155724;">
+            ✓ Travel times look reasonable for Melbourne area
+        </div>
+        {% endif %}
+        
+        {% if travel_time_analysis.sample_distances %}
+        <div style="margin-top: 20px;">
+            <h3>📏 Sample Distances Between Locations:</h3>
+            <table style="width: 100%; margin-top: 10px; background: white; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f0f0f0;">
+                        <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">From</th>
+                        <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">To</th>
+                        <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Distance</th>
+                        <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Travel Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pair in travel_time_analysis.sample_distances %}
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ pair.from }}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ pair.to }}</td>
+                        <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{{ pair.distance_km }} km</td>
+                        <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">{{ pair.travel_minutes }} min</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Existing Assignments Section -->
+    {% if existing_assignments %}
+    <div class="info-section" style="margin-top: 30px; background: #fff3cd; border-color: #ffc107;">
+        <h2>📌 Already Assigned Jobs ({{ filter_date|date:"M d, Y" }})</h2>
+        <p><strong>Total Assigned:</strong> {{ existing_assignments_count }} job(s)</p>
+        <table id="result_list" style="width: 100%; margin-top: 15px; background: white; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f0f0f0;">
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Technician</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Service Request</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Customer</th>
+                    <th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Sequence</th>
+                    <th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Time</th>
+                    <th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for assign in existing_assignments %}
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>{{ assign.technician }}</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ assign.service_request }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ assign.customer }}</td>
+                    <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">
+                        <span class="skill-badge">{{ assign.sequence_order }}</span>
+                    </td>
+                    <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">
+                        {{ assign.planned_start }} - {{ assign.planned_finish }}
+                    </td>
+                    <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">
+                        {% if assign.status == 'assigned' %}
+                            <span style="color: #2196F3; font-weight: bold;">Assigned</span>
+                        {% elif assign.status == 'in_progress' %}
+                            <span style="color: #FF9800; font-weight: bold;">In Progress</span>
+                        {% elif assign.status == 'completed' %}
+                            <span style="color: #4CAF50; font-weight: bold;">Completed</span>
+                        {% else %}
+                            {{ assign.status }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="info-section" style="margin-top: 30px; background: #d4edda; border-color: #28a745;">
+        <h2>📌 Already Assigned Jobs ({{ filter_date|date:"M d, Y" }})</h2>
+        <p>✓ No assignments found for this date. All technicians are available for new assignments.</p>
+    </div>
+    {% endif %}
     
     <!-- Available Technicians Section -->
     {% if technicians_data %}
     <div class="info-section" style="margin-top: 30px;">
-        <h2>👷 Available Technicians & Skills</h2>
+        <h2>👷 Technicians & Availability ({{ filter_date|date:"M d, Y" }})</h2>
         <p><strong>Total Active Technicians:</strong> {{ active_tech_count }}</p>
         <div style="display: flex; flex-wrap: wrap; gap: 10px;">
             {% for tech_data in technicians_data %}
-            <div class="tech-card">
+            <div class="tech-card" style="{% if tech_data.is_available %}border-color: #4CAF50; border-width: 2px;{% else %}border-color: #FF9800; border-width: 2px;{% endif %}">
                 <strong>{{ tech_data.username }}</strong>
                 <div style="margin-top: 5px;">
-                    {% if tech_data.is_available_today %}
-                        <span class="available-badge">✓ Available Today</span>
+                    {% if tech_data.is_available %}
+                        <span class="available-badge">✓ Available on {{ filter_date|date:"M d" }}</span>
                     {% else %}
-                        <span class="busy-badge">⚠ {{ tech_data.today_assignments }} job(s) today</span>
-                    {% endif %}
-                    {% if tech_data.tomorrow_assignments > 0 %}
-                        <span class="busy-badge" style="background: #2196F3;">{{ tech_data.tomorrow_assignments }} job(s) tomorrow</span>
+                        <span class="busy-badge">⚠ {{ tech_data.filter_date_assignments }} job(s) on {{ filter_date|date:"M d" }}</span>
                     {% endif %}
                 </div>
                 <div style="margin-top: 8px; font-size: 12px;">
@@ -114,54 +308,108 @@
                 </div>
                 <div style="margin-top: 5px; font-size: 11px; color: #666;">
                     <strong>Shift:</strong> {{ tech_data.shift }}<br>
-                    <strong>Capacity:</strong> {{ tech_data.capacity }}/day
+                    <strong>Total Capacity:</strong> {{ tech_data.capacity }}/day<br>
+                    {% if not tech_data.is_available %}
+                    <strong>Used:</strong> <span style="color: #FF9800;">{{ tech_data.used_capacity }}</span><br>
+                    <strong>Available:</strong> <span style="color: #4CAF50;">{{ tech_data.available_capacity }}</span>
+                    {% endif %}
                 </div>
+                {% if tech_data.filter_date_assignment_list %}
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 10px;">
+                    <strong>Assigned Jobs:</strong>
+                    <ul style="margin: 5px 0; padding-left: 20px;">
+                        {% for assignment in tech_data.filter_date_assignment_list %}
+                        <li>
+                            {% if assignment.service_request %}{{ assignment.service_request.name }}{% else %}N/A{% endif %}
+                            {% if assignment.planned_start and assignment.planned_finish %}
+                                ({{ assignment.planned_start|time:"H:i" }}-{{ assignment.planned_finish|time:"H:i" }})
+                            {% endif %}
+                            <span style="color: #999;">[{{ assignment.status }}]</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
     </div>
     {% endif %}
     
-    <!-- Pending Requests Section -->
-    {% if pending_requests_data %}
-    <div class="info-section" style="margin-top: 30px;">
-        <h2>📋 Pending Service Requests</h2>
-        <p><strong>Total Pending:</strong> {{ pending_count }}</p>
-        <table id="result_list" style="width: 100%; margin-top: 15px;">
+    <!-- All Jobs Section -->
+    {% if all_requests_data %}
+    <div class="info-section" style="margin-top: 30px; background: #e3f2fd; border-color: #2196F3;">
+        <h2>📊 All Jobs for {{ filter_date|date:"M d, Y" }}</h2>
+        <p><strong>Total Jobs:</strong> <span style="font-size: 18px; color: #2196F3;">{{ all_requests_count }}</span> 
+        ({{ pending_count }} Pending, {{ assigned_count }} Assigned)</p>
+        <table style="width: 100%; margin-top: 15px; background: white; border-collapse: collapse;">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Service</th>
-                    <th>Required Skill</th>
-                    <th>Time Window</th>
-                    <th>Priority</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Status</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Date</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Time Window</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Customer</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Service</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Required Skill</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Assigned To</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Priority</th>
                 </tr>
             </thead>
             <tbody>
-                {% for req_data in pending_requests_data %}
+                {% for req_data in all_requests_data %}
                 <tr>
-                    <td>
-                        {% if req_data.window_date %}
-                            <strong>{{ req_data.window_date|date:"Y-m-d" }}</strong>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if req_data.status == 'pending' %}
+                            <span style="color: #F44336; font-weight: bold;">● Pending</span>
+                        {% elif req_data.status == 'assigned' %}
+                            <span style="color: #2196F3; font-weight: bold;">● Assigned</span>
+                        {% elif req_data.status == 'in_progress' %}
+                            <span style="color: #FF9800; font-weight: bold;">● In Progress</span>
+                        {% elif req_data.status == 'completed' %}
+                            <span style="color: #4CAF50; font-weight: bold;">● Completed</span>
                         {% else %}
-                            <span style="color: #999;">N/A</span>
+                            <span>{{ req_data.status|title }}</span>
                         {% endif %}
                     </td>
-                    <td>{{ req_data.customer }}</td>
-                    <td>{{ req_data.name }}</td>
-                    <td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if req_data.window_date %}
+                            <strong style="font-size: 13px; color: #2196F3;">{{ req_data.window_date|date:"M d, Y" }}</strong>
+                            <br><small style="color: #666;">{{ req_data.window_date|date:"D" }}</small>
+                        {% else %}
+                            <span style="color: #999;">No date</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if req_data.request.window_start and req_data.request.window_end %}
+                            <strong style="font-size: 12px;">{{ req_data.request.window_start|date:"H:i" }}</strong>
+                            <span style="color: #666;"> - </span>
+                            <strong style="font-size: 12px;">{{ req_data.request.window_end|date:"H:i" }}</strong>
+                        {% else %}
+                            <span style="color: #999;">{{ req_data.window_start }} - {{ req_data.window_end }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ req_data.customer }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ req_data.name }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
                         {% if req_data.required_skill != 'No skill required' %}
                             <span class="skill-badge">{{ req_data.required_skill }}</span>
                         {% else %}
                             <span style="color: #999;">No skill required</span>
                         {% endif %}
                     </td>
-                    <td style="font-size: 11px;">
-                        {{ req_data.window_start }}<br>
-                        <span style="color: #666;">to {{ req_data.window_end }}</span>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if req_data.assignments %}
+                            {% for assign in req_data.assignments %}
+                                {% if assign.technician and assign.technician.user %}
+                                    <span class="skill-badge" style="background: #4CAF50;">{{ assign.technician.user.username }}</span>
+                                    <br><small style="color: #666;">Seq: {{ assign.sequence_order }}</small>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <span style="color: #999;">-</span>
+                        {% endif %}
                     </td>
-                    <td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
                         {% if req_data.priority == 'High' %}
                             <span style="color: #F44336; font-weight: bold;">High</span>
                         {% elif req_data.priority == 'Medium' %}
@@ -177,8 +425,134 @@
     </div>
     {% endif %}
     
+    <!-- Pending Requests Section -->
+    {% if pending_requests_data %}
+    <div class="info-section" style="margin-top: 30px;">
+        <h2>📋 Pending Service Requests ({{ filter_date|date:"M d, Y" }})</h2>
+        <p><strong>Total Pending for {{ filter_date|date:"M d" }}:</strong> <span style="font-size: 18px; color: #F44336;">{{ pending_count }}</span></p>
+        <table id="result_list" style="width: 100%; margin-top: 15px; background: white; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Date</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Time Window</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Customer</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Service</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Required Skill</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Priority</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req_data in pending_requests_data %}
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if req_data.window_date %}
+                            <strong style="font-size: 13px; color: #2196F3;">{{ req_data.window_date|date:"M d, Y" }}</strong>
+                            <br><small style="color: #666;">{{ req_data.window_date|date:"D" }}</small>
+                        {% else %}
+                            <span style="color: #999;">No date</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if req_data.request.window_start and req_data.request.window_end %}
+                            <strong style="font-size: 12px;">{{ req_data.request.window_start|date:"H:i" }}</strong>
+                            <span style="color: #666;"> - </span>
+                            <strong style="font-size: 12px;">{{ req_data.request.window_end|date:"H:i" }}</strong>
+                            <br><small style="color: #666;">
+                                {% if req_data.window_date == filter_date %}
+                                    <span style="color: #4CAF50;">✓ Matches filter</span>
+                                {% else %}
+                                    {{ req_data.request.window_start|date:"M d" }}
+                                {% endif %}
+                            </small>
+                        {% else %}
+                            <span style="color: #999;">{{ req_data.window_start }} - {{ req_data.window_end }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ req_data.customer }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ req_data.name }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if req_data.required_skill != 'No skill required' %}
+                            <span class="skill-badge">{{ req_data.required_skill }}</span>
+                        {% else %}
+                            <span style="color: #999;">No skill required</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if req_data.priority == 'High' %}
+                            <span style="color: #F44336; font-weight: bold;">High</span>
+                        {% elif req_data.priority == 'Medium' %}
+                            <span style="color: #FF9800;">Medium</span>
+                        {% else %}
+                            <span style="color: #4CAF50;">Low</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="info-section" style="margin-top: 30px; background: #d4edda; border-color: #28a745;">
+        <h2>📋 Pending Service Requests ({{ filter_date|date:"M d, Y" }})</h2>
+        <p><strong>✓ No pending requests for {{ filter_date|date:"M d, Y" }}</strong></p>
+        <p style="color: #666;">Try selecting a different date using the date filter above.</p>
+    </div>
+    {% endif %}
+    
+    <!-- Unassigned Jobs Section -->
+    {% if unserved_reasons %}
+    <div class="info-section" style="margin-top: 30px; background: #fff3cd; border-color: #ffc107;">
+        <h2>⚠️ Unassigned Jobs - Reasons ({{ filter_date|date:"M d, Y" }})</h2>
+        <p><strong>Total Unassigned for {{ filter_date|date:"M d" }}:</strong> <span style="font-size: 18px; color: #F44336;">{{ unserved_reasons|length }}</span> request(s)</p>
+        <table style="width: 100%; margin-top: 15px; background: white; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f0f0f0;">
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Service Request</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Customer</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Time Window</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Required Skill</th>
+                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in unserved_reasons %}
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>{{ item.request_name }}</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ item.customer }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ item.window_start }}<br>
+                        <span style="color: #666;">to {{ item.window_end }}</span>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {% if item.required_skill != 'None' %}
+                            <span class="skill-badge">{{ item.required_skill }}</span>
+                        {% else %}
+                            <span style="color: #999;">No skill required</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <strong style="color: #F44336;">{{ item.reason_short }}</strong>
+                        <br><small style="color: #666; font-size: 11px;">{{ item.reason_detail }}</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            <strong>💡 Suggestions:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+                <li>Check if technicians with required skills have overlapping time windows</li>
+                <li>Consider adjusting customer time windows or technician shifts</li>
+                <li>Add more technicians with the required skills</li>
+                <li>Review capacity limits if technicians are compatible but overbooked</li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+    
     <div class="submit-row" style="background: #fff9c4; padding: 10px; border-radius: 5px; margin-top: 20px;">
         <p><strong>⚠️ Note:</strong> Make sure Google Maps API key is configured in <a href="/admin/core/googlemapsconfig/1/change/">admin settings</a>.</p>
     </div>
 </div>
 {% endblock %}
+

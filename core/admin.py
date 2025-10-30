@@ -297,8 +297,8 @@ class AssignmentInline(admin.TabularInline):
 
 @admin.register(ServiceRequest)
 class ServiceRequestAdmin(admin.ModelAdmin):
-    list_display = ['name', 'customer', 'address', 'status', 'priority', 'assigned_technician', 'assigned_skill_info']
-    list_filter = ['status', 'priority', 'created_at']
+    list_display = ['name', 'customer', 'window_date', 'window_time', 'address', 'status', 'priority', 'assigned_technician', 'assigned_skill_info']
+    list_filter = ['status', 'priority', 'created_at', 'window_start']
     search_fields = ['name', 'customer__username', 'address']
     inlines = [AssignmentInline]
     fieldsets = (
@@ -309,6 +309,23 @@ class ServiceRequestAdmin(admin.ModelAdmin):
     )
     
     actions = ['mark_as_pending', 'mark_as_assigned', 'mark_as_completed', 'mark_as_cancelled']
+    
+    def window_date(self, obj):
+        """Show the date of the service window"""
+        if obj.window_start:
+            return obj.window_start.date()
+        return "-"
+    window_date.short_description = 'Date'
+    window_date.admin_order_field = 'window_start'
+    
+    def window_time(self, obj):
+        """Show the time window"""
+        if obj.window_start and obj.window_end:
+            start_time = obj.window_start.strftime('%H:%M')
+            end_time = obj.window_end.strftime('%H:%M')
+            return f"{start_time}-{end_time}"
+        return "-"
+    window_time.short_description = 'Time Window'
     
     def assigned_technician(self, obj):
         """Show assigned technician"""
@@ -464,24 +481,45 @@ class AssignmentAdmin(admin.ModelAdmin):
         if not info:
             return "-"
         
+        # Check if arrival is within window
         if info['is_within_window']:
-            icon = '✓'
-            status_text = 'Within Window'
-            color = 'green'
+            if info['completes_on_time']:
+                icon = '✓'
+                status_text = 'On Time'
+                color = 'green'
+                detail = 'Arrival and completion within window'
+            else:
+                icon = '⚠'
+                status_text = 'Late Completion'
+                color = 'orange'
+                detail = 'Arrival on time, but completion may exceed window'
         else:
-            icon = '✗'
-            status_text = 'Outside Window'
-            color = 'red'
+            # Check if too early or too late
+            planned_arrival = info['planned_arrival']
+            customer_start = info['customer_window_start']
+            customer_end = info['customer_window_end']
+            
+            if planned_arrival < customer_start:
+                icon = '⏰'
+                status_text = 'Too Early'
+                color = 'blue'
+                detail = 'Arrival before window starts'
+            else:  # planned_arrival > customer_end
+                icon = '✗'
+                status_text = 'Outside Window'
+                color = 'red'
+                detail = 'Arrival after window ends'
         
-        customer_start = info['customer_window_start'].strftime('%H:%M')
-        customer_end = info['customer_window_end'].strftime('%H:%M')
-        tech_start = info['tech_shift_start'].strftime('%H:%M')
-        tech_end = info['tech_shift_end'].strftime('%H:%M')
+        customer_start_str = info['customer_window_start'].strftime('%Y-%m-%d %H:%M')
+        customer_end_str = info['customer_window_end'].strftime('%Y-%m-%d %H:%M')
+        planned_arrival_str = info['planned_arrival'].strftime('%Y-%m-%d %H:%M')
         
-        html = f'<div style="font-size: 12px;">'
-        html += f'<div style="color: {color};"><strong>{icon} {status_text}</strong></div>'
-        html += f'<div><strong>Customer needs:</strong> {customer_start} - {customer_end}</div>'
-        html += f'<div><strong>Tech available:</strong> {tech_start} - {tech_end}</div>'
+        html = f'<div style="font-size: 11px; line-height: 1.5;">'
+        html += f'<div style="color: {color}; font-weight: bold;"><strong>{icon} {status_text}</strong></div>'
+        html += f'<div style="margin-top: 4px;"><strong>Job Window:</strong> {customer_start_str} to {customer_end_str}</div>'
+        html += f'<div><strong>Tech Arrival:</strong> {planned_arrival_str}</div>'
+        if 'detail' in locals():
+            html += f'<div style="color: #666; font-size: 10px; margin-top: 2px;">{detail}</div>'
         html += f'</div>'
         
         return format_html(html)

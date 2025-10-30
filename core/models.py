@@ -191,12 +191,12 @@ class Assignment(models.Model):
         }
     
     def get_time_window_info(self):
-        """Get info about whether technician is available within customer's time window"""
-        if not self.technician:
+        """Get info about whether technician's arrival time is within customer's time window"""
+        if not self.technician or not self.planned_start:
             return None
         
         from django.utils import timezone
-        from datetime import datetime
+        from datetime import datetime, timedelta
         
         # Get customer's requested time window
         customer_start = self.service_request.window_start
@@ -208,13 +208,43 @@ class Assignment(models.Model):
         shift_start = timezone.make_aware(shift_start)
         shift_end = timezone.make_aware(shift_end)
         
-        # Check if customer window is within technician shift
-        is_within_window = (shift_start <= customer_start <= shift_end) and (shift_start <= customer_end <= shift_end)
+        # Check if technician's planned arrival time is within customer's time window
+        # Technician is "on time" if planned_start is between window_start and window_end
+        planned_arrival = self.planned_start
+        
+        # Check if arrival is within the customer's time window
+        is_within_window = (customer_start <= planned_arrival <= customer_end)
+        
+        # Also check if the service will complete before window_end
+        # (accounting for service duration)
+        planned_completion = planned_arrival + timedelta(minutes=self.service_request.service_minutes)
+        completes_on_time = planned_completion <= customer_end
+        
+        # Determine status for template display
+        if is_within_window:
+            if completes_on_time:
+                status = 'on_time'
+                status_label = 'On Time'
+            else:
+                status = 'late_completion'
+                status_label = 'Late Completion'
+        else:
+            if planned_arrival < customer_start:
+                status = 'too_early'
+                status_label = 'Too Early'
+            else:  # planned_arrival > customer_end
+                status = 'outside_window'
+                status_label = 'Outside Window'
         
         return {
             'customer_window_start': customer_start,
             'customer_window_end': customer_end,
             'tech_shift_start': shift_start,
             'tech_shift_end': shift_end,
+            'planned_arrival': planned_arrival,
+            'planned_completion': planned_completion,
             'is_within_window': is_within_window,
+            'completes_on_time': completes_on_time,
+            'status': status,
+            'status_label': status_label,
         }

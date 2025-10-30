@@ -77,15 +77,21 @@ def create_sample_data():
         service_type = random.choice(service_types)
         required_skill = customer_skill_map.get(service_type, 'Plumbing')
         
-        # Random window between 9 AM and 5 PM
-        window_start_hour = random.randint(9, 14)
-        window_end_hour = window_start_hour + random.randint(2, 4)
-        if window_end_hour > 17:
-            window_end_hour = 17
+        # Tight time window: maximum 2 hours (all on November 1st)
+        # Daytime only: between 8 AM and 6 PM
+        window_start_hour = random.randint(8, 16)  # Start between 8 AM and 4 PM
+        window_duration_hours = random.randint(1, 2)  # Window is 1-2 hours max
+        window_end_hour = window_start_hour + window_duration_hours
         
-        # Date within next 7 days
-        days_ahead = random.randint(1, 7)
-        date = (datetime.now() + timedelta(days=days_ahead)).strftime('%Y-%m-%d')
+        # Ensure window doesn't go past 6 PM
+        if window_end_hour > 18:
+            window_end_hour = 18
+            window_start_hour = window_end_hour - window_duration_hours
+            if window_start_hour < 8:
+                window_start_hour = 8
+        
+        # All dates set to November 1st, 2025
+        date = '2025-11-01'
         
         customer = {
             'Type': 'Customer',
@@ -143,6 +149,23 @@ def create_sample_data():
         suburb = random.choice(list(suburbs.keys()))
         depot_address = f"{random.randint(1, 999)} {random.choice(suburbs[suburb])}"
         
+        # Technician shifts: 4-8 hours, different start times during the day (not night)
+        # Start times: between 6 AM and 2 PM (daytime only)
+        shift_start_hour = random.randint(6, 14)  # Start between 6 AM and 2 PM
+        shift_duration_hours = random.choice([4, 5, 6, 7, 8])  # Shift is 4-8 hours
+        shift_end_hour = shift_start_hour + shift_duration_hours
+        
+        # Ensure shift doesn't go past 6 PM (daytime only, not night)
+        if shift_end_hour > 18:
+            shift_end_hour = 18
+            shift_duration_hours = shift_end_hour - shift_start_hour
+            if shift_duration_hours < 4:
+                # Adjust start time if needed
+                shift_start_hour = shift_end_hour - 4
+        
+        shift_start = f"{shift_start_hour:02d}:00"
+        shift_end = f"{shift_end_hour:02d}:00"
+        
         tech = {
             'Type': 'Technician',
             'Username': f"tech_{first_name.lower()}",
@@ -157,9 +180,9 @@ def create_sample_data():
             'Priority': '',
             'ServiceType': '',
             'DepotAddress': depot_address,
-            'CapacityHours': 8,
-            'ShiftStart': random.choice(['08:00', '09:00']),
-            'ShiftEnd': random.choice(['17:00', '18:00']),
+            'CapacityHours': shift_duration_hours,
+            'ShiftStart': shift_start,
+            'ShiftEnd': shift_end,
             'Skills': ', '.join(tech_skill_combos[i]),
             'ColorHex': random.choice(['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#FF6D01'])
         }

@@ -10,6 +10,8 @@ urlpatterns = [
     # Admin views
     path('admin/assign/', views.admin_assign_view, name='admin_assign'),
     path('admin/map/', views.admin_map_view, name='admin_map'),
+    path('admin/technician/', views.admin_technician_view, name='admin_technician'),
+    path('admin/technician/<int:technician_id>/', views.admin_technician_view, name='admin_technician_detail'),
     path('admin/bulk-upload/', bulk_upload_view, name='bulk_upload'),
     
     # Customer views

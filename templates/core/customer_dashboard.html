@@ -110,17 +110,30 @@
                                             {% if assign.service_request.id == req.id %}
                                                 {% with time_info=assign.get_time_window_info %}
                                                     {% if time_info %}
-                                                        {% if time_info.is_within_window %}
-                                                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Match</span>
+                                                        {% if time_info.status == 'on_time' %}
+                                                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> {{ time_info.status_label }}</span>
                                                             <br><small class="text-muted">
-                                                                Customer: {{ time_info.customer_window_start|date:"H:i" }}-{{ time_info.customer_window_end|date:"H:i" }}
-                                                                <br>Tech: {{ time_info.tech_shift_start|date:"H:i" }}-{{ time_info.tech_shift_end|date:"H:i" }}
+                                                                Job window: {{ time_info.customer_window_start|date:"M d, H:i" }}-{{ time_info.customer_window_end|date:"H:i" }}
+                                                                <br>Tech arrives: {{ time_info.planned_arrival|date:"M d, H:i" }}
+                                                            </small>
+                                                        {% elif time_info.status == 'late_completion' %}
+                                                            <span class="badge bg-warning"><i class="bi bi-exclamation-triangle"></i> {{ time_info.status_label }}</span>
+                                                            <br><small class="text-warning">
+                                                                Job window: {{ time_info.customer_window_start|date:"M d, H:i" }}-{{ time_info.customer_window_end|date:"H:i" }}
+                                                                <br>Tech arrives: {{ time_info.planned_arrival|date:"M d, H:i" }}
+                                                                <br><small class="text-muted">Service may complete after window</small>
+                                                            </small>
+                                                        {% elif time_info.status == 'too_early' %}
+                                                            <span class="badge bg-info"><i class="bi bi-clock"></i> {{ time_info.status_label }}</span>
+                                                            <br><small class="text-info">
+                                                                Job window: {{ time_info.customer_window_start|date:"M d, H:i" }}-{{ time_info.customer_window_end|date:"H:i" }}
+                                                                <br>Tech arrives: {{ time_info.planned_arrival|date:"M d, H:i" }}
                                                             </small>
                                                         {% else %}
-                                                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> No Match</span>
+                                                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> {{ time_info.status_label }}</span>
                                                             <br><small class="text-danger">
-                                                                Customer needs: {{ time_info.customer_window_start|date:"H:i" }}-{{ time_info.customer_window_end|date:"H:i" }}
-                                                                <br>Tech available: {{ time_info.tech_shift_start|date:"H:i" }}-{{ time_info.tech_shift_end|date:"H:i" }}
+                                                                Job window: {{ time_info.customer_window_start|date:"M d, H:i" }}-{{ time_info.customer_window_end|date:"H:i" }}
+                                                                <br>Tech arrives: {{ time_info.planned_arrival|date:"M d, H:i" }}
                                                             </small>
                                                         {% endif %}
                                                     {% endif %}

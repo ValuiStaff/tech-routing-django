@@ -1,0 +1,344 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+<style>
+    .tech-selector {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+    .tech-card {
+        display: inline-block;
+        padding: 10px 15px;
+        margin: 5px;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .tech-card:hover {
+        border-color: #417690;
+        background: #f0f7ff;
+    }
+    .tech-card.active {
+        border-color: #417690;
+        background: #e8f4fd;
+    }
+    .view-tabs {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+    }
+    .view-tab {
+        padding: 10px 20px;
+        background: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        color: #333;
+    }
+    .view-tab.active {
+        background: #417690;
+        color: white;
+        border-color: #417690;
+    }
+    .assignments-table {
+        width: 100%;
+        margin-top: 15px;
+        background: white;
+        border-collapse: collapse;
+    }
+    .assignments-table th,
+    .assignments-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    .assignments-table th {
+        background: #f0f0f0;
+        font-weight: bold;
+    }
+    #map {
+        height: 600px;
+        width: 100%;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+    .timeline-container {
+        margin-top: 20px;
+    }
+    .timeline-item {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .timeline-time {
+        min-width: 120px;
+        font-weight: bold;
+        color: #417690;
+    }
+    .timeline-content {
+        flex: 1;
+    }
+    .status-badge {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    .status-assigned { background: #2196F3; color: white; }
+    .status-in_progress { background: #FF9800; color: white; }
+    .status-completed { background: #4CAF50; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 20px 0;">
+    <h1>👷 Technician Assignments</h1>
+    <p class="description">View technician assignments, routes on map, and timeline</p>
+    
+    <!-- Date Filter -->
+    <div class="tech-selector">
+        <form method="get" style="display: inline-block;">
+            <label for="date" style="font-weight: bold; margin-right: 10px;">Filter by Date:</label>
+            <input type="date" id="date" name="date" value="{{ filter_date_str }}" 
+                   onchange="this.form.submit()" style="width: 200px; padding: 5px;">
+            {% if selected_technician %}
+            <input type="hidden" name="view" value="{{ view_mode }}">
+            {% endif %}
+            <button type="submit" class="button" style="margin-left: 10px;">Apply</button>
+        </form>
+        <div style="margin-top: 10px; font-size: 14px; color: #555;">
+            <strong>Viewing:</strong> {{ filter_date|date:"F d, Y" }}
+            {% if filter_date == today %}<span style="color: #4CAF50;">(Today)</span>{% endif %}
+        </div>
+    </div>
+    
+    <!-- Technician Selector -->
+    <div class="tech-selector">
+        <h2 style="margin-top: 0;">Select Technician:</h2>
+        {% for tech in technicians %}
+        <a href="{% url 'core:admin_technician_detail' tech.id %}?date={{ filter_date_str }}" 
+           class="tech-card {% if selected_technician and selected_technician.id == tech.id %}active{% endif %}">
+            <strong>{{ tech.user.username }}</strong><br>
+            <small style="color: #666;">{{ tech.depot_address|truncatewords:5 }}</small>
+        </a>
+        {% empty %}
+        <p>No active technicians found.</p>
+        {% endfor %}
+    </div>
+    
+    {% if selected_technician %}
+    <!-- View Mode Tabs -->
+    <div class="view-tabs">
+        <a href="{% url 'core:admin_technician_detail' selected_technician.id %}?date={{ filter_date_str }}&view=assignments" 
+           class="view-tab {% if view_mode == 'assignments' %}active{% endif %}">
+            📋 Assignments
+        </a>
+        <a href="{% url 'core:admin_technician_detail' selected_technician.id %}?date={{ filter_date_str }}&view=map" 
+           class="view-tab {% if view_mode == 'map' %}active{% endif %}">
+            🗺️ Map View
+        </a>
+        <a href="{% url 'core:admin_technician_detail' selected_technician.id %}?date={{ filter_date_str }}&view=timeline" 
+           class="view-tab {% if view_mode == 'timeline' %}active{% endif %}">
+            ⏱️ Timeline
+        </a>
+    </div>
+    
+    <!-- Assignments View -->
+    {% if view_mode == 'assignments' %}
+    <div class="info-section" style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin: 20px 0;">
+        <h2>📋 Assignments for {{ selected_technician.user.username }} - {{ filter_date|date:"M d, Y" }}</h2>
+        {% if assignments %}
+        <p><strong>Total Jobs:</strong> {{ assignments|length }}</p>
+        <table class="assignments-table">
+            <thead>
+                <tr>
+                    <th>Seq</th>
+                    <th>Service Request</th>
+                    <th>Customer</th>
+                    <th>Address</th>
+                    <th>Planned Time</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for assign in assignments %}
+                <tr>
+                    <td><span class="skill-badge">{{ assign.sequence_order }}</span></td>
+                    <td><strong>{{ assign.service_request.name }}</strong></td>
+                    <td>{{ assign.service_request.customer.username }}</td>
+                    <td>{{ assign.service_request.address|truncatewords:8 }}</td>
+                    <td>
+                        {{ assign.planned_start|date:"H:i" }} - {{ assign.planned_finish|date:"H:i" }}
+                    </td>
+                    <td>{{ assign.service_request.service_minutes }} min</td>
+                    <td>
+                        <span class="status-badge status-{{ assign.status }}">
+                            {{ assign.get_status_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>✓ No assignments for {{ selected_technician.user.username }} on {{ filter_date|date:"M d, Y" }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Map View -->
+    {% if view_mode == 'map' %}
+    <div class="info-section" style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin: 20px 0;">
+        <h2>🗺️ Route Map - {{ selected_technician.user.username }}</h2>
+        {% if route_data and route_data.stops %}
+        <div id="map"></div>
+        <script>
+            function initMap() {
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: {lat: {{ route_data.depot.lat }}, lng: {{ route_data.depot.lng }}}
+                });
+                
+                // Depot marker
+                var depotMarker = new google.maps.Marker({
+                    position: {lat: {{ route_data.depot.lat }}, lng: {{ route_data.depot.lng }}},
+                    map: map,
+                    title: 'Depot: {{ route_data.depot.address }}',
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: '#4285F4',
+                        fillOpacity: 1,
+                        strokeColor: '#FFFFFF',
+                        strokeWeight: 2
+                    }
+                });
+                
+                var depotInfo = new google.maps.InfoWindow({
+                    content: '<strong>🏢 Depot</strong><br>{{ route_data.depot.address }}'
+                });
+                depotMarker.addListener('click', function() {
+                    depotInfo.open(map, depotMarker);
+                });
+                
+                // Job stops
+                var stops = {{ route_data.stops_json|safe }};
+                var bounds = new google.maps.LatLngBounds();
+                
+                stops.forEach(function(stop, index) {
+                    var marker = new google.maps.Marker({
+                        position: stop.position,
+                        map: map,
+                        label: {
+                            text: String(stop.sequence),
+                            color: '#FFFFFF'
+                        },
+                        title: 'Stop ' + stop.sequence + ': ' + stop.name
+                    });
+                    
+                    var infoContent = '<div style="padding: 5px;">' +
+                        '<strong>Stop #' + stop.sequence + '</strong><br>' +
+                        '<strong>Customer:</strong> ' + stop.customer + '<br>' +
+                        '<strong>Service:</strong> ' + stop.name + '<br>' +
+                        '<strong>Time:</strong> ' + stop.planned_start + ' - ' + stop.planned_finish + '<br>' +
+                        '<strong>Address:</strong> ' + stop.address + '<br>' +
+                        '<strong>Duration:</strong> ' + stop.service_duration + ' min<br>' +
+                        '<strong>Status:</strong> ' + stop.status.replace('_', ' ').toUpperCase() +
+                        '</div>';
+                    
+                    var infoWindow = new google.maps.InfoWindow({
+                        content: infoContent
+                    });
+                    
+                    marker.addListener('click', function() {
+                        infoWindow.open(map, marker);
+                    });
+                    
+                    bounds.extend(marker.position);
+                });
+                
+                // Draw route lines
+                if (stops.length > 1) {
+                    var routePath = [depotMarker.position];
+                    stops.forEach(function(stop) {
+                        routePath.push(stop.position);
+                    });
+                    
+                    var routePolyline = new google.maps.Polyline({
+                        path: routePath,
+                        geodesic: true,
+                        strokeColor: '#4285F4',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 3
+                    });
+                    routePolyline.setMap(map);
+                }
+                
+                bounds.extend(depotMarker.position);
+                map.fitBounds(bounds);
+            }
+        </script>
+        <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap">
+        </script>
+        {% else %}
+        <p>No route data available for this date.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Timeline View -->
+    {% if view_mode == 'timeline' %}
+    <div class="info-section" style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin: 20px 0;">
+        <h2>⏱️ Timeline - {{ selected_technician.user.username }}</h2>
+        {% if timeline_data %}
+        <div class="timeline-container">
+            {% for item in timeline_data %}
+            <div class="timeline-item">
+                <div class="timeline-time">
+                    <strong>{{ item.start_time|date:"H:i" }}</strong><br>
+                    <small style="color: #666;">to {{ item.end_time|date:"H:i" }}</small>
+                </div>
+                <div style="width: 40px; text-align: center;">
+                    <span class="skill-badge">{{ item.sequence }}</span>
+                </div>
+                <div class="timeline-content">
+                    <strong>{{ item.service_name }}</strong><br>
+                    <small>Customer: {{ item.customer }}</small><br>
+                    <small>Address: {{ item.address|truncatewords:6 }}</small><br>
+                    <small>Duration: {{ item.duration }} minutes</small>
+                </div>
+                <div>
+                    <span class="status-badge status-{{ item.status }}">
+                        {{ item.assignment.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No timeline data available for this date.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% endif %}
+    
+    <div style="margin-top: 20px;">
+        <a href="{% url 'core:admin_assign' %}" class="button">← Back to Assignment</a>
+    </div>
+</div>
+{% endblock %}
+

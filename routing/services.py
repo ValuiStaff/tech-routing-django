@@ -111,7 +111,98 @@ class RoutingService:
         matrix_time = time.time() - matrix_calc_start
         print(f"✓ Distance matrix built in {matrix_time:.2f} seconds ({K*I*2 + I*I} calculations)")
         
+        # DEBUG: Show sample travel times and distances
         print(f"\n{'='*80}")
+        print(f"TRAVEL TIME ANALYSIS")
+        print(f"{'='*80}")
+        print(f"Average speed: {self.avg_kph} km/h")
+        print(f"\nSample distances and times:")
+        
+        # Show a few sample calculations
+        if K > 0 and I > 0:
+            # Tech 0 to first request
+            sample_dist_km = DistanceService.haversine_km(
+                techs[0].depot_lat, techs[0].depot_lon,
+                reqs[0].lat, reqs[0].lon
+            )
+            sample_time = t_s_i.get((0, 0), 0)
+            print(f"  Tech '{techs[0].user.username}' depot → Request '{reqs[0].name}':")
+            print(f"    Distance: {sample_dist_km:.2f} km")
+            print(f"    Travel time: {sample_time:.2f} minutes ({sample_time/60:.2f} hours)")
+            print(f"    Speed used: {self.avg_kph} km/h")
+            
+            # Between two requests if available
+            if I > 1:
+                sample_dist_km2 = DistanceService.haversine_km(
+                    reqs[0].lat, reqs[0].lon,
+                    reqs[1].lat, reqs[1].lon
+                )
+                sample_time2 = t_i_j.get((0, 1), 0)
+                print(f"  Request '{reqs[0].name}' → Request '{reqs[1].name}':")
+                print(f"    Distance: {sample_dist_km2:.2f} km")
+                print(f"    Travel time: {sample_time2:.2f} minutes ({sample_time2/60:.2f} hours)")
+        
+        # Show max and min travel times
+        all_times = list(t_s_i.values()) + list(t_i_j.values()) + list(t_i_e.values())
+        valid_times = [t for t in all_times if t < 999999 and t > 0]
+        
+        if valid_times:
+            min_time = min(valid_times)
+            max_time = max(valid_times)
+            avg_time = sum(valid_times) / len(valid_times)
+            
+            print(f"\nTravel time statistics:")
+            print(f"  Min travel time: {min_time:.2f} minutes ({min_time/60:.2f} hours)")
+            print(f"  Max travel time: {max_time:.2f} minutes ({max_time/60:.2f} hours)")
+            print(f"  Average travel time: {avg_time:.2f} minutes ({avg_time/60:.2f} hours)")
+            
+            # Analyze if times are high
+            print(f"\n⚠️  TRAVEL TIME ANALYSIS:")
+            if max_time > 60:  # More than 1 hour
+                print(f"  ⚠️  WARNING: Some locations are {max_time/60:.1f} hours apart!")
+                print(f"  This suggests locations are far from each other or speed setting is too low.")
+                
+                # Find which pairs have high travel times
+                high_time_pairs = []
+                for (k, i), time_val in t_s_i.items():
+                    if time_val > 60:
+                        dist = DistanceService.haversine_km(
+                            techs[k].depot_lat, techs[k].depot_lon,
+                            reqs[i].lat, reqs[i].lon
+                        )
+                        high_time_pairs.append((
+                            f"Tech '{techs[k].user.username}' → '{reqs[i].name}'",
+                            dist, time_val
+                        ))
+                
+                for (i, j), time_val in t_i_j.items():
+                    if time_val > 60:
+                        dist = DistanceService.haversine_km(
+                            reqs[i].lat, reqs[i].lon,
+                            reqs[j].lat, reqs[j].lon
+                        )
+                        high_time_pairs.append((
+                            f"'{reqs[i].name}' → '{reqs[j].name}'",
+                            dist, time_val
+                        ))
+                
+                if high_time_pairs:
+                    print(f"\n  Long travel time pairs (>1 hour):")
+                    for pair_name, dist_km, time_min in high_time_pairs[:10]:  # Show first 10
+                        print(f"    - {pair_name}: {dist_km:.2f} km = {time_min:.1f} min")
+                
+                print(f"\n  Possible reasons:")
+                print(f"    1. Actual distance is large (locations far apart)")
+                print(f"    2. Speed setting ({self.avg_kph} km/h) is too low for Melbourne")
+                print(f"    3. Coordinates might be incorrect (check lat/lon values)")
+            
+            elif avg_time > 30:  # Average more than 30 minutes
+                print(f"  ⚠️  Average travel time is {avg_time:.1f} minutes")
+                print(f"  Consider increasing speed from {self.avg_kph} km/h if locations are nearby")
+            else:
+                print(f"  ✓ Travel times look reasonable for Melbourne area")
+        
+        print(f"{'='*80}")
         print(f"OR-TOOLS SOLVER SETUP")
         print(f"{'='*80}")
         print(f"Distance matrices built: K={K} techs, I={I} requests")
@@ -560,6 +651,8 @@ class RoutingService:
         sys.stdout.flush()
         
         unserved = [req for req in reqs if req.id not in served_ids]
+        unserved_with_reasons = []
+        
         print(f"\n{'='*80}")
         print(f"ASSIGNMENT VERIFICATION")
         print(f"{'='*80}")
@@ -574,6 +667,8 @@ class RoutingService:
                 node = cust_base + req_idx
                 allowed_techs = allowed_vehicles.get(node, [])
                 required_skill = req.required_skill.name if req.required_skill else 'None'
+                reason_detail = ""
+                reason_short = ""
                 
                 if not allowed_techs:
                     # Check why no techs allowed
@@ -581,25 +676,51 @@ class RoutingService:
                         # Find techs with this skill
                         techs_with_skill = [k for k, t in enumerate(techs) if t.skills.filter(name=required_skill).exists()]
                         if not techs_with_skill:
-                            reason = f"No technician has skill '{required_skill}'"
+                            reason_short = "No technician with required skill"
+                            reason_detail = f"No technician has the required skill '{required_skill}'"
                         else:
                             # Check time windows
                             time_incompatible = []
+                            compatible_techs = []
                             for k in techs_with_skill:
-                                if not (tw_start[node] <= tw_end[k] and tw_end[node] >= tw_start[k]):
+                                tech = techs[k]
+                                # Check if time windows overlap
+                                if tw_start[node] <= tw_end[k] and tw_end[node] >= tw_start[k]:
+                                    # Time windows overlap, check other constraints
+                                    compatible_techs.append(k)
+                                else:
                                     time_incompatible.append(k)
-                            if len(time_incompatible) == len(techs_with_skill):
-                                reason = f"Techs with skill '{required_skill}' have incompatible time windows"
+                            
+                            if len(compatible_techs) == 0:
+                                # All techs with skill have incompatible time windows
+                                tech_names = [techs[k].user.username for k in techs_with_skill[:3]]
+                                reason_short = "Time window mismatch"
+                                reason_detail = f"Technicians with skill '{required_skill}' ({', '.join(tech_names)}{'...' if len(techs_with_skill) > 3 else ''}) have shifts that don't overlap with the requested time window"
                             else:
-                                reason = f"Skill '{required_skill}' available but other constraints failed"
+                                reason_short = "Capacity or routing constraint"
+                                reason_detail = f"Skill '{required_skill}' available, but no technician could be assigned due to capacity limits or routing constraints"
                     else:
-                        reason = "No skill requirement but no compatible time windows"
+                        # No skill requirement
+                        reason_short = "No compatible time windows"
+                        reason_detail = "No technician has a shift that overlaps with the requested time window"
                 else:
-                    reason = f"{len(allowed_techs)} tech(s) allowed but not assigned (capacity/constraint issue)"
+                    # Some techs allowed but not assigned
+                    tech_names = [techs[k].user.username for k in allowed_techs]
+                    reason_short = "Capacity exhausted"
+                    reason_detail = f"Technicians {', '.join(tech_names[:3])}{'...' if len(tech_names) > 3 else ''} are compatible but don't have enough capacity or routing conflicts"
+                
+                unserved_info = {
+                    'request': req,
+                    'reason_short': reason_short,
+                    'reason_detail': reason_detail,
+                    'required_skill': required_skill,
+                    'allowed_technicians': [techs[k].user.username for k in allowed_techs] if allowed_techs else []
+                }
+                unserved_with_reasons.append(unserved_info)
                 
                 print(f"  - {req.name}")
                 print(f"    Required skill: {required_skill}")
-                print(f"    Reason: {reason}")
+                print(f"    Reason: {reason_detail}")
                 if allowed_techs:
                     tech_names = [techs[k].user.username for k in allowed_techs]
                     print(f"    Allowed techs: {', '.join(tech_names)}")
@@ -658,5 +779,5 @@ class RoutingService:
         print(f"TOTAL TIME: {total_time:.3f}s")
         print(f"{'='*80}\n")
         
-        return assignments, unserved, total_travel
+        return assignments, unserved_with_reasons, total_travel
 
