@@ -1,0 +1,2391 @@
+[
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$ldpdwo3fKf1ceEzjGkrFD6$DowsN5MM6crxmFeGcmVC2PIpXcRI7RlZxvec8x/Gk9c=",
+    "last_login": "2025-10-27T23:53:16.933Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@test.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-10-26T09:08:50.060Z",
+    "role": "ADMIN",
+    "phone": "",
+    "plaintext_password": null,
+    "created_at": "2025-10-26T09:08:50.061Z",
+    "updated_at": "2025-10-26T09:34:51.724Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$kbwWvmSH4YDNueNc5f3IFE$7tvF/63/xfGEI99vItNZ0uQMVpog7rLOWo1nBYvu5Uk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_morgan",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.morgan@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:41.937Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:42.086Z",
+    "updated_at": "2025-10-30T01:19:42.087Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$CiD8OD2ziZiGsFObRO5ynO$EpXopCezNZThe7zmcLmP615rVhwGJXLe80PLnBCoefA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "emily_clark",
+    "first_name": "",
+    "last_name": "",
+    "email": "emily.clark@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:43.367Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:43.531Z",
+    "updated_at": "2025-10-30T01:19:43.532Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$ZZd3pvSMrGMZbr2rvhI5Sy$5Fg9WAX+C8TgT6xB11LBYk9zUjiF0bN7IfAW4luSRZU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_jamie",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.jamie@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:44.295Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:44.468Z",
+    "updated_at": "2025-10-30T01:19:44.469Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$1cHQ7oeaKHrcEF7HdmRv0v$kUCTthdkV+EQdgmWCgGDS/9yAGaZw/CGqK8vbaJD1Yo=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_cameron",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.cameron@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:44.783Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:44.958Z",
+    "updated_at": "2025-10-30T01:19:44.959Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$DCdVTyMDISXRKK1qgRoeLV$UpIHL063chMn+7AK1KblX+oLKdOBA0WSt4h3xEPaTD8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "mark_robinson",
+    "first_name": "",
+    "last_name": "",
+    "email": "mark.robinson@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:45.482Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:45.653Z",
+    "updated_at": "2025-10-30T01:19:45.654Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$CJ0QopggKEnG7zDs22G7fl$7MeeOlwvG0j6ciCVZphrVY8hWNvQngkUPTC3C3feROA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_sage",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.sage@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:46.047Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:46.226Z",
+    "updated_at": "2025-10-30T01:19:46.227Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$1ugekaDtuYCBK9SZxsayfB$TZpVgOs7UhzmX5pIcxx8VEDiYNXU64QtuYdavdz6TA0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "sarah_brown",
+    "first_name": "",
+    "last_name": "",
+    "email": "sarah.brown@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:46.713Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:46.886Z",
+    "updated_at": "2025-10-30T01:19:46.887Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$fiKljkXlZYVBPZtFuziHBP$NBfZ3d/lzN4VJpvVlxM+0IK5+JWoYCWOA5r/NV7U9XE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "charlotte_thomas",
+    "first_name": "",
+    "last_name": "",
+    "email": "charlotte.thomas@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:47.327Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:47.502Z",
+    "updated_at": "2025-10-30T01:19:47.503Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$o7o33MDefejrDJFJ1hBnPl$mDqzLQc8C9iQQOWpJEgUDHP5NXK2csgjnoO1drgA2rM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_reese",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.reese@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:47.884Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:48.054Z",
+    "updated_at": "2025-10-30T01:19:48.055Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$B8fbwCURE95hurfvQf4Cj9$PULKTAFOfXWrzjbBbf7XI6npXVr3UJJSGK4P7Q8NDfY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_quinn",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.quinn@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:48.719Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:48.883Z",
+    "updated_at": "2025-10-30T01:19:48.883Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$wjqrW3aPYn6WiRo7V4v5bk$acFf+MZragUqk9MvL8msycrrlpTJr4/ULCpqkjI/UrM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "elizabeth_lewis",
+    "first_name": "",
+    "last_name": "",
+    "email": "elizabeth.lewis@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:50.207Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:50.368Z",
+    "updated_at": "2025-10-30T01:19:50.369Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$nkb1bSZBi2tFFpGqqznevh$bIc2l3WtYqoQiSIY4WKzvU1jtUybNS7KaqZWmS35q54=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_jordan",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.jordan@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:50.802Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:50.977Z",
+    "updated_at": "2025-10-30T01:19:50.978Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$zGYe2t8C21u8OtLXxUQsHa$qtumSsP2JjHkDZtRvlVztxqG23ytY9Esq+xgU5D7dpU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "christopher_lee",
+    "first_name": "",
+    "last_name": "",
+    "email": "christopher.lee@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:51.520Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:51.684Z",
+    "updated_at": "2025-10-30T01:19:51.685Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$wUiexXPwy1JSTF8Lab4jRH$aFL9HZJk/famM1OSW9ulHrhGfSapmy04X51hnRQBAs0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "robert_rodriguez",
+    "first_name": "",
+    "last_name": "",
+    "email": "robert.rodriguez@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:52.068Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:52.243Z",
+    "updated_at": "2025-10-30T01:19:52.244Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$71slxommeatwpUh7QCm0JY$ZpCqC3xKngDRzcWT4dAauW2Xd8WU02wjUBaKexuPzQc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "mia_wilson",
+    "first_name": "",
+    "last_name": "",
+    "email": "mia.wilson@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:52.562Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:52.734Z",
+    "updated_at": "2025-10-30T01:19:52.735Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$QV6KIa4FFRXGW50Lf11zRI$+sR1Z3CeLmfaknjm5k+DIyG8BTCUQuA6pmYRuf67abI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "amelia_moore",
+    "first_name": "",
+    "last_name": "",
+    "email": "amelia.moore@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:53.445Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:53.622Z",
+    "updated_at": "2025-10-30T01:19:53.623Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$4nsd3KZg6OmkuE8QpZvKKK$H4XFZaF9FY7xSppYsuijr8BR6w++O6SqGv+H7hu2wto=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "charles_jackson",
+    "first_name": "",
+    "last_name": "",
+    "email": "charles.jackson@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:54.026Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:54.200Z",
+    "updated_at": "2025-10-30T01:19:54.201Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$xDT6A1ULg4kfTtQIRGuATV$S4ujOohd3SHtsO4DyXL4FGim3VcbA8cD95v1IrYHicA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "sofia_walker",
+    "first_name": "",
+    "last_name": "",
+    "email": "sofia.walker@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:54.965Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:55.140Z",
+    "updated_at": "2025-10-30T01:19:55.142Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$E8p3QNDmb7JLN2VXRl2QY3$pImr72FTBdUpAJKUoZRBpu4r4HpYxaVEHW3mmaNLZso=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "anthony_ramirez",
+    "first_name": "",
+    "last_name": "",
+    "email": "anthony.ramirez@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:55.527Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:55.702Z",
+    "updated_at": "2025-10-30T01:19:55.703Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$ByvVhQuvRB1ZqHuvdmjBmx$Ag524x7hEeC+3FJtVPdjJjG0wj7m24TZdmL0ROqXufk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "john_smith",
+    "first_name": "",
+    "last_name": "",
+    "email": "john.smith@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:56.388Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:56.560Z",
+    "updated_at": "2025-10-30T01:19:56.561Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$4nUvjSviFuEsKlHFvLz26m$Q3YtRq5T/Ht4KhHSTYpktkoTXPBzpVqpiBmEoU0y1kc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "steven_king",
+    "first_name": "",
+    "last_name": "",
+    "email": "steven.king@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:57.266Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:57.439Z",
+    "updated_at": "2025-10-30T01:19:57.440Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$enPd8Q9xYI4RDc3XUfmPAz$oF/mueNV5i2yHZ5aBxN0ZM6VIiH+PMTkFmSRyKhk6zw=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_casey",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.casey@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:57.845Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:58.023Z",
+    "updated_at": "2025-10-30T01:19:58.024Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$huwQB5oCT2lfEfoSmZkUWW$j5+vqn4xs872jLFT9I4TU1izSFuSXood7GCdJDzee7E=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "richard_gonzalez",
+    "first_name": "",
+    "last_name": "",
+    "email": "richard.gonzalez@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:58.318Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:58.475Z",
+    "updated_at": "2025-10-30T01:19:58.476Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$8zGBkHxrK3x3q9CQJW1PbW$dxnI4i9JJtG9SxFCZD4SAqRZulnJewGEO3w7moLTFdQ=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "james_miller",
+    "first_name": "",
+    "last_name": "",
+    "email": "james.miller@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:58.872Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:59.048Z",
+    "updated_at": "2025-10-30T01:19:59.049Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$MzAyN6NCMeOeUNqj9gTtl3$waZEuvJDd3yE3sbUUZDwzEjwdQvHRhnwQOhht6YCUJE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "joseph_anderson",
+    "first_name": "",
+    "last_name": "",
+    "email": "joseph.anderson@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:19:59.745Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:19:59.924Z",
+    "updated_at": "2025-10-30T01:19:59.925Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$1BP0YSUjbKRTTiGn4zBTbY$bMLEt1o3xqdVq75zs9/oWqLJzhaGXiicvMf+KTzXN+s=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "victoria_wright",
+    "first_name": "",
+    "last_name": "",
+    "email": "victoria.wright@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:00.352Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:00.520Z",
+    "updated_at": "2025-10-30T01:20:00.521Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$fgIHsrGrmhXFYvCOcfY1e6$pfXGacKWEZpUrEwvqh4BP8vxI8/dVtLNR0Dixp0+3Fk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_alex",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.alex@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:01.007Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:01.182Z",
+    "updated_at": "2025-10-30T01:20:01.183Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$WVFGGzPkWroXl0f5fZfhd3$O1BCXa9w+FDrM/oIiAT6A8ezmqNadG1nOmRUaCctWqI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "isabella_lopez",
+    "first_name": "",
+    "last_name": "",
+    "email": "isabella.lopez@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:01.605Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:01.770Z",
+    "updated_at": "2025-10-30T01:20:01.771Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$CxNxjZ4ruAJAn658IvRB4K$mdSEXs28q1XjH8s29G60b1uXjGmEhEYFVbhjke6WPwE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_riley",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.riley@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:02.352Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:02.524Z",
+    "updated_at": "2025-10-30T01:20:02.525Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$lBX9OzzH5WC69gVgwgE6zJ$HMdc5FIFeNi6DspnJyNAYqfcQU6wE1s5lHSNF1H1gM0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "abigail_harris",
+    "first_name": "",
+    "last_name": "",
+    "email": "abigail.harris@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:03.029Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:03.180Z",
+    "updated_at": "2025-10-30T01:20:03.181Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$psfDe6stTcWkEvvaWxKxzp$FzrzIm2UVpO4DESwMoADI5jIxUquXCoLZlSvyh2HQug=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "matthew_sanchez",
+    "first_name": "",
+    "last_name": "",
+    "email": "matthew.sanchez@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:03.605Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:03.779Z",
+    "updated_at": "2025-10-30T01:20:03.780Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$VEVPk1VPEZOycX8TjkaWtC$ISa0CLNREVuRTG30VjKj/vlG1f9cFtErd1J3ILEcshc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_avery",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.avery@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:04.121Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:04.290Z",
+    "updated_at": "2025-10-30T01:20:04.291Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$FqHvzJCxNmZfGrNvZQaF0E$jTJEXm+ji0naKvgcG8T4qC1WwG9/Ef5qEs+6LhHWW9g=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_blake",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.blake@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:05.234Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:05.407Z",
+    "updated_at": "2025-10-30T01:20:05.409Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$hD2G7tgSjQEOQYcGmUIcF9$gEKmWuPzslbY3LSrnuy8TRRbnfN312cpYPamYssREN4=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "avery_allen",
+    "first_name": "",
+    "last_name": "",
+    "email": "avery.allen@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:06.039Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:06.212Z",
+    "updated_at": "2025-10-30T01:20:06.213Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$bfGghUD6zLatmzYby4vNTA$hahy5vCwxEtGYJijq2hDgQVCUqFhx2S3+0NXVP61XpU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "thomas_taylor",
+    "first_name": "",
+    "last_name": "",
+    "email": "thomas.taylor@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:06.558Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:06.728Z",
+    "updated_at": "2025-10-30T01:20:06.729Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$07U6yzu7cSCBUu8a7j7hKv$LsZBQiPYGL+yFSELrOx3gDKQuGizbVLTnlEvn75fdqg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "evelyn_thompson",
+    "first_name": "",
+    "last_name": "",
+    "email": "evelyn.thompson@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:07.534Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:07.699Z",
+    "updated_at": "2025-10-30T01:20:07.700Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$bCC0BDdd9wxBYVfBWUJtUn$8+hAgttNnnmaSU0pudv1S/Iv0+sx4pnWJv4hOMotlpE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "paul_scott",
+    "first_name": "",
+    "last_name": "",
+    "email": "paul.scott@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:08.317Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:08.493Z",
+    "updated_at": "2025-10-30T01:20:08.495Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$vFjHaFfsu8koz9TY4SDbEd$7LieUjKmnX3nH8ol5tG4DHJcFb9B7yP8HD6e8qPJD6U=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "emma_garcia",
+    "first_name": "",
+    "last_name": "",
+    "email": "emma.garcia@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:09.184Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:09.358Z",
+    "updated_at": "2025-10-30T01:20:09.360Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$RR3JNneVcHyjh9mLXAo5lC$pyLNet6HErmPoaDWoinZxy0xaolV0Vev1kAr3VpxH+8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "mary_johnson",
+    "first_name": "",
+    "last_name": "",
+    "email": "mary.johnson@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:10.013Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:10.190Z",
+    "updated_at": "2025-10-30T01:20:10.191Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$yT4KIMcC12Q9IryiEKcLxs$WOv6ANb5I6bsQU0fWTDmnltnl/msFZSqbIDK+LRYmtc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_dakota",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.dakota@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:11.127Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:11.302Z",
+    "updated_at": "2025-10-30T01:20:11.303Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$Eqky9P4I7RRJIGxTzJnMwZ$sdpB/oREMTMa7rdHjjPUX9AsZ4S2RfrBpohREaGHGJ0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "harper_martin",
+    "first_name": "",
+    "last_name": "",
+    "email": "harper.martin@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:11.861Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:12.031Z",
+    "updated_at": "2025-10-30T01:20:12.032Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$fG0BYAAN24jfD75PsapcBL$Wud9SHztRyN8JEO2gQXt2mecC3/wJQCYTeKTWup5Hxg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "donald_young",
+    "first_name": "",
+    "last_name": "",
+    "email": "donald.young@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:12.403Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:12.577Z",
+    "updated_at": "2025-10-30T01:20:12.578Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$bcFlK5T247OGKLzJsAbfkj$Ahz0oNMc/y+fEX7pRkQLdSf/u3VaUUazydOnyzEB9YM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_taylor",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.taylor@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:13.260Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:13.438Z",
+    "updated_at": "2025-10-30T01:20:13.439Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$En4zXalfcoqT25sZAf5x3C$ZTOtyDZkrzhWXg09hJwopZZmLvqUg0JTFJRGCtof+YM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "daniel_white",
+    "first_name": "",
+    "last_name": "",
+    "email": "daniel.white@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:14.019Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:14.190Z",
+    "updated_at": "2025-10-30T01:20:14.191Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$WdRUsBoe5hCi0oXKOe0eqO$sQddkoY3BKIarEfbJWvdoiR09+FlLrZCeOX/ZciFSz0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "olivia_davis",
+    "first_name": "",
+    "last_name": "",
+    "email": "olivia.davis@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:14.510Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:14.684Z",
+    "updated_at": "2025-10-30T01:20:14.685Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$VAn3139PLA5ecBasGmRsAH$I2cngn/BsBSNJYZBZckovLqOW5AVXSet90YUoB7MU0I=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "william_hernandez",
+    "first_name": "",
+    "last_name": "",
+    "email": "william.hernandez@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:15.055Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:15.228Z",
+    "updated_at": "2025-10-30T01:20:15.229Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$JpyAvY7O2kVTwRWT0jm27n$lSITPtlkCNQhRb01dNSEYhImVSTp65QnhAqVaVb/noc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "david_williams",
+    "first_name": "",
+    "last_name": "",
+    "email": "david.williams@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:15.723Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:15.897Z",
+    "updated_at": "2025-10-30T01:20:15.898Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$tI6VR8fTVcwf8cumwytFc2$Fd+77SpceNImDO7lBe+t2oThhaTouAEOS8h9HpotimM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tech_drew",
+    "first_name": "",
+    "last_name": "",
+    "email": "tech.drew@company.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:16.383Z",
+    "role": "TECHNICIAN",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:16.555Z",
+    "updated_at": "2025-10-30T01:20:16.556Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$ouRVEctGfxbHC1PxLWZEt0$r/GodV+xqkMzop60LyaZjp732n4uyhwDGZuqOw6WQzI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "sophia_martinez",
+    "first_name": "",
+    "last_name": "",
+    "email": "sophia.martinez@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:16.962Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:17.135Z",
+    "updated_at": "2025-10-30T01:20:17.136Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$uxL3jJnscL5AxjE5kzMTV0$7qp8PjLMdtI60MwkUUcm9ha7eECNmEYy3ykKK6mZwH8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "michael_jones",
+    "first_name": "",
+    "last_name": "",
+    "email": "michael.jones@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-30T01:20:17.846Z",
+    "role": "CUSTOMER",
+    "phone": "",
+    "plaintext_password": "Welcome123",
+    "created_at": "2025-10-30T01:20:18.025Z",
+    "updated_at": "2025-10-30T01:20:18.026Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 1,
+  "fields": {
+    "name": "Gas",
+    "slug": "gas",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.186Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 2,
+  "fields": {
+    "name": "Electric",
+    "slug": "electric",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.186Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 4,
+  "fields": {
+    "name": "HVAC",
+    "slug": "hvac",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.188Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 5,
+  "fields": {
+    "name": "Carpentry",
+    "slug": "carpentry",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.188Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 6,
+  "fields": {
+    "name": "IT",
+    "slug": "it",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.188Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 7,
+  "fields": {
+    "name": "Security",
+    "slug": "security",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.189Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 8,
+  "fields": {
+    "name": "Solar",
+    "slug": "solar",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.189Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 9,
+  "fields": {
+    "name": "Roofing",
+    "slug": "roofing",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.190Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 10,
+  "fields": {
+    "name": "Cleaning",
+    "slug": "cleaning",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-26T09:09:00.190Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 11,
+  "fields": {
+    "name": "electrical",
+    "slug": "electrical",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-28T02:08:31.627Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 12,
+  "fields": {
+    "name": "heating",
+    "slug": "heating",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-28T02:08:32.607Z"
+  }
+},
+{
+  "model": "core.skill",
+  "pk": 13,
+  "fields": {
+    "name": "Plumbing",
+    "slug": "plumbing",
+    "description": "",
+    "is_active": true,
+    "created_at": "2025-10-28T22:55:22.820Z"
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 112,
+  "fields": {
+    "user": [
+      "tech_morgan"
+    ],
+    "depot_address": "63 Rathdowne Street, Carlton VIC 3053",
+    "depot_lat": -37.8054315,
+    "depot_lon": 144.9687733,
+    "capacity_minutes": 240,
+    "shift_start": "06:00:00",
+    "shift_end": "10:00:00",
+    "color_hex": "#FBBC05",
+    "is_active": true,
+    "created_at": "2025-10-30T01:19:43.358Z",
+    "updated_at": "2025-10-30T01:19:43.359Z",
+    "skills": [
+      1,
+      4,
+      13
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 113,
+  "fields": {
+    "user": [
+      "tech_jamie"
+    ],
+    "depot_address": "706 Nicholson Street, Footscray VIC 3011",
+    "depot_lat": -37.8008734,
+    "depot_lon": 144.8993126,
+    "capacity_minutes": 360,
+    "shift_start": "11:00:00",
+    "shift_end": "17:00:00",
+    "color_hex": "#4285F4",
+    "is_active": true,
+    "created_at": "2025-10-30T01:19:44.773Z",
+    "updated_at": "2025-10-30T01:19:44.774Z",
+    "skills": [
+      2,
+      13,
+      7
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 114,
+  "fields": {
+    "user": [
+      "tech_cameron"
+    ],
+    "depot_address": "255 Springvale Road, Mulgrave VIC 3170",
+    "depot_lat": -37.9182205,
+    "depot_lon": 145.1586761,
+    "capacity_minutes": 480,
+    "shift_start": "06:00:00",
+    "shift_end": "14:00:00",
+    "color_hex": "#EA4335",
+    "is_active": true,
+    "created_at": "2025-10-30T01:19:45.474Z",
+    "updated_at": "2025-10-30T01:19:45.474Z",
+    "skills": [
+      5,
+      1,
+      13
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 115,
+  "fields": {
+    "user": [
+      "tech_sage"
+    ],
+    "depot_address": "968 Rathdowne Street, Carlton VIC 3053",
+    "depot_lat": -37.8001246,
+    "depot_lon": 144.9701069,
+    "capacity_minutes": 300,
+    "shift_start": "13:00:00",
+    "shift_end": "18:00:00",
+    "color_hex": "#EA4335",
+    "is_active": true,
+    "created_at": "2025-10-30T01:19:46.706Z",
+    "updated_at": "2025-10-30T01:19:46.706Z",
+    "skills": [
+      6,
+      7
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 116,
+  "fields": {
+    "user": [
+      "tech_reese"
+    ],
+    "depot_address": "364 Derrimut Road, Tarneit VIC 3029",
+    "depot_lat": -37.8508542,
+    "depot_lon": 144.6882955,
+    "capacity_minutes": 360,
+    "shift_start": "07:00:00",
+    "shift_end": "13:00:00",
+    "color_hex": "#FBBC05",
+    "is_active": true,
+    "created_at": "2025-10-30T01:19:48.708Z",
+    "updated_at": "2025-10-30T01:19:48.709Z",
+    "skills": [
+      2,
+      4,
+      6,
+      8
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 117,
+  "fields": {
+    "user": [
+      "tech_quinn"
+    ],
+    "depot_address": "709 Dandenong Railway Station, Dandenong VIC 3175",
+    "depot_lat": -37.9920077,
+    "depot_lon": 145.2152091,
+    "capacity_minutes": 300,
+    "shift_start": "12:00:00",
+    "shift_end": "17:00:00",
+    "color_hex": "#FF6D01",
+    "is_active": true,
+    "created_at": "2025-10-30T01:19:50.202Z",
+    "updated_at": "2025-10-30T01:19:50.202Z",
+    "skills": [
+      5,
+      9
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 118,
+  "fields": {
+    "user": [
+      "tech_jordan"
+    ],
+    "depot_address": "433 Lygon Street, Carlton VIC 3053",
+    "depot_lat": -37.7938774,
+    "depot_lon": 144.9677014,
+    "capacity_minutes": 300,
+    "shift_start": "06:00:00",
+    "shift_end": "11:00:00",
+    "color_hex": "#FF6D01",
+    "is_active": true,
+    "created_at": "2025-10-30T01:19:51.514Z",
+    "updated_at": "2025-10-30T01:19:51.514Z",
+    "skills": [
+      2,
+      8
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 119,
+  "fields": {
+    "user": [
+      "tech_casey"
+    ],
+    "depot_address": "775 Derrimut Road, Tarneit VIC 3029",
+    "depot_lat": -37.8185592,
+    "depot_lon": 144.6940203,
+    "capacity_minutes": 360,
+    "shift_start": "12:00:00",
+    "shift_end": "18:00:00",
+    "color_hex": "#FF6D01",
+    "is_active": true,
+    "created_at": "2025-10-30T01:19:58.315Z",
+    "updated_at": "2025-10-30T01:19:58.315Z",
+    "skills": [
+      2,
+      4
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 120,
+  "fields": {
+    "user": [
+      "tech_alex"
+    ],
+    "depot_address": "121 Exhibition Street, Melbourne VIC 3000",
+    "depot_lat": -37.8125352,
+    "depot_lon": 144.9704805,
+    "capacity_minutes": 300,
+    "shift_start": "11:00:00",
+    "shift_end": "16:00:00",
+    "color_hex": "#EA4335",
+    "is_active": true,
+    "created_at": "2025-10-30T01:20:01.598Z",
+    "updated_at": "2025-10-30T01:20:01.598Z",
+    "skills": [
+      1,
+      13
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 121,
+  "fields": {
+    "user": [
+      "tech_riley"
+    ],
+    "depot_address": "782 Bridge Road, Richmond VIC 3121",
+    "depot_lat": -37.8201925,
+    "depot_lon": 145.0142419,
+    "capacity_minutes": 360,
+    "shift_start": "12:00:00",
+    "shift_end": "18:00:00",
+    "color_hex": "#34A853",
+    "is_active": true,
+    "created_at": "2025-10-30T01:20:03.025Z",
+    "updated_at": "2025-10-30T01:20:03.025Z",
+    "skills": [
+      2,
+      4,
+      6
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 122,
+  "fields": {
+    "user": [
+      "tech_avery"
+    ],
+    "depot_address": "327 Acland Street, St Kilda VIC 3182",
+    "depot_lat": -37.8696755,
+    "depot_lon": 144.9804999,
+    "capacity_minutes": 300,
+    "shift_start": "12:00:00",
+    "shift_end": "17:00:00",
+    "color_hex": "#EA4335",
+    "is_active": true,
+    "created_at": "2025-10-30T01:20:05.225Z",
+    "updated_at": "2025-10-30T01:20:05.225Z",
+    "skills": [
+      5,
+      10,
+      9
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 123,
+  "fields": {
+    "user": [
+      "tech_blake"
+    ],
+    "depot_address": "824 Central Road, Clayton VIC 3168",
+    "depot_lat": -37.82483,
+    "depot_lon": 145.1676459,
+    "capacity_minutes": 300,
+    "shift_start": "09:00:00",
+    "shift_end": "14:00:00",
+    "color_hex": "#FBBC05",
+    "is_active": true,
+    "created_at": "2025-10-30T01:20:06.031Z",
+    "updated_at": "2025-10-30T01:20:06.031Z",
+    "skills": [
+      10,
+      13
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 124,
+  "fields": {
+    "user": [
+      "tech_dakota"
+    ],
+    "depot_address": "183 Bridge Road, Richmond VIC 3121",
+    "depot_lat": -37.8180177,
+    "depot_lon": 144.9959305,
+    "capacity_minutes": 240,
+    "shift_start": "11:00:00",
+    "shift_end": "15:00:00",
+    "color_hex": "#FBBC05",
+    "is_active": true,
+    "created_at": "2025-10-30T01:20:11.854Z",
+    "updated_at": "2025-10-30T01:20:11.854Z",
+    "skills": [
+      4,
+      13
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 125,
+  "fields": {
+    "user": [
+      "tech_taylor"
+    ],
+    "depot_address": "805 Commercial Road, South Yarra VIC 3141",
+    "depot_lat": -37.846023,
+    "depot_lon": 144.9877747,
+    "capacity_minutes": 240,
+    "shift_start": "12:00:00",
+    "shift_end": "16:00:00",
+    "color_hex": "#FBBC05",
+    "is_active": true,
+    "created_at": "2025-10-30T01:20:14.011Z",
+    "updated_at": "2025-10-30T01:20:14.011Z",
+    "skills": [
+      2,
+      4,
+      8
+    ]
+  }
+},
+{
+  "model": "core.technician",
+  "pk": 126,
+  "fields": {
+    "user": [
+      "tech_drew"
+    ],
+    "depot_address": "531 Ferntree Gully Road, Mulgrave VIC 3170",
+    "depot_lat": -37.9031974,
+    "depot_lon": 145.1578383,
+    "capacity_minutes": 240,
+    "shift_start": "11:00:00",
+    "shift_end": "15:00:00",
+    "color_hex": "#4285F4",
+    "is_active": true,
+    "created_at": "2025-10-30T01:20:16.954Z",
+    "updated_at": "2025-10-30T01:20:16.954Z",
+    "skills": [
+      2,
+      6
+    ]
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 212,
+  "fields": {
+    "customer": [
+      "emily_clark"
+    ],
+    "name": "Appliance Installation",
+    "address": "944 Nicholson Street, Footscray VIC 3011",
+    "lat": -37.8008734,
+    "lon": 144.8993126,
+    "service_minutes": 90,
+    "window_start": "2025-11-01T10:00:00Z",
+    "window_end": "2025-11-01T12:00:00Z",
+    "required_skill": 2,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:44.289Z",
+    "updated_at": "2025-10-30T01:21:31.983Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 213,
+  "fields": {
+    "customer": [
+      "mark_robinson"
+    ],
+    "name": "System Upgrade",
+    "address": "147 Swan Street, Richmond VIC 3121",
+    "lat": -37.8252999,
+    "lon": 144.9961088,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T14:00:00Z",
+    "window_end": "2025-11-01T16:00:00Z",
+    "required_skill": 6,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:46.041Z",
+    "updated_at": "2025-10-30T01:21:31.996Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 214,
+  "fields": {
+    "customer": [
+      "sarah_brown"
+    ],
+    "name": "System Upgrade",
+    "address": "800 Ferntree Gully Road, Mulgrave VIC 3170",
+    "lat": -37.9031974,
+    "lon": 145.1578383,
+    "service_minutes": 60,
+    "window_start": "2025-11-01T14:00:00Z",
+    "window_end": "2025-11-01T15:00:00Z",
+    "required_skill": 6,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:47.322Z",
+    "updated_at": "2025-10-30T01:21:31.976Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 215,
+  "fields": {
+    "customer": [
+      "charlotte_thomas"
+    ],
+    "name": "Emergency Callout",
+    "address": "940 Commercial Road, South Yarra VIC 3141",
+    "lat": -37.846023,
+    "lon": 144.9877747,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T10:00:00Z",
+    "window_end": "2025-11-01T11:00:00Z",
+    "required_skill": 13,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:47.878Z",
+    "updated_at": "2025-10-30T01:21:31.986Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 216,
+  "fields": {
+    "customer": [
+      "elizabeth_lewis"
+    ],
+    "name": "Routine Service",
+    "address": "243 Fitzroy Street, St Kilda VIC 3182",
+    "lat": -37.8572683,
+    "lon": 144.9821884,
+    "service_minutes": 90,
+    "window_start": "2025-11-01T15:00:00Z",
+    "window_end": "2025-11-01T17:00:00Z",
+    "required_skill": 13,
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:50.796Z",
+    "updated_at": "2025-10-30T01:21:31.973Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 217,
+  "fields": {
+    "customer": [
+      "christopher_lee"
+    ],
+    "name": "Gas Leak Repair",
+    "address": "89 Derrimut Road, Tarneit VIC 3029",
+    "lat": -37.8269603,
+    "lon": 144.6925707,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T12:00:00Z",
+    "window_end": "2025-11-01T14:00:00Z",
+    "required_skill": 1,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:52.061Z",
+    "updated_at": "2025-10-30T01:21:31.955Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 218,
+  "fields": {
+    "customer": [
+      "robert_rodriguez"
+    ],
+    "name": "Electrical Fault",
+    "address": "461 Bridge Road, Richmond VIC 3121",
+    "lat": -37.8189976,
+    "lon": 145.0060297,
+    "service_minutes": 60,
+    "window_start": "2025-11-01T13:00:00Z",
+    "window_end": "2025-11-01T15:00:00Z",
+    "required_skill": 2,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:52.556Z",
+    "updated_at": "2025-10-30T01:21:31.977Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 219,
+  "fields": {
+    "customer": [
+      "mia_wilson"
+    ],
+    "name": "Routine Service",
+    "address": "317 Springvale Road, Mulgrave VIC 3170",
+    "lat": -37.9007614,
+    "lon": 145.1621033,
+    "service_minutes": 60,
+    "window_start": "2025-11-01T11:00:00Z",
+    "window_end": "2025-11-01T12:00:00Z",
+    "required_skill": 13,
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:53.439Z",
+    "updated_at": "2025-10-30T01:21:31.970Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 220,
+  "fields": {
+    "customer": [
+      "amelia_moore"
+    ],
+    "name": "Emergency Callout",
+    "address": "86 Clayton Campus, Monash University, Clayton VIC 3168",
+    "lat": -37.9056924,
+    "lon": 145.123696,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T16:00:00Z",
+    "window_end": "2025-11-01T18:00:00Z",
+    "required_skill": 13,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:54.020Z",
+    "updated_at": "2025-10-30T01:21:31.981Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 221,
+  "fields": {
+    "customer": [
+      "charles_jackson"
+    ],
+    "name": "Safety Inspection",
+    "address": "975 Chapel Street, South Yarra VIC 3141",
+    "lat": -37.8350023,
+    "lon": 144.9961692,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T08:00:00Z",
+    "window_end": "2025-11-01T10:00:00Z",
+    "required_skill": 7,
+    "priority": 1,
+    "status": "pending",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:54.958Z",
+    "updated_at": "2025-10-30T01:19:54.962Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 222,
+  "fields": {
+    "customer": [
+      "sofia_walker"
+    ],
+    "name": "Plumbing Issue",
+    "address": "846 Bridge Road, Richmond VIC 3121",
+    "lat": -37.8201925,
+    "lon": 145.0142419,
+    "service_minutes": 90,
+    "window_start": "2025-11-01T13:00:00Z",
+    "window_end": "2025-11-01T14:00:00Z",
+    "required_skill": 13,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:55.521Z",
+    "updated_at": "2025-10-30T01:21:31.971Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 223,
+  "fields": {
+    "customer": [
+      "anthony_ramirez"
+    ],
+    "name": "System Upgrade",
+    "address": "813 Dandenong Railway Station, Dandenong VIC 3175",
+    "lat": -37.9920077,
+    "lon": 145.2152091,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T09:00:00Z",
+    "window_end": "2025-11-01T10:00:00Z",
+    "required_skill": 6,
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:56.382Z",
+    "updated_at": "2025-10-30T01:21:31.987Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 224,
+  "fields": {
+    "customer": [
+      "john_smith"
+    ],
+    "name": "Electrical Fault",
+    "address": "587 Dohertys Road, Tarneit VIC 3029",
+    "lat": -37.8217837,
+    "lon": 144.7113968,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T13:00:00Z",
+    "window_end": "2025-11-01T14:00:00Z",
+    "required_skill": 2,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:57.260Z",
+    "updated_at": "2025-10-30T01:21:31.968Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 225,
+  "fields": {
+    "customer": [
+      "steven_king"
+    ],
+    "name": "Gas Leak Repair",
+    "address": "16 Fitzroy Street, St Kilda VIC 3182",
+    "lat": -37.8612394,
+    "lon": 144.9743287,
+    "service_minutes": 90,
+    "window_start": "2025-11-01T13:00:00Z",
+    "window_end": "2025-11-01T15:00:00Z",
+    "required_skill": 1,
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:57.838Z",
+    "updated_at": "2025-10-30T01:21:31.966Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 226,
+  "fields": {
+    "customer": [
+      "richard_gonzalez"
+    ],
+    "name": "System Upgrade",
+    "address": "640 Tarneit Road, Tarneit VIC 3029",
+    "lat": -37.82370179999999,
+    "lon": 144.6744937,
+    "service_minutes": 60,
+    "window_start": "2025-11-01T14:00:00Z",
+    "window_end": "2025-11-01T15:00:00Z",
+    "required_skill": 6,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:58.866Z",
+    "updated_at": "2025-10-30T01:21:31.991Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 227,
+  "fields": {
+    "customer": [
+      "james_miller"
+    ],
+    "name": "Gas Leak Repair",
+    "address": "667 Bourke Street, Melbourne VIC 3000",
+    "lat": -37.8169823,
+    "lon": 144.9544264,
+    "service_minutes": 60,
+    "window_start": "2025-11-01T09:00:00Z",
+    "window_end": "2025-11-01T11:00:00Z",
+    "required_skill": 1,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:19:59.739Z",
+    "updated_at": "2025-10-30T01:21:31.985Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 228,
+  "fields": {
+    "customer": [
+      "joseph_anderson"
+    ],
+    "name": "Appliance Installation",
+    "address": "806 Springvale Road, Mulgrave VIC 3170",
+    "lat": -37.9279682,
+    "lon": 145.156765,
+    "service_minutes": 60,
+    "window_start": "2025-11-01T11:00:00Z",
+    "window_end": "2025-11-01T13:00:00Z",
+    "required_skill": 2,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:00.346Z",
+    "updated_at": "2025-10-30T01:21:31.974Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 229,
+  "fields": {
+    "customer": [
+      "victoria_wright"
+    ],
+    "name": "Maintenance Check",
+    "address": "840 Clayton Road, Clayton VIC 3168",
+    "lat": -37.9139749,
+    "lon": 145.1218705,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T11:00:00Z",
+    "window_end": "2025-11-01T13:00:00Z",
+    "required_skill": 2,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:01.001Z",
+    "updated_at": "2025-10-30T01:21:31.989Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 230,
+  "fields": {
+    "customer": [
+      "isabella_lopez"
+    ],
+    "name": "HVAC Maintenance",
+    "address": "392 Rathdowne Street, Carlton VIC 3053",
+    "lat": -37.7980747,
+    "lon": 144.9701315,
+    "service_minutes": 90,
+    "window_start": "2025-11-01T16:00:00Z",
+    "window_end": "2025-11-01T18:00:00Z",
+    "required_skill": 4,
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:02.346Z",
+    "updated_at": "2025-10-30T01:21:31.993Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 231,
+  "fields": {
+    "customer": [
+      "abigail_harris"
+    ],
+    "name": "Emergency Callout",
+    "address": "175 Lygon Street, Carlton VIC 3053",
+    "lat": -37.8015534,
+    "lon": 144.9664539,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T12:00:00Z",
+    "window_end": "2025-11-01T14:00:00Z",
+    "required_skill": 13,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:03.599Z",
+    "updated_at": "2025-10-30T01:21:31.961Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 232,
+  "fields": {
+    "customer": [
+      "matthew_sanchez"
+    ],
+    "name": "Safety Inspection",
+    "address": "443 Nicholson Street, Footscray VIC 3011",
+    "lat": -37.8074041,
+    "lon": 144.8984596,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T13:00:00Z",
+    "window_end": "2025-11-01T14:00:00Z",
+    "required_skill": 7,
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:04.115Z",
+    "updated_at": "2025-10-30T01:21:31.994Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 233,
+  "fields": {
+    "customer": [
+      "avery_allen"
+    ],
+    "name": "Plumbing Issue",
+    "address": "605 Dohertys Road, Tarneit VIC 3029",
+    "lat": -37.8217837,
+    "lon": 144.7113968,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T08:00:00Z",
+    "window_end": "2025-11-01T10:00:00Z",
+    "required_skill": 13,
+    "priority": 2,
+    "status": "pending",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:06.552Z",
+    "updated_at": "2025-10-30T01:20:06.556Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 234,
+  "fields": {
+    "customer": [
+      "thomas_taylor"
+    ],
+    "name": "System Upgrade",
+    "address": "170 Flinders Street, Melbourne VIC 3000",
+    "lat": -37.8167572,
+    "lon": 144.9691084,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T15:00:00Z",
+    "window_end": "2025-11-01T16:00:00Z",
+    "required_skill": 6,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:07.530Z",
+    "updated_at": "2025-10-30T01:21:31.992Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 235,
+  "fields": {
+    "customer": [
+      "evelyn_thompson"
+    ],
+    "name": "Gas Leak Repair",
+    "address": "842 Nicholson Street, Footscray VIC 3011",
+    "lat": -37.8008734,
+    "lon": 144.8993126,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T11:00:00Z",
+    "window_end": "2025-11-01T13:00:00Z",
+    "required_skill": 1,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:08.311Z",
+    "updated_at": "2025-10-30T01:21:31.964Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 236,
+  "fields": {
+    "customer": [
+      "paul_scott"
+    ],
+    "name": "Gas Leak Repair",
+    "address": "595 Central Road, Clayton VIC 3168",
+    "lat": -37.82483,
+    "lon": 145.1676459,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T16:00:00Z",
+    "window_end": "2025-11-01T18:00:00Z",
+    "required_skill": 1,
+    "priority": 2,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:09.178Z",
+    "updated_at": "2025-10-30T01:21:31.957Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 237,
+  "fields": {
+    "customer": [
+      "emma_garcia"
+    ],
+    "name": "System Upgrade",
+    "address": "903 Springvale Road, Mulgrave VIC 3170",
+    "lat": -37.9318973,
+    "lon": 145.1560208,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T09:00:00Z",
+    "window_end": "2025-11-01T11:00:00Z",
+    "required_skill": 6,
+    "priority": 2,
+    "status": "pending",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:10.006Z",
+    "updated_at": "2025-10-30T01:20:10.010Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 238,
+  "fields": {
+    "customer": [
+      "mary_johnson"
+    ],
+    "name": "Gas Leak Repair",
+    "address": "18 Acland Street, St Kilda VIC 3182",
+    "lat": -37.8644556,
+    "lon": 144.9762125,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T16:00:00Z",
+    "window_end": "2025-11-01T18:00:00Z",
+    "required_skill": 1,
+    "priority": 2,
+    "status": "pending",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:11.120Z",
+    "updated_at": "2025-10-30T01:20:11.125Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 239,
+  "fields": {
+    "customer": [
+      "harper_martin"
+    ],
+    "name": "Emergency Callout",
+    "address": "865 Chapel Street, South Yarra VIC 3141",
+    "lat": -37.8350023,
+    "lon": 144.9961692,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T08:00:00Z",
+    "window_end": "2025-11-01T10:00:00Z",
+    "required_skill": 13,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:12.398Z",
+    "updated_at": "2025-10-30T01:21:31.962Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 240,
+  "fields": {
+    "customer": [
+      "donald_young"
+    ],
+    "name": "Appliance Installation",
+    "address": "106 Nicholson Street, Footscray VIC 3011",
+    "lat": -37.8004875,
+    "lon": 144.8993167,
+    "service_minutes": 90,
+    "window_start": "2025-11-01T16:00:00Z",
+    "window_end": "2025-11-01T18:00:00Z",
+    "required_skill": 2,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:13.254Z",
+    "updated_at": "2025-10-30T01:21:31.997Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 241,
+  "fields": {
+    "customer": [
+      "daniel_white"
+    ],
+    "name": "Electrical Fault",
+    "address": "637 Rathdowne Street, Carlton VIC 3053",
+    "lat": -37.7934036,
+    "lon": 144.9711514,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T08:00:00Z",
+    "window_end": "2025-11-01T09:00:00Z",
+    "required_skill": 2,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:14.505Z",
+    "updated_at": "2025-10-30T01:21:31.982Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 242,
+  "fields": {
+    "customer": [
+      "olivia_davis"
+    ],
+    "name": "Maintenance Check",
+    "address": "957 Clayton Campus, Monash University, Clayton VIC 3168",
+    "lat": -37.911009,
+    "lon": 145.1223575,
+    "service_minutes": 180,
+    "window_start": "2025-11-01T10:00:00Z",
+    "window_end": "2025-11-01T11:00:00Z",
+    "required_skill": 2,
+    "priority": 1,
+    "status": "pending",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:15.049Z",
+    "updated_at": "2025-10-30T01:20:15.052Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 243,
+  "fields": {
+    "customer": [
+      "william_hernandez"
+    ],
+    "name": "Plumbing Issue",
+    "address": "682 Clayton Road, Clayton VIC 3168",
+    "lat": -37.9294472,
+    "lon": 145.1188302,
+    "service_minutes": 90,
+    "window_start": "2025-11-01T15:00:00Z",
+    "window_end": "2025-11-01T16:00:00Z",
+    "required_skill": 13,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:15.718Z",
+    "updated_at": "2025-10-30T01:21:31.979Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 244,
+  "fields": {
+    "customer": [
+      "david_williams"
+    ],
+    "name": "Maintenance Check",
+    "address": "552 Dandenong Railway Station, Dandenong VIC 3175",
+    "lat": -37.9920077,
+    "lon": 145.2152091,
+    "service_minutes": 90,
+    "window_start": "2025-11-01T09:00:00Z",
+    "window_end": "2025-11-01T11:00:00Z",
+    "required_skill": 2,
+    "priority": 1,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:16.377Z",
+    "updated_at": "2025-10-30T01:21:31.988Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 245,
+  "fields": {
+    "customer": [
+      "sophia_martinez"
+    ],
+    "name": "Maintenance Check",
+    "address": "484 Elizabeth Street, Melbourne VIC 3000",
+    "lat": -37.80754599999999,
+    "lon": 144.9604072,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T16:00:00Z",
+    "window_end": "2025-11-01T18:00:00Z",
+    "required_skill": 2,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:17.839Z",
+    "updated_at": "2025-10-30T01:21:31.998Z"
+  }
+},
+{
+  "model": "core.servicerequest",
+  "pk": 246,
+  "fields": {
+    "customer": [
+      "michael_jones"
+    ],
+    "name": "Plumbing Issue",
+    "address": "986 Ferntree Gully Road, Mulgrave VIC 3170",
+    "lat": -37.9031974,
+    "lon": 145.1578383,
+    "service_minutes": 120,
+    "window_start": "2025-11-01T11:00:00Z",
+    "window_end": "2025-11-01T12:00:00Z",
+    "required_skill": 13,
+    "priority": 3,
+    "status": "assigned",
+    "notes": "",
+    "created_at": "2025-10-30T01:20:18.429Z",
+    "updated_at": "2025-10-30T01:21:31.959Z"
+  }
+},
+{
+  "model": "core.googlemapsconfig",
+  "pk": 1,
+  "fields": {
+    "api_key": "AIzaSyCZCEanL50XqkGdej2VdZUCwRrkcf1RrYw",
+    "avg_speed_kph": 40,
+    "late_penalty_per_min": 500,
+    "drop_penalty_per_job": 100000,
+    "return_to_depot": false,
+    "time_limit_seconds": 30
+  }
+}
+]
