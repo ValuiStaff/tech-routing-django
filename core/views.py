@@ -582,7 +582,7 @@ def admin_technician_view(request, technician_id=None):
 @login_required
 @user_passes_test(lambda u: u.is_staff)
 def admin_map_view(request):
-    """Admin map view showing all technician routes"""
+    """Admin map view showing all technician routes and pending customer requests"""
     import json
     
     assigned_date_str = request.GET.get('date', str(timezone.now().date()))
@@ -594,37 +594,142 @@ def admin_map_view(request):
         assigned_date = timezone.now().date()
     
     # Get assignments for the selected date
-    assignments = Assignment.objects.filter(assigned_date=assigned_date).order_by(
+    assignments = Assignment.objects.filter(
+        assigned_date=assigned_date,
+        status__in=['assigned', 'in_progress']
+    ).order_by(
         'technician', 'sequence_order'
-    ).select_related('technician', 'service_request')
+    ).select_related('technician', 'technician__user', 'service_request', 'service_request__customer', 'service_request__required_skill')
     
-    # Build routes data for JavaScript
+    # Get pending service requests (not assigned yet) for the selected date
+    assigned_request_ids = assignments.values_list('service_request_id', flat=True).distinct()
+    pending_requests = ServiceRequest.objects.filter(
+        status='pending',
+        lat__isnull=False,
+        lon__isnull=False,
+        window_start__date=assigned_date
+    ).exclude(id__in=assigned_request_ids).select_related('customer', 'required_skill')
+    
+    # Build routes data for JavaScript (assigned technicians)
     routes_data = []
-    for tech in Technician.objects.filter(is_active=True, depot_lat__isnull=False):
+    for tech in Technician.objects.filter(is_active=True, depot_lat__isnull=False).select_related('user').prefetch_related('skills'):
         tech_assignments = [a for a in assignments if a.technician == tech]
         if not tech_assignments:
             continue
         
         stops = []
         for assign in tech_assignments:
+            req = assign.service_request
             stops.append({
-                'position': {'lat': assign.service_request.lat, 'lng': assign.service_request.lon},
-                'customer': assign.service_request.name,
-                'sequence': assign.sequence_order
+                'position': {'lat': req.lat, 'lng': req.lon},
+                'customer': req.customer.username if req.customer else 'Unknown',
+                'customer_id': req.customer.id if req.customer else None,
+                'service_name': req.name,
+                'address': req.address,
+                'sequence': assign.sequence_order,
+                'planned_start': assign.planned_start.strftime('%Y-%m-%d %H:%M') if assign.planned_start else 'N/A',
+                'planned_finish': assign.planned_finish.strftime('%Y-%m-%d %H:%M') if assign.planned_finish else 'N/A',
+                'window_start': req.window_start.strftime('%Y-%m-%d %H:%M') if req.window_start else 'N/A',
+                'window_end': req.window_end.strftime('%Y-%m-%d %H:%M') if req.window_end else 'N/A',
+                'required_skill': req.required_skill.name if req.required_skill else 'None',
+                'service_minutes': req.service_minutes,
+                'assigned_technician': tech.user.username,
             })
+        
+        # Get technician skills
+        tech_skills = list(tech.skills.values_list('name', flat=True))
+        
+        # Add location info to stops (for identifying shared addresses)
+        for stop in stops:
+            location_key = f"{round(stop['position']['lat'], 5)}_{round(stop['position']['lng'], 5)}"
+            stop['location_key'] = location_key
         
         routes_data.append({
             'technician': tech.user.username,
+            'technician_id': tech.id,
             'color': tech.color_hex,
             'depot': {'lat': tech.depot_lat, 'lng': tech.depot_lon},
+            'depot_address': tech.depot_address,
+            'shift_start': tech.shift_start.strftime('%H:%M') if tech.shift_start else 'N/A',  # 24-hour format
+            'shift_end': tech.shift_end.strftime('%H:%M') if tech.shift_end else 'N/A',  # 24-hour format
+            'skills': tech_skills,
+            'capacity_minutes': tech.capacity_minutes,
             'stops': stops,
             'path': []  # We'll use simple polylines
         })
     
+    # Build pending customers data and identify shared addresses
+    # First, count customers per address (both assigned and pending)
+    address_counts = {}  # Track how many customers at each address
+    
+    all_requests_today = ServiceRequest.objects.filter(
+        Q(id__in=assigned_request_ids) |
+        Q(id__in=pending_requests.values_list('id', flat=True))
+    ).filter(lat__isnull=False, lon__isnull=False)
+    
+    for req in all_requests_today:
+        # Create a key from lat/lon (rounded to 5 decimal places to handle slight variations)
+        if req.lat and req.lon:
+            location_key = f"{round(req.lat, 5)}_{round(req.lon, 5)}"
+            if location_key not in address_counts:
+                address_counts[location_key] = {
+                    'count': 0,
+                    'address': req.address,
+                    'position': {'lat': req.lat, 'lng': req.lon},
+                    'customers': []
+                }
+            address_counts[location_key]['count'] += 1
+            address_counts[location_key]['customers'].append(req.customer.username if req.customer else 'Unknown')
+    
+    # Add shared address info to assigned stops
+    for route in routes_data:
+        for stop in route['stops']:
+            location_key = stop.get('location_key', '')
+            if location_key and location_key in address_counts:
+                stop['customers_at_location'] = address_counts[location_key]['count']
+                stop['all_customers_at_location'] = address_counts[location_key]['customers']
+            else:
+                stop['customers_at_location'] = 1
+                stop['all_customers_at_location'] = [stop['customer']]
+    
+    # Build pending customers data
+    pending_customers_data = []
+    
+    for req in pending_requests:
+        location_key = f"{round(req.lat, 5)}_{round(req.lon, 5)}" if req.lat and req.lon else None
+        customer_count = address_counts.get(location_key, {}).get('count', 1) if location_key else 1
+        
+        pending_customers_data.append({
+            'position': {'lat': req.lat, 'lng': req.lon},
+            'customer': req.customer.username if req.customer else 'Unknown',
+            'customer_id': req.customer.id if req.customer else None,
+            'service_name': req.name,
+            'address': req.address,
+            'window_start': req.window_start.strftime('%Y-%m-%d %H:%M') if req.window_start else 'N/A',
+            'window_end': req.window_end.strftime('%Y-%m-%d %H:%M') if req.window_end else 'N/A',
+            'required_skill': req.required_skill.name if req.required_skill else 'None',
+            'service_minutes': req.service_minutes,
+            'priority': dict(ServiceRequest.PRIORITY_CHOICES).get(req.priority, 'Medium'),
+            'status': 'Pending - Not Assigned',
+            'location_key': location_key,
+            'customers_at_location': customer_count,
+            'all_customers_at_location': address_counts.get(location_key, {}).get('customers', []) if location_key else []
+        })
+    
+    # Build routes dictionary for template filter checkboxes
+    routes_dict = {}
+    for route in routes_data:
+        tech_name = route['technician']
+        routes_dict[tech_name] = {
+            'color': route['color'],
+            'assignments': route['stops']
+        }
+    
     config = GoogleMapsConfig.load()
     context = {
-        'routes': {},
+        'routes': routes_dict,
         'routes_json': json.dumps(routes_data),
+        'pending_customers_json': json.dumps(pending_customers_data),
         'selected_date': assigned_date,
         'api_key': config.api_key if config and config.api_key else '',
     }

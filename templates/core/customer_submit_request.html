@@ -62,6 +62,7 @@
                                     <div class="text-danger">{{ form.window_start.errors }}</div>
                                 {% endif %}
                                 <small class="form-text text-muted">When should the technician arrive?</small>
+                                <div id="window_start_error" class="text-danger" style="display: none; margin-top: 5px;"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="id_window_end" class="form-label">Latest Completion (Date & Time) *</label>
@@ -70,6 +71,7 @@
                                     <div class="text-danger">{{ form.window_end.errors }}</div>
                                 {% endif %}
                                 <small class="form-text text-muted">When should the job be finished by?</small>
+                                <div id="window_end_error" class="text-danger" style="display: none; margin-top: 5px;"></div>
                             </div>
                         </div>
                         
@@ -159,6 +161,81 @@ function initAutocomplete() {
         console.error('Address input field not found! Tried: id_address and address-input');
     }
 }
+
+// Validate time windows
+function validateTimeWindow() {
+    const windowStartInput = document.getElementById('id_window_start');
+    const windowEndInput = document.getElementById('id_window_end');
+    const startError = document.getElementById('window_start_error');
+    const endError = document.getElementById('window_end_error');
+    
+    if (!windowStartInput || !windowEndInput) {
+        return true; // If inputs don't exist, validation passes
+    }
+    
+    const startValue = windowStartInput.value;
+    const endValue = windowEndInput.value;
+    
+    // Clear previous errors
+    startError.style.display = 'none';
+    startError.textContent = '';
+    endError.style.display = 'none';
+    endError.textContent = '';
+    
+    if (!startValue || !endValue) {
+        return true; // Let required field validation handle empty values
+    }
+    
+    const startDate = new Date(startValue);
+    const endDate = new Date(endValue);
+    
+    if (startDate >= endDate) {
+        const errorMsg = '⚠️ Window start time must be before window end time';
+        startError.textContent = errorMsg;
+        startError.style.display = 'block';
+        endError.textContent = errorMsg;
+        endError.style.display = 'block';
+        windowStartInput.setCustomValidity(errorMsg);
+        windowEndInput.setCustomValidity(errorMsg);
+        return false;
+    } else {
+        windowStartInput.setCustomValidity('');
+        windowEndInput.setCustomValidity('');
+        return true;
+    }
+}
+
+// Add event listeners for time window validation
+document.addEventListener('DOMContentLoaded', function() {
+    const windowStartInput = document.getElementById('id_window_start');
+    const windowEndInput = document.getElementById('id_window_end');
+    const form = windowStartInput ? windowStartInput.closest('form') : null;
+    
+    if (windowStartInput) {
+        windowStartInput.addEventListener('change', validateTimeWindow);
+        windowStartInput.addEventListener('input', validateTimeWindow);
+    }
+    
+    if (windowEndInput) {
+        windowEndInput.addEventListener('change', validateTimeWindow);
+        windowEndInput.addEventListener('input', validateTimeWindow);
+    }
+    
+    // Validate on form submission
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!validateTimeWindow()) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Focus on the first invalid field
+                if (windowStartInput) {
+                    windowStartInput.focus();
+                }
+                return false;
+            }
+        });
+    }
+});
 
 // Load Google Maps script with callback
 window.addEventListener('load', function() {

@@ -81,6 +81,16 @@ const skillsData = {{ skills|safe|default:"[]" }};
                 </button>
             </div>
         </div>
+        
+        <!-- Save All Button -->
+        <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; text-align: center;">
+            <button type="submit" id="saveAllBtn" class="button" style="background: #28a745; color: white; padding: 15px 40px; border: none; cursor: pointer; font-size: 16px; font-weight: bold; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                💾 Save All Entries
+            </button>
+            <p style="color: white; margin-top: 10px; font-size: 14px;">
+                This will create all customer accounts, service requests, and technician profiles at once.
+            </p>
+        </div>
     </form>
 </div>
 
@@ -148,23 +158,22 @@ function addCustomerRow() {
         <input type="hidden" name="type_${rowCount}" value="Customer">
         
         <!-- Step 2: Service Request Details -->
-        <div id="customer_service_request_${rowCount}" style="display: none; margin-top: 20px;">
+        <div id="customer_service_request_${rowCount}" style="margin-top: 20px;">
             <h5 style="color: #417690; margin-top: 15px; margin-bottom: 10px;">Step 2: Create Service Request</h5>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
             <div>
                 <label>Service Type *</label>
                 <select name="service_type_${rowCount}" required style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
                     <option value="">Select service type...</option>
-                    <option value="Gas Leak Repair">Gas Leak Repair</option>
-                    <option value="Electrical Fault">Electrical Fault</option>
-                    <option value="Plumbing Issue">Plumbing Issue</option>
-                    <option value="HVAC Maintenance">HVAC Maintenance</option>
-                    <option value="Appliance Installation">Appliance Installation</option>
-                    <option value="Emergency Callout">Emergency Callout</option>
-                    <option value="Routine Service">Routine Service</option>
-                    <option value="Maintenance Check">Maintenance Check</option>
-                    <option value="Safety Inspection">Safety Inspection</option>
-                    <option value="System Upgrade">System Upgrade</option>
+                    <option value="Personal care">Personal care</option>
+                    <option value="Domestic Assistance">Domestic Assistance</option>
+                    <option value="Community Access">Community Access</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Behaviour Support">Behaviour Support</option>
+                    <option value="Support Coordination">Support Coordination</option>
+                    <option value="Therapy Access">Therapy Access</option>
+                    <option value="Assistive Tech">Assistive Tech</option>
+                    <option value="Life Skills Training">Life Skills Training</option>
                 </select>
             </div>
             <div style="grid-column: 1 / -1;">
@@ -177,11 +186,13 @@ function addCustomerRow() {
             </div>
             <div>
                 <label>Window Start *</label>
-                <input type="datetime-local" name="window_start_${rowCount}" required style="width: 100%; padding: 8px;">
+                <input type="datetime-local" name="window_start_${rowCount}" id="window_start_${rowCount}" required style="width: 100%; padding: 8px;" onchange="validateTimeWindowForRow(${rowCount})" oninput="validateTimeWindowForRow(${rowCount})">
+                <div id="window_start_error_${rowCount}" class="text-danger" style="display: none; font-size: 12px; margin-top: 3px;"></div>
             </div>
             <div>
                 <label>Window End *</label>
-                <input type="datetime-local" name="window_end_${rowCount}" required style="width: 100%; padding: 8px;">
+                <input type="datetime-local" name="window_end_${rowCount}" id="window_end_${rowCount}" required style="width: 100%; padding: 8px;" onchange="validateTimeWindowForRow(${rowCount})" oninput="validateTimeWindowForRow(${rowCount})">
+                <div id="window_end_error_${rowCount}" class="text-danger" style="display: none; font-size: 12px; margin-top: 3px;"></div>
             </div>
             <div>
                 <label>Priority</label>
@@ -563,6 +574,93 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// Validate time window for a specific row
+function validateTimeWindowForRow(rowCount) {
+    const windowStartInput = document.getElementById('window_start_' + rowCount);
+    const windowEndInput = document.getElementById('window_end_' + rowCount);
+    const startError = document.getElementById('window_start_error_' + rowCount);
+    const endError = document.getElementById('window_end_error_' + rowCount);
+    
+    if (!windowStartInput || !windowEndInput) {
+        return true; // If inputs don't exist, validation passes
+    }
+    
+    const startValue = windowStartInput.value;
+    const endValue = windowEndInput.value;
+    
+    // Clear previous errors
+    if (startError) {
+        startError.style.display = 'none';
+        startError.textContent = '';
+    }
+    if (endError) {
+        endError.style.display = 'none';
+        endError.textContent = '';
+    }
+    
+    if (!startValue || !endValue) {
+        return true; // Let required field validation handle empty values
+    }
+    
+    const startDate = new Date(startValue);
+    const endDate = new Date(endValue);
+    
+    if (startDate >= endDate) {
+        const errorMsg = '⚠️ Start time must be before end time';
+        if (startError) {
+            startError.textContent = errorMsg;
+            startError.style.display = 'block';
+        }
+        if (endError) {
+            endError.textContent = errorMsg;
+            endError.style.display = 'block';
+        }
+        windowStartInput.setCustomValidity(errorMsg);
+        windowEndInput.setCustomValidity(errorMsg);
+        // Add visual feedback
+        windowStartInput.style.borderColor = '#dc3545';
+        windowEndInput.style.borderColor = '#dc3545';
+        return false;
+    } else {
+        windowStartInput.setCustomValidity('');
+        windowEndInput.setCustomValidity('');
+        // Remove visual feedback
+        windowStartInput.style.borderColor = '';
+        windowEndInput.style.borderColor = '';
+        return true;
+    }
+}
+
+// Validate all time windows before form submission
+function validateAllTimeWindows() {
+    const customerEntries = document.querySelectorAll('.customer-entry-row');
+    let allValid = true;
+    const invalidRows = [];
+    
+    customerEntries.forEach(function(entry, index) {
+        const rowInputs = entry.querySelectorAll('input[name^="window_start_"], input[name^="window_end_"]');
+        if (rowInputs.length >= 2) {
+            // Extract rowCount from the first input's name
+            const firstName = rowInputs[0].getAttribute('name');
+            const match = firstName.match(/window_start_(\d+)/);
+            if (match) {
+                const rowCount = parseInt(match[1]);
+                if (!validateTimeWindowForRow(rowCount)) {
+                    allValid = false;
+                    invalidRows.push(index + 1);
+                }
+            }
+        }
+    });
+    
+    if (!allValid) {
+        alert('Please fix time window errors:\n\nCustomer ' + invalidRows.join(', ') + ' has invalid time windows.\nWindow start time must be before window end time.');
+        return false;
+    }
+    
+    return true;
+}
+
 // Add initial row when manual section is first shown
 showUploadSection(); // Default to upload section
 
@@ -570,12 +668,12 @@ showUploadSection(); // Default to upload section
 function validateAndSubmit(event) {
     console.log('Form submission triggered!');
     
-    // Check if there are any entries
-    const container = document.getElementById('entriesContainer');
-    const entries = container.querySelectorAll('.manual-entry-row');
+    // Get all customer and technician entries
+    const customerEntries = document.querySelectorAll('.customer-entry-row');
+    const technicianEntries = document.querySelectorAll('.technician-entry-row');
     
-    if (entries.length === 0) {
-        alert('Please add at least one entry before saving!');
+    if (customerEntries.length === 0 && technicianEntries.length === 0) {
+        alert('Please add at least one customer or technician entry before saving!');
         event.preventDefault();
         return false;
     }
@@ -583,71 +681,100 @@ function validateAndSubmit(event) {
     // Validate each entry
     let hasErrors = false;
     let errorMessages = [];
+    let entryIndex = 1;
     
-    entries.forEach(function(entry, index) {
-        const type = entry.querySelector('select[name^="type_"]');
+    // Validate customer entries
+    customerEntries.forEach(function(entry, index) {
         const username = entry.querySelector('input[name^="username_"]');
         const email = entry.querySelector('input[name^="email_"]');
+        const address = entry.querySelector('input[name^="address_"]');
+        const windowStart = entry.querySelector('input[name^="window_start_"]');
+        const windowEnd = entry.querySelector('input[name^="window_end_"]');
+        const serviceType = entry.querySelector('select[name^="service_type_"]');
+        const requiredSkill = entry.querySelector('select[name^="required_skill_"]');
         
-        if (type && type.value) {
-            if (!username || !username.value) {
-                hasErrors = true;
-                errorMessages.push(`Entry ${index + 1}: Username is required`);
-            }
-            
-            if (!email || !email.value) {
-                hasErrors = true;
-                errorMessages.push(`Entry ${index + 1}: Email is required`);
-            }
-            
-            // Additional validation for customer
-            if (type.value === 'Customer') {
-                const address = entry.querySelector('input[name^="address_"]');
-                const windowStart = entry.querySelector('input[name^="window_start_"]');
-                const windowEnd = entry.querySelector('input[name^="window_end_"]');
-                
-                if (!address || !address.value) {
-                    hasErrors = true;
-                    errorMessages.push(`Entry ${index + 1}: Address is required for customers`);
-                }
-                
-                if (!windowStart || !windowStart.value) {
-                    hasErrors = true;
-                    errorMessages.push(`Entry ${index + 1}: Window Start is required for customers`);
-                }
-                
-                if (!windowEnd || !windowEnd.value) {
-                    hasErrors = true;
-                    errorMessages.push(`Entry ${index + 1}: Window End is required for customers`);
-                }
-            }
-            
-            // Additional validation for technician
-            if (type.value === 'Technician') {
-                const depotAddress = entry.querySelector('input[name^="depot_address_"]');
-                const shiftStart = entry.querySelector('input[name^="shift_start_"]');
-                const shiftEnd = entry.querySelector('input[name^="shift_end_"]');
-                
-                if (!depotAddress || !depotAddress.value) {
-                    hasErrors = true;
-                    errorMessages.push(`Entry ${index + 1}: Depot Address is required for technicians`);
-                }
-                
-                if (!shiftStart || !shiftStart.value) {
-                    hasErrors = true;
-                    errorMessages.push(`Entry ${index + 1}: Shift Start is required for technicians`);
-                }
-                
-                if (!shiftEnd || !shiftEnd.value) {
-                    hasErrors = true;
-                    errorMessages.push(`Entry ${index + 1}: Shift End is required for technicians`);
-                }
-            }
+        if (!username || !username.value.trim()) {
+            hasErrors = true;
+            errorMessages.push(`Customer ${index + 1}: Username is required`);
         }
+        
+        if (!email || !email.value.trim()) {
+            hasErrors = true;
+            errorMessages.push(`Customer ${index + 1}: Email is required`);
+        }
+        
+        if (!address || !address.value.trim()) {
+            hasErrors = true;
+            errorMessages.push(`Customer ${index + 1}: Address is required`);
+        }
+        
+        if (!windowStart || !windowStart.value) {
+            hasErrors = true;
+            errorMessages.push(`Customer ${index + 1}: Window Start is required`);
+        }
+        
+        if (!windowEnd || !windowEnd.value) {
+            hasErrors = true;
+            errorMessages.push(`Customer ${index + 1}: Window End is required`);
+        }
+        
+        if (!serviceType || !serviceType.value) {
+            hasErrors = true;
+            errorMessages.push(`Customer ${index + 1}: Service Type is required`);
+        }
+        
+        if (!requiredSkill || !requiredSkill.value) {
+            hasErrors = true;
+            errorMessages.push(`Customer ${index + 1}: Required Skill is required`);
+        }
+        
+        entryIndex++;
+    });
+    
+    // Validate technician entries
+    technicianEntries.forEach(function(entry, index) {
+        const username = entry.querySelector('input[name^="username_"]');
+        const email = entry.querySelector('input[name^="email_"]');
+        const depotAddress = entry.querySelector('input[name^="depot_address_"]');
+        const shiftStart = entry.querySelector('input[name^="shift_start_"]');
+        const shiftEnd = entry.querySelector('input[name^="shift_end_"]');
+        
+        if (!username || !username.value.trim()) {
+            hasErrors = true;
+            errorMessages.push(`Technician ${index + 1}: Username is required`);
+        }
+        
+        if (!email || !email.value.trim()) {
+            hasErrors = true;
+            errorMessages.push(`Technician ${index + 1}: Email is required`);
+        }
+        
+        if (!depotAddress || !depotAddress.value.trim()) {
+            hasErrors = true;
+            errorMessages.push(`Technician ${index + 1}: Depot Address is required`);
+        }
+        
+        if (!shiftStart || !shiftStart.value) {
+            hasErrors = true;
+            errorMessages.push(`Technician ${index + 1}: Shift Start is required`);
+        }
+        
+        if (!shiftEnd || !shiftEnd.value) {
+            hasErrors = true;
+            errorMessages.push(`Technician ${index + 1}: Shift End is required`);
+        }
+        
+        entryIndex++;
     });
     
     if (hasErrors) {
         alert('Please fix the following errors:\n\n' + errorMessages.join('\n'));
+        event.preventDefault();
+        return false;
+    }
+    
+    // Validate all time windows
+    if (!validateAllTimeWindows()) {
         event.preventDefault();
         return false;
     }
@@ -658,7 +785,7 @@ function validateAndSubmit(event) {
     const submitButton = event.target.querySelector('button[type="submit"]');
     if (submitButton) {
         submitButton.disabled = true;
-        submitButton.textContent = '💾 Saving...';
+        submitButton.textContent = '💾 Saving All Entries...';
     }
     
     return true; // Allow form submission

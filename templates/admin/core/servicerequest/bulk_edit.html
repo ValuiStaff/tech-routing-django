@@ -1,0 +1,184 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url 'admin:core_servicerequest_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; Bulk Edit
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Bulk Edit Service Requests</h1>
+
+<div class="module">
+    <p><strong>{{ selected_count }}</strong> service request(s) selected for bulk editing.</p>
+    
+    <div style="background: #f0f0f0; padding: 15px; border-radius: 5px; margin: 15px 0;">
+        <h3>Selected Requests:</h3>
+        <ul style="max-height: 200px; overflow-y: auto;">
+            {% for obj in queryset %}
+            <li>{{ obj.name }} - {{ obj.customer.username }} ({{ obj.get_status_display }}, Priority: {{ obj.get_priority_display }})</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <form method="post" action="">
+        {% csrf_token %}
+        
+        <!-- Hidden fields to preserve selection -->
+        {% for obj in queryset %}
+        <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.id }}">
+        {% endfor %}
+        <input type="hidden" name="action" value="bulk_edit">
+        <input type="hidden" name="post" value="yes">
+        
+        <fieldset class="module aligned">
+            <h2>Edit Fields</h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                <strong>Note:</strong> Leave fields blank to keep their current values. Only filled fields will be updated.
+            </p>
+            
+            <div class="form-row">
+                <div>
+                    <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                    {{ form.status }}
+                    {% if form.status.help_text %}
+                    <p class="help">{{ form.status.help_text }}</p>
+                    {% endif %}
+                    {% if form.status.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.status.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div>
+                    <label for="{{ form.priority.id_for_label }}">{{ form.priority.label }}</label>
+                    {{ form.priority }}
+                    {% if form.priority.help_text %}
+                    <p class="help">{{ form.priority.help_text }}</p>
+                    {% endif %}
+                    {% if form.priority.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.priority.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div>
+                    <label for="{{ form.required_skill.id_for_label }}">{{ form.required_skill.label }}</label>
+                    {{ form.required_skill }}
+                    {% if form.required_skill.help_text %}
+                    <p class="help">{{ form.required_skill.help_text }}</p>
+                    {% endif %}
+                    {% if form.required_skill.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.required_skill.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div>
+                    <label for="{{ form.service_minutes.id_for_label }}">{{ form.service_minutes.label }}</label>
+                    {{ form.service_minutes }}
+                    {% if form.service_minutes.help_text %}
+                    <p class="help">{{ form.service_minutes.help_text }}</p>
+                    {% endif %}
+                    {% if form.service_minutes.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.service_minutes.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div>
+                    <label for="{{ form.notes_append.id_for_label }}">{{ form.notes_append.label }}</label>
+                    {{ form.notes_append }}
+                    {% if form.notes_append.help_text %}
+                    <p class="help">{{ form.notes_append.help_text }}</p>
+                    {% endif %}
+                    {% if form.notes_append.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.notes_append.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </fieldset>
+        
+        <div class="submit-row">
+            <input type="submit" value="Apply Changes" class="default" name="apply">
+            <a href="{% url 'admin:core_servicerequest_changelist' %}" class="button">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-row {
+        margin-bottom: 20px;
+        padding: 10px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+    }
+    .form-row label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    .form-row select,
+    .form-row input[type="number"],
+    .form-row textarea {
+        width: 100%;
+        max-width: 500px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        font-size: 14px;
+    }
+    .form-row .help {
+        margin-top: 5px;
+        color: #666;
+        font-size: 12px;
+    }
+    .errorlist {
+        color: #dc3545;
+        margin-top: 5px;
+    }
+    .submit-row {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+    }
+    .submit-row input,
+    .submit-row a.button {
+        padding: 10px 20px;
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+

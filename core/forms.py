@@ -28,18 +28,17 @@ class BulkUploadForm(forms.Form):
         return file
 
 
-# Common service types
+# Common service types - matches skill names
 SERVICE_TYPE_CHOICES = [
-    ('Gas Leak Repair', 'Gas Leak Repair'),
-    ('Electrical Fault', 'Electrical Fault'),
-    ('Plumbing Issue', 'Plumbing Issue'),
-    ('HVAC Maintenance', 'HVAC Maintenance'),
-    ('Appliance Installation', 'Appliance Installation'),
-    ('Emergency Callout', 'Emergency Callout'),
-    ('Routine Service', 'Routine Service'),
-    ('Maintenance Check', 'Maintenance Check'),
-    ('Safety Inspection', 'Safety Inspection'),
-    ('System Upgrade', 'System Upgrade'),
+    ('Personal care', 'Personal care'),
+    ('Domestic Assistance', 'Domestic Assistance'),
+    ('Community Access', 'Community Access'),
+    ('Transport', 'Transport'),
+    ('Behaviour Support', 'Behaviour Support'),
+    ('Support Coordination', 'Support Coordination'),
+    ('Therapy Access', 'Therapy Access'),
+    ('Assistive Tech', 'Assistive Tech'),
+    ('Life Skills Training', 'Life Skills Training'),
 ]
 
 
@@ -84,6 +83,15 @@ class ServiceRequestForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         service_type = cleaned_data.get('service_type')
+        window_start = cleaned_data.get('window_start')
+        window_end = cleaned_data.get('window_end')
+        
+        # Validate that window_start is before window_end
+        if window_start and window_end:
+            if window_start >= window_end:
+                raise forms.ValidationError({
+                    'window_end': 'Window end time must be after window start time.'
+                })
         
         # If service type is selected, use it as the name; otherwise require a custom name
         if not service_type and not self.instance.name:

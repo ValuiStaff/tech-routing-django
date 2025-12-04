@@ -1,0 +1,426 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url 'admin:core_servicerequest_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; Edit Multiple
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .edit-multiple-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: white;
+    }
+    .edit-multiple-table th {
+        background: #417690;
+        color: white;
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    .edit-multiple-table td {
+        padding: 10px 8px;
+        border: 1px solid #ddd;
+        vertical-align: top;
+    }
+    .edit-multiple-table tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+    .edit-multiple-table tr:hover {
+        background: #f0f0f0;
+    }
+    .edit-multiple-table input[type="text"],
+    .edit-multiple-table input[type="number"],
+    .edit-multiple-table input[type="datetime-local"],
+    .edit-multiple-table select,
+    .edit-multiple-table textarea {
+        width: 100%;
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 13px;
+    }
+    .edit-multiple-table textarea {
+        resize: vertical;
+        min-height: 50px;
+    }
+    .edit-multiple-table input[type="datetime-local"] {
+        min-width: 160px;
+    }
+    .customer-info {
+        font-weight: bold;
+        color: #417690;
+    }
+    .form-errors {
+        color: #dc3545;
+        font-size: 11px;
+        margin-top: 3px;
+    }
+    .submit-section {
+        background: white;
+        padding: 20px;
+        border-top: 2px solid #417690;
+        margin-top: 20px;
+        position: sticky;
+        bottom: 0;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    .submit-section button {
+        background: #417690;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+    .submit-section button:hover {
+        background: #205067;
+    }
+    .submit-section a {
+        color: #417690;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: inline-block;
+    }
+    .info-box {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2196F3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Edit Multiple Service Requests</h1>
+
+<div class="info-box">
+    <p><strong>{{ selected_count }}</strong> service request(s) selected for editing.</p>
+    <p>Edit fields directly in the table below. All changes will be saved when you click "Save All Changes".</p>
+</div>
+
+<form method="post" action="" id="edit-multiple-form">
+    {% csrf_token %}
+    <!-- Management form fields - required for formsets -->
+    {% for field in formset.management_form %}
+        {{ field }}
+    {% endfor %}
+    <input type="hidden" name="selected_ids" value="{{ selected_ids }}">
+    {% if formset.management_form.errors %}
+    <div class="errorlist" style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0;">
+        <strong>Management Form Errors:</strong>
+        {{ formset.management_form.errors }}
+    </div>
+    {% endif %}
+    {% if formset.non_form_errors %}
+    <div class="errorlist" style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0;">
+        <strong>Form Errors:</strong>
+        <ul style="margin: 5px 0;">
+            {% for error in formset.non_form_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <div style="overflow-x: auto;">
+        <table class="edit-multiple-table">
+            <thead>
+                <tr>
+                    <th style="width: 150px;">Customer</th>
+                    <th style="width: 200px;">Service Name</th>
+                    <th style="width: 100px;">Status</th>
+                    <th style="width: 100px;">Priority</th>
+                    <th style="width: 150px;">Required Skill</th>
+                    <th style="width: 100px;">Duration (min)</th>
+                    <th style="width: 180px;">Window Start</th>
+                    <th style="width: 180px;">Window End</th>
+                    <th style="width: 250px;">Address</th>
+                    <th style="width: 200px;">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form, service_request in form_service_pairs %}
+                <tr>
+                    <td class="customer-info">{{ service_request.customer.username }}</td>
+                    <td>
+                        {{ form.id }}
+                        {{ form.name.errors }}
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="form-errors">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                        <div class="form-errors">{{ form.status.errors }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ form.priority }}
+                        {% if form.priority.errors %}
+                        <div class="form-errors">{{ form.priority.errors }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ form.required_skill }}
+                        {% if form.required_skill.errors %}
+                        <div class="form-errors">{{ form.required_skill.errors }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ form.service_minutes }}
+                        {% if form.service_minutes.errors %}
+                        <div class="form-errors">{{ form.service_minutes.errors }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ form.window_start }}
+                        {% if form.window_start.errors %}
+                        <div class="form-errors">{{ form.window_start.errors }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ form.window_end }}
+                        {% if form.window_end.errors %}
+                        <div class="form-errors">{{ form.window_end.errors }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                        <div class="form-errors">{{ form.address.errors }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                        <div class="form-errors">{{ form.notes.errors }}</div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="submit-section">
+        <button type="submit" name="save">💾 Save All Changes</button>
+        <a href="{% url 'admin:core_servicerequest_changelist' %}">Cancel</a>
+    </div>
+</form>
+
+<script>
+// Ensure management form fields are present before submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('edit-multiple-form');
+    if (!form) return;
+    
+    form.addEventListener('submit', function(e) {
+        const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+        const initialForms = document.getElementById('id_form-INITIAL_FORMS');
+        
+        // Verify the count matches the number of forms
+        const formCount = document.querySelectorAll('tbody tr').length;
+        
+        if (!totalForms || !initialForms) {
+            e.preventDefault();
+            alert('Error: Form management fields are missing. Please refresh the page and try again.');
+            return false;
+        }
+        
+        // Update counts to match actual form count
+        if (formCount > 0) {
+            totalForms.value = formCount;
+            initialForms.value = formCount;
+            
+            // Double-check fields are in the form
+            if (!form.querySelector('input[name="form-TOTAL_FORMS"]')) {
+                const hiddenTotal = document.createElement('input');
+                hiddenTotal.type = 'hidden';
+                hiddenTotal.name = 'form-TOTAL_FORMS';
+                hiddenTotal.value = formCount;
+                form.appendChild(hiddenTotal);
+            }
+            if (!form.querySelector('input[name="form-INITIAL_FORMS"]')) {
+                const hiddenInitial = document.createElement('input');
+                hiddenInitial.type = 'hidden';
+                hiddenInitial.name = 'form-INITIAL_FORMS';
+                hiddenInitial.value = formCount;
+                form.appendChild(hiddenInitial);
+            }
+        }
+    });
+});
+
+// Auto-resize textarea
+document.querySelectorAll('textarea').forEach(textarea => {
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+});
+
+// Validate time windows
+document.querySelectorAll('input[type="datetime-local"]').forEach((input, index) => {
+    if (input.name.includes('window_start')) {
+        input.addEventListener('change', function() {
+            const row = this.closest('tr');
+            const endInput = row.querySelector('input[name*="window_end"]');
+            if (endInput && this.value && endInput.value) {
+                if (new Date(this.value) >= new Date(endInput.value)) {
+                    alert('Window start time must be before window end time!');
+                    this.focus();
+                }
+            }
+        });
+    }
+    if (input.name.includes('window_end')) {
+        input.addEventListener('change', function() {
+            const row = this.closest('tr');
+            const startInput = row.querySelector('input[name*="window_start"]');
+            if (startInput && this.value && startInput.value) {
+                if (new Date(startInput.value) >= new Date(this.value)) {
+                    alert('Window end time must be after window start time!');
+                    this.focus();
+                }
+            }
+        });
+    }
+});
+</script>
+
+{% if api_key %}
+<script>
+// Initialize Google Places Autocomplete for all address fields
+function initAddressAutocomplete() {
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined' || typeof google.maps.places === 'undefined') {
+        console.error('Google Maps Places API not loaded');
+        return;
+    }
+    
+    // Find all address input fields in the formset
+    const addressInputs = document.querySelectorAll('input[name*="-address"]');
+    
+    addressInputs.forEach(function(addressInput) {
+        // Skip if already initialized
+        if (addressInput.dataset.autocompleteInitialized === 'true') {
+            return;
+        }
+        
+        // Initialize autocomplete for this address field
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+            types: ['address'],
+            componentRestrictions: { country: 'au' }, // Restrict to Australia
+            fields: ['formatted_address', 'geometry', 'place_id']
+        });
+        
+        // Mark as initialized
+        addressInput.dataset.autocompleteInitialized = 'true';
+        
+        // Handle place selection
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            
+            if (!place.geometry) {
+                console.log("No details available for the selected place");
+                return;
+            }
+            
+            // Update the address field with the formatted address
+            addressInput.value = place.formatted_address;
+            
+            console.log('Address selected:', place.formatted_address);
+            if (place.geometry && place.geometry.location) {
+                console.log('Coordinates:', place.geometry.location.lat(), place.geometry.location.lng());
+            }
+        });
+        
+        console.log('Autocomplete initialized for:', addressInput.name);
+    });
+}
+
+// Load Google Maps API with Places library
+function loadGoogleMapsAPI() {
+    const apiKey = '{{ api_key }}';
+    if (!apiKey) {
+        console.error('Google Maps API key not configured');
+        return;
+    }
+    
+    // Check if script is already loaded
+    if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+        // Script already loaded, just initialize autocomplete
+        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined' && typeof google.maps.places !== 'undefined') {
+            initAddressAutocomplete();
+        } else {
+            // Wait for script to load
+            window.addEventListener('load', initAddressAutocomplete);
+        }
+        return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initAddressAutocomplete`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = function() {
+        console.error('Failed to load Google Maps API');
+    };
+    document.body.appendChild(script);
+}
+
+// Initialize when page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadGoogleMapsAPI);
+} else {
+    loadGoogleMapsAPI();
+}
+
+// Also initialize for dynamically added rows (if any)
+const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.addedNodes.length > 0) {
+            // Check if new address fields were added
+            const newAddressFields = document.querySelectorAll('input[name*="-address"]:not([data-autocomplete-initialized="true"])');
+            if (newAddressFields.length > 0 && typeof google !== 'undefined' && typeof google.maps !== 'undefined' && typeof google.maps.places !== 'undefined') {
+                initAddressAutocomplete();
+            }
+        }
+    });
+});
+
+// Observe the form for changes
+const form = document.getElementById('edit-multiple-form');
+if (form) {
+    observer.observe(form, { childList: true, subtree: true });
+}
+</script>
+
+<style>
+/* Ensure autocomplete dropdown appears above other elements */
+.pac-container {
+    z-index: 10000 !important;
+    font-family: inherit;
+}
+</style>
+{% endif %}
+{% endblock %}
+

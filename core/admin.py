@@ -308,7 +308,326 @@ class ServiceRequestAdmin(admin.ModelAdmin):
         ('Status', {'fields': ('priority', 'status', 'notes')}),
     )
     
-    actions = ['mark_as_pending', 'mark_as_assigned', 'mark_as_completed', 'mark_as_cancelled']
+    actions = ['bulk_edit', 'edit_multiple', 'mark_as_pending', 'mark_as_assigned', 'mark_as_completed', 'mark_as_cancelled']
+    
+    def edit_multiple(self, request, queryset):
+        """Edit multiple service requests on a single page"""
+        from django import forms
+        from django.http import HttpResponseRedirect
+        from django.forms import formset_factory
+        from django.utils import timezone as tz
+        from datetime import datetime
+        
+        class ServiceRequestEditForm(forms.Form):
+            """Form for editing a single service request"""
+            id = forms.IntegerField(widget=forms.HiddenInput())
+            name = forms.CharField(max_length=200, required=True)
+            status = forms.ChoiceField(choices=ServiceRequest.STATUS_CHOICES, required=True)
+            priority = forms.ChoiceField(choices=ServiceRequest.PRIORITY_CHOICES, required=True)
+            required_skill = forms.ModelChoiceField(
+                queryset=Skill.objects.filter(is_active=True),
+                required=False
+            )
+            service_minutes = forms.IntegerField(min_value=1, required=True)
+            window_start = forms.DateTimeField(
+                required=True,
+                widget=forms.DateTimeInput(attrs={'type': 'datetime-local'})
+            )
+            window_end = forms.DateTimeField(
+                required=True,
+                widget=forms.DateTimeInput(attrs={'type': 'datetime-local'})
+            )
+            address = forms.CharField(max_length=500, required=True)
+            notes = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), required=False)
+        
+        # Use explicit prefix to ensure consistent field names
+        ServiceRequestFormSet = formset_factory(
+            ServiceRequestEditForm, 
+            extra=0, 
+            can_delete=False,
+            formset=forms.BaseFormSet
+        )
+        
+        # Preserve selected IDs - store in session if queryset is provided
+        selected_ids = []
+        if queryset.exists():
+            selected_ids = list(queryset.values_list('id', flat=True))
+            request.session['edit_multiple_ids'] = selected_ids
+        
+        # Get selected IDs from POST/GET or session
+        if request.method == 'POST':
+            if 'selected_ids' in request.POST and request.POST['selected_ids']:
+                selected_ids = [int(x) for x in request.POST['selected_ids'].split(',') if x.strip()]
+            elif 'edit_multiple_ids' in request.session:
+                selected_ids = request.session['edit_multiple_ids']
+        else:
+            if 'ids' in request.GET:
+                selected_ids = [int(x) for x in request.GET['ids'].split(',') if x.strip()]
+            elif 'edit_multiple_ids' in request.session:
+                selected_ids = request.session['edit_multiple_ids']
+            elif not selected_ids and queryset.exists():
+                selected_ids = list(queryset.values_list('id', flat=True))
+        
+        # Get queryset from selected IDs
+        if selected_ids:
+            queryset = ServiceRequest.objects.filter(id__in=selected_ids).order_by('id')
+        elif queryset.exists():
+            # Use the provided queryset
+            queryset = queryset.order_by('id')
+            selected_ids = list(queryset.values_list('id', flat=True))
+        
+        # Ensure we have selected IDs
+        if not selected_ids:
+            messages.error(request, 'No service requests selected. Please select items from the list and try again.')
+            return HttpResponseRedirect(reverse('admin:core_servicerequest_changelist'))
+        
+        if request.method == 'POST':
+            # Get the POST data
+            post_data = request.POST.copy()
+            
+            # Ensure management form fields are present
+            if 'form-TOTAL_FORMS' not in post_data or 'form-INITIAL_FORMS' not in post_data:
+                # Try to determine count from selected_ids or form fields
+                if 'selected_ids' in post_data and post_data['selected_ids']:
+                    count = len([x for x in post_data['selected_ids'].split(',') if x.strip()])
+                else:
+                    # Count form indices from POST data
+                    form_indices = set()
+                    for key in post_data.keys():
+                        if key.startswith('form-') and '-' in key:
+                            parts = key.split('-')
+                            if len(parts) >= 2 and parts[1].isdigit():
+                                form_indices.add(int(parts[1]))
+                    count = len(form_indices) if form_indices else len(selected_ids) if selected_ids else 0
+                
+                if count > 0:
+                    post_data['form-TOTAL_FORMS'] = str(count)
+                    post_data['form-INITIAL_FORMS'] = str(count)
+                    post_data['form-MIN_NUM_FORMS'] = '0'
+                    post_data['form-MAX_NUM_FORMS'] = '1000'
+                else:
+                    # No forms to process
+                    messages.error(request, 'No service requests selected. Please select items and try again.')
+                    return HttpResponseRedirect(reverse('admin:core_servicerequest_changelist'))
+            
+            # Ensure queryset is available from selected_ids
+            if not queryset.exists() and selected_ids:
+                queryset = ServiceRequest.objects.filter(id__in=selected_ids).order_by('id')
+            
+            if not queryset.exists():
+                messages.error(request, 'No service requests found. Please select items and try again.')
+                return HttpResponseRedirect(reverse('admin:core_servicerequest_changelist'))
+            
+            formset = ServiceRequestFormSet(post_data)
+            
+            if not formset.is_valid():
+                # If formset is invalid, show errors and re-render with POST data
+                # Ensure queryset is available
+                if not queryset.exists() and selected_ids:
+                    queryset = ServiceRequest.objects.filter(id__in=selected_ids).order_by('id')
+                
+                # Re-initialize formset with POST data AND initial data to show errors properly
+                if queryset.exists():
+                    initial_data = []
+                    for sr in queryset:
+                        initial_data.append({
+                            'id': sr.id,
+                            'name': sr.name,
+                            'status': sr.status,
+                            'priority': sr.priority,
+                            'required_skill': sr.required_skill,
+                            'service_minutes': sr.service_minutes,
+                            'window_start': sr.window_start.strftime('%Y-%m-%dT%H:%M') if sr.window_start else '',
+                            'window_end': sr.window_end.strftime('%Y-%m-%dT%H:%M') if sr.window_end else '',
+                            'address': sr.address,
+                            'notes': sr.notes or '',
+                        })
+                    formset = ServiceRequestFormSet(initial=initial_data, data=post_data)
+                else:
+                    formset = ServiceRequestFormSet(data=post_data)
+            else:
+                # Formset is valid, process the data
+                updated_count = 0
+                for form in formset:
+                    if form.cleaned_data:
+                        try:
+                            service_request = ServiceRequest.objects.get(id=form.cleaned_data['id'])
+                            service_request.name = form.cleaned_data['name']
+                            service_request.status = form.cleaned_data['status']
+                            service_request.priority = int(form.cleaned_data['priority'])
+                            service_request.service_minutes = form.cleaned_data['service_minutes']
+                            service_request.window_start = form.cleaned_data['window_start']
+                            service_request.window_end = form.cleaned_data['window_end']
+                            service_request.address = form.cleaned_data['address']
+                            service_request.notes = form.cleaned_data['notes']
+                            if form.cleaned_data['required_skill']:
+                                service_request.required_skill = form.cleaned_data['required_skill']
+                            service_request.save()
+                            updated_count += 1
+                        except ServiceRequest.DoesNotExist:
+                            continue
+                
+                messages.success(
+                    request,
+                    f"Successfully updated {updated_count} service request(s)."
+                )
+                return HttpResponseRedirect(reverse('admin:core_servicerequest_changelist'))
+        
+        # GET request or form invalid - ensure queryset exists
+        if not queryset.exists():
+            if selected_ids:
+                queryset = ServiceRequest.objects.filter(id__in=selected_ids).order_by('id')
+            elif 'edit_multiple_ids' in request.session:
+                session_ids = request.session['edit_multiple_ids']
+                queryset = ServiceRequest.objects.filter(id__in=session_ids).order_by('id')
+                selected_ids = session_ids
+        
+        if not queryset.exists():
+            messages.error(request, 'No service requests found. Please select items and try again.')
+            return HttpResponseRedirect(reverse('admin:core_servicerequest_changelist'))
+        
+        # Initialize formset with existing data
+        initial_data = []
+        queryset_list = list(queryset)  # Convert to list to preserve order
+        for sr in queryset_list:
+            initial_data.append({
+                'id': sr.id,
+                'name': sr.name,
+                'status': sr.status,
+                'priority': sr.priority,
+                'required_skill': sr.required_skill,
+                'service_minutes': sr.service_minutes,
+                'window_start': sr.window_start.strftime('%Y-%m-%dT%H:%M') if sr.window_start else '',
+                'window_end': sr.window_end.strftime('%Y-%m-%dT%H:%M') if sr.window_end else '',
+                'address': sr.address,
+                'notes': sr.notes or '',
+            })
+        formset = ServiceRequestFormSet(initial=initial_data)
+        
+        # Create a list of tuples (form, service_request) for easier template rendering
+        queryset_list = list(queryset)
+        form_service_pairs = []
+        for i, form in enumerate(formset):
+            if i < len(queryset_list):
+                form_service_pairs.append((form, queryset_list[i]))
+        
+        # Store selected IDs for form submission
+        selected_ids = ','.join([str(obj.id) for obj in queryset_list]) if queryset_list else ''
+        
+        # Get Google Maps API key for autocomplete
+        config = GoogleMapsConfig.load()
+        
+        context = {
+            'title': 'Edit Multiple Service Requests',
+            'formset': formset,
+            'form_service_pairs': form_service_pairs,
+            'queryset': queryset,
+            'selected_count': queryset.count(),
+            'selected_ids': selected_ids,
+            'opts': self.model._meta,
+            'api_key': config.api_key if config and config.api_key else '',
+        }
+        
+        return render(request, 'admin/core/servicerequest/edit_multiple.html', context)
+    edit_multiple.short_description = "Edit multiple service requests on one page"
+    
+    def bulk_edit(self, request, queryset):
+        """Bulk edit multiple service requests"""
+        from django import forms
+        from django.http import HttpResponseRedirect
+        from django.urls import reverse
+        
+        class BulkEditForm(forms.Form):
+            """Form for bulk editing service requests"""
+            status = forms.ChoiceField(
+                choices=[('', '--- Keep Current ---')] + list(ServiceRequest.STATUS_CHOICES),
+                required=False,
+                help_text='Change status for all selected requests (leave blank to keep current)'
+            )
+            priority = forms.ChoiceField(
+                choices=[('', '--- Keep Current ---')] + list(ServiceRequest.PRIORITY_CHOICES),
+                required=False,
+                help_text='Change priority for all selected requests (leave blank to keep current)'
+            )
+            required_skill = forms.ModelChoiceField(
+                queryset=Skill.objects.filter(is_active=True),
+                required=False,
+                empty_label='--- Keep Current ---',
+                help_text='Change required skill for all selected requests (leave blank to keep current)'
+            )
+            service_minutes = forms.IntegerField(
+                required=False,
+                min_value=1,
+                help_text='Change service duration in minutes (leave blank to keep current)'
+            )
+            notes_append = forms.CharField(
+                widget=forms.Textarea(attrs={'rows': 3}),
+                required=False,
+                help_text='Append this note to existing notes for all selected requests'
+            )
+        
+        if 'apply' in request.POST:
+            form = BulkEditForm(request.POST)
+            if form.is_valid():
+                updated_count = 0
+                
+                for service_request in queryset:
+                    changed = False
+                    
+                    # Update status
+                    if form.cleaned_data['status']:
+                        service_request.status = form.cleaned_data['status']
+                        changed = True
+                    
+                    # Update priority
+                    if form.cleaned_data['priority']:
+                        service_request.priority = int(form.cleaned_data['priority'])
+                        changed = True
+                    
+                    # Update required skill
+                    if form.cleaned_data['required_skill']:
+                        service_request.required_skill = form.cleaned_data['required_skill']
+                        changed = True
+                    
+                    # Update service minutes
+                    if form.cleaned_data['service_minutes']:
+                        service_request.service_minutes = form.cleaned_data['service_minutes']
+                        changed = True
+                    
+                    # Append notes
+                    if form.cleaned_data['notes_append']:
+                        if service_request.notes:
+                            service_request.notes += f"\n\n[Bulk Edit {timezone.now().strftime('%Y-%m-%d %H:%M')}]: {form.cleaned_data['notes_append']}"
+                        else:
+                            service_request.notes = f"[Bulk Edit {timezone.now().strftime('%Y-%m-%d %H:%M')}]: {form.cleaned_data['notes_append']}"
+                        changed = True
+                    
+                    if changed:
+                        service_request.save()
+                        updated_count += 1
+                
+                messages.success(
+                    request,
+                    f"Successfully updated {updated_count} service request(s)."
+                )
+                return HttpResponseRedirect(request.get_full_path())
+        else:
+            form = BulkEditForm()
+        
+        from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
+        
+        context = {
+            'title': 'Bulk Edit Service Requests',
+            'form': form,
+            'queryset': queryset,
+            'selected_count': queryset.count(),
+            'opts': self.model._meta,
+            'action_checkbox_name': ACTION_CHECKBOX_NAME,
+            'selected_ids': ','.join([str(obj.id) for obj in queryset]),
+        }
+        
+        return render(request, 'admin/core/servicerequest/bulk_edit.html', context)
+    bulk_edit.short_description = "Bulk edit selected service requests"
     
     def window_date(self, obj):
         """Show the date of the service window"""

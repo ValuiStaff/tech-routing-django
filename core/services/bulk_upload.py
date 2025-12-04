@@ -526,18 +526,9 @@ class BulkUploadService:
                     print(f"window_start: '{window_start}'")
                     print(f"window_end: '{window_end}'")
                     
-                    # Handle multi-select skills field (returns a list)
-                    required_skills_list = post_data.getlist(f'required_skills_{row_count}')
-                    print(f"Row {row_count}: Required skills list from form: {required_skills_list}")
-                    
-                    # Also try alternative naming
-                    if not required_skills_list:
-                        # Try without row_count
-                        required_skills_list = post_data.getlist('required_skills')
-                        print(f"Row {row_count}: Trying without row_count: {required_skills_list}")
-                    
-                    required_skills = ', '.join(required_skills_list) if required_skills_list else ''
-                    print(f"Row {row_count}: Final required skills string: {required_skills}")
+                    # Handle single-select skill field (changed from multi-select)
+                    required_skill = post_data.get(f'required_skill_{row_count}', '').strip()
+                    print(f"Row {row_count}: Required skill from form: '{required_skill}'")
                     
                     priority = post_data.get(f'priority_{row_count}', 'medium').strip()
                     notes = post_data.get(f'notes_{row_count}', '').strip()
@@ -589,11 +580,9 @@ class BulkUploadService:
                                     
                                     print(f"SUCCESS: Created service request for customer")
                                     
-                                    # Add required skill (only first skill from the list)
-                                    if required_skills:
-                                        # Take only the first skill
-                                        first_skill = required_skills.split(',')[0].strip()
-                                        self._add_skill_to_service_request(service_request, first_skill, row_count + 1)
+                                    # Add required skill (single skill now)
+                                    if required_skill:
+                                        self._add_skill_to_service_request(service_request, required_skill, row_count + 1)
                                     
                                     self.results['created_requests'].append(service_request)
                                 else:
@@ -741,13 +730,39 @@ class BulkUploadService:
             return None
     
     def _parse_time_manual(self, value, row_num):
-        """Parse time string from manual entry form"""
+        """Parse time string from manual entry form - supports both 12-hour and 24-hour formats"""
         if not value:
             return None
         
         try:
-            return datetime.strptime(value, '%H:%M').time()
-        except ValueError:
-            self.results['errors'].append(f"Row {row_num}: Could not parse time '{value}'")
+            # Try 24-hour format first (most common for HTML5 time inputs)
+            try:
+                return datetime.strptime(value.strip(), '%H:%M').time()
+            except ValueError:
+                pass
+            
+            # Try 24-hour with seconds
+            try:
+                return datetime.strptime(value.strip(), '%H:%M:%S').time()
+            except ValueError:
+                pass
+            
+            # Try 12-hour format with AM/PM
+            try:
+                return datetime.strptime(value.strip(), '%I:%M %p').time()
+            except ValueError:
+                pass
+            
+            # Try 12-hour format with seconds and AM/PM
+            try:
+                return datetime.strptime(value.strip(), '%I:%M:%S %p').time()
+            except ValueError:
+                pass
+            
+            # If all formats fail
+            self.results['errors'].append(f"Row {row_num}: Could not parse time '{value}'. Expected formats: HH:MM (24-hour) or HH:MM AM/PM (12-hour)")
+            return None
+        except Exception as e:
+            self.results['errors'].append(f"Row {row_num}: Time parse error for '{value}': {str(e)}")
             return None
 

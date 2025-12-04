@@ -289,6 +289,9 @@ class RoutingService:
                 else:
                     shift_start_dt = techs[k].shift_start
                 
+                if shift_start_dt is None:
+                    raise ValueError(f"Technician {k} ({techs[k].user.username if techs[k].user else 'Unknown'}) has no shift_start")
+                
                 if isinstance(techs[k].shift_end, time_cls):
                     shift_end_dt = dt.combine(date_anchor, techs[k].shift_end)
                     if not timezone.is_aware(shift_end_dt):
@@ -300,21 +303,70 @@ class RoutingService:
                 else:
                     shift_end_dt = techs[k].shift_end
                 
+                if shift_end_dt is None:
+                    raise ValueError(f"Technician {k} ({techs[k].user.username if techs[k].user else 'Unknown'}) has no shift_end")
+                
+                # Validate that shift_end is after shift_start
+                if shift_end_dt <= shift_start_dt:
+                    raise ValueError(
+                        f"Technician {k} ({techs[k].user.username if techs[k].user else 'Unknown'}) has invalid shift: "
+                        f"shift_end ({shift_end_dt}) must be after shift_start ({shift_start_dt})"
+                    )
+                
                 tw_start[n] = mins_from_ref(shift_start_dt)
                 tw_end[n] = mins_from_ref(shift_end_dt)
+                
+                # Additional validation: ensure calculated values are valid
+                if tw_start[n] < 0 or tw_end[n] < 0:
+                    raise ValueError(
+                        f"Technician {k} ({techs[k].user.username if techs[k].user else 'Unknown'}) calculated invalid time window: "
+                        f"start={tw_start[n]}, end={tw_end[n]}. "
+                        f"Original: shift_start={shift_start_dt}, shift_end={shift_end_dt}, "
+                        f"earliest={earliest}"
+                    )
+                if tw_start[n] >= tw_end[n]:
+                    raise ValueError(
+                        f"Technician {k} ({techs[k].user.username if techs[k].user else 'Unknown'}) calculated invalid time window: "
+                        f"start={tw_start[n]} >= end={tw_end[n]}"
+                    )
             else:
                 i = n - cust_base
                 # reqs[i].window_start and window_end should already be datetime
                 window_start_dt = reqs[i].window_start
+                if window_start_dt is None:
+                    raise ValueError(f"Service request {i} ({reqs[i].name}) has no window_start")
                 if hasattr(window_start_dt, 'replace') and not timezone.is_aware(window_start_dt):
                     window_start_dt = timezone.make_aware(window_start_dt)
                 
                 window_end_dt = reqs[i].window_end
+                if window_end_dt is None:
+                    raise ValueError(f"Service request {i} ({reqs[i].name}) has no window_end")
                 if hasattr(window_end_dt, 'replace') and not timezone.is_aware(window_end_dt):
                     window_end_dt = timezone.make_aware(window_end_dt)
                 
+                # Validate that window_end is after window_start
+                if window_end_dt <= window_start_dt:
+                    raise ValueError(
+                        f"Service request {i} ({reqs[i].name}) has invalid time window: "
+                        f"window_end ({window_end_dt}) must be after window_start ({window_start_dt})"
+                    )
+                
                 tw_start[n] = mins_from_ref(window_start_dt)
                 tw_end[n] = mins_from_ref(window_end_dt)
+                
+                # Additional validation: ensure calculated values are valid
+                if tw_start[n] < 0 or tw_end[n] < 0:
+                    raise ValueError(
+                        f"Service request {i} ({reqs[i].name}) calculated invalid time window: "
+                        f"start={tw_start[n]}, end={tw_end[n]}. "
+                        f"Original: window_start={window_start_dt}, window_end={window_end_dt}, "
+                        f"earliest={earliest}"
+                    )
+                if tw_start[n] >= tw_end[n]:
+                    raise ValueError(
+                        f"Service request {i} ({reqs[i].name}) calculated invalid time window: "
+                        f"start={tw_start[n]} >= end={tw_end[n]}"
+                    )
         
         # Service times and capacities
         service = {(cust_base + i): reqs[i].service_minutes for i in range(I)}

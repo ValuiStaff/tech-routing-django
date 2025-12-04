@@ -5,6 +5,10 @@
     #map {
         height: 600px;
         width: 100%;
+        min-height: 600px;
+        background-color: #e5e5e5;
+        border: 1px solid #ccc;
+        border-radius: 5px;
     }
     #legend {
         background: white;
@@ -24,6 +28,36 @@
         margin-right: 10px;
         border-radius: 3px;
     }
+    .info-window {
+        max-width: 300px;
+        font-size: 13px;
+    }
+    .info-window h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        color: #333;
+        border-bottom: 2px solid #417690;
+        padding-bottom: 5px;
+    }
+    .info-window p {
+        margin: 5px 0;
+        line-height: 1.5;
+    }
+    .info-window .label {
+        font-weight: bold;
+        color: #555;
+        display: inline-block;
+        min-width: 100px;
+    }
+    .skill-badge {
+        background: #417690;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        margin: 2px;
+        display: inline-block;
+    }
 </style>
 {% endblock %}
 
@@ -31,48 +65,150 @@
 <h1>📍 Route Map</h1>
 
 <div class="module">
-    <h2>All Technician Routes</h2>
-    <p>View all technician routes on an interactive map.</p>
+    <h2>All Technician Routes & Pending Customers</h2>
+    <p>View all technician routes and pending customer requests on an interactive map.</p>
+    
+    <div style="margin: 10px 0;">
+        <strong>Selected Date:</strong> {{ selected_date|date:"F d, Y" }}
+        <form method="get" style="display: inline-block; margin-left: 20px;">
+            <label>Change Date:</label>
+            <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" onchange="this.form.submit()">
+        </form>
+    </div>
     
     <div id="legend">
         <h3>Legend</h3>
-        {% for tech_name, route_info in routes.items %}
-        <div class="legend-item">
-            <div class="legend-color" style="background: {{ route_info.color }};"></div>
-            <strong>{{ tech_name }}</strong> - {{ route_info.assignments|length }} stops
+        <div style="margin-bottom: 15px;">
+            <strong>Technicians:</strong>
+            {% for tech_name, route_info in routes.items %}
+            <div class="legend-item">
+                <div class="legend-color" style="background: {{ route_info.color }};"></div>
+                <strong>{{ tech_name }}</strong> - {{ route_info.assignments|length }} stops
+            </div>
+            {% empty %}
+            <p style="color: #999;">No assigned routes</p>
+            {% endfor %}
         </div>
-        {% empty %}
-        <p>No routes to display</p>
-        {% endfor %}
+        <div>
+            <strong>Pending Customers:</strong>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #dc3545;"></div>
+                <span>Pending - Not Assigned</span>
+            </div>
+        </div>
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+            <strong>Special Markers:</strong>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff9800; border: 2px solid #000;"></div>
+                <span>🏠 Shared Address (Multiple Customers)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff6b6b; border: 2px solid #fff;"></div>
+                <span>🏠 Pending at Shared Address</span>
+            </div>
+        </div>
     </div>
     
     <div id="map"></div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}"></script>
+{% if api_key %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
+{% else %}
+<div style="padding: 20px; background: #f8d7da; color: #721c24; border-radius: 5px; margin: 10px 0;">
+    <strong>⚠️ Error:</strong> Google Maps API key is not configured. Please configure it in the admin panel.
+</div>
+{% endif %}
 <script>
+// Global variables to store map and markers
+let map = null;
+const allMarkers = [];
+const routeMarkers = {}; // Store markers by technician name: { markers: [], polylines: [] }
+const pendingMarkers = [];
+
 function initMap() {
-    const routes = {{ routes_json|safe }};
+    try {
+        // Check if Google Maps is loaded
+        if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+            document.getElementById('map').innerHTML = '<p style="padding: 20px; text-align: center; color: #dc3545;">Error: Google Maps API failed to load. Please check your API key.</p>';
+            console.error('Google Maps API not loaded');
+            return;
+        }
+        
+        const routes = {{ routes_json|safe }};
+        const pendingCustomers = {{ pending_customers_json|safe }};
+        
+        // Determine map center - always initialize map even if no routes
+        let center = { lat: -37.8136, lng: 144.9631 }; // Melbourne default
+        if (routes.length > 0 && routes[0].depot) {
+            center = routes[0].depot;
+        } else if (pendingCustomers.length > 0 && pendingCustomers[0].position) {
+            center = pendingCustomers[0].position;
+        }
+        
+        const mapElement = document.getElementById('map');
+        if (!mapElement) {
+            console.error('Map element not found');
+            return;
+        }
+        
+        // Initialize map - always show map even if no routes
+        map = new google.maps.Map(mapElement, {
+            center: center,
+            zoom: 11,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+        
+        // Show message if no data
+        if (routes.length === 0 && pendingCustomers.length === 0) {
+            const infoWindow = new google.maps.InfoWindow({
+                content: '<div style="padding: 10px;"><p>No routes or pending customers to display for this date.</p></div>',
+                position: center
+            });
+            infoWindow.open(map);
+            return;
+        }
     
-    if (routes.length === 0) {
-        document.getElementById('map').innerHTML = '<p style="padding: 20px;">No routes to display</p>';
-        return;
-    }
-    
-    // Create map centered on first depot
-    const firstRoute = routes[0];
-    const map = new google.maps.Map(document.getElementById('map'), {
-        center: firstRoute.depot,
-        zoom: 12
-    });
-    
-    // Add markers and polylines for each technician
-    routes.forEach(route => {
+        // Initialize route markers structure for all routes
+        routes.forEach(route => {
+            routeMarkers[route.technician] = {
+                markers: [],
+                polylines: [],
+                depotMarker: null
+            };
+        });
+        
+        // Add markers and polylines for each technician route
+        routes.forEach(route => {
+        // Create info window content for technician depot
+        const depotInfoContent = `
+            <div class="info-window">
+                <h4>👷 ${route.technician}</h4>
+                <p><span class="label">📍 Depot:</span> ${route.depot_address}</p>
+                <p><span class="label">⏰ Shift:</span> ${route.shift_start} - ${route.shift_end}</p>
+                <p><span class="label">⚡ Capacity:</span> ${Math.floor(route.capacity_minutes / 60)}h ${route.capacity_minutes % 60}m</p>
+                <p><span class="label">🔧 Skills:</span></p>
+                <div>
+                    ${route.skills.length > 0 ? route.skills.map(skill => `<span class="skill-badge">${skill}</span>`).join('') : '<span style="color: #999;">No skills</span>'}
+                </div>
+                <p><span class="label">📋 Jobs:</span> ${route.stops.length} assigned</p>
+            </div>
+        `;
+        
+        const depotInfoWindow = new google.maps.InfoWindow({
+            content: depotInfoContent
+        });
+        
         // Depot marker
-        new google.maps.Marker({
+        const depotMarker = new google.maps.Marker({
             position: route.depot,
             map: map,
-            label: 'D',
+            label: {
+                text: '🏢',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 'bold'
+            },
             title: route.technician + ' Depot',
             icon: {
                 path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
@@ -84,38 +220,93 @@ function initMap() {
             }
         });
         
-        // Job markers
+        // Store depot marker
+        routeMarkers[route.technician].depotMarker = depotMarker;
+        routeMarkers[route.technician].markers.push(depotMarker);
+        allMarkers.push(depotMarker);
+        
+        // Add hover and click events for depot
+        depotMarker.addListener('mouseover', function() {
+            depotInfoWindow.open(map, depotMarker);
+        });
+        depotMarker.addListener('mouseout', function() {
+            depotInfoWindow.close();
+        });
+        
+        // Job markers with info windows
         route.stops.forEach((stop, idx) => {
-            new google.maps.Marker({
+            // Check if multiple customers at this location
+            const isSharedAddress = stop.customers_at_location && stop.customers_at_location > 1;
+            const allCustomers = stop.all_customers_at_location || [stop.customer];
+            
+            const stopInfoContent = `
+                <div class="info-window">
+                    <h4>📍 Stop ${stop.sequence}</h4>
+                    ${isSharedAddress ? `<p style="background: #fff3cd; padding: 5px; border-radius: 3px; margin-bottom: 8px;"><strong>🏠 Shared Address:</strong> ${stop.customers_at_location} customers at this location</p>` : ''}
+                    <p><span class="label">👤 Customer:</span> ${stop.customer}</p>
+                    ${isSharedAddress ? `<p><span class="label">👥 All Customers Here:</span> ${allCustomers.join(', ')}</p>` : ''}
+                    <p><span class="label">🔧 Service:</span> ${stop.service_name}</p>
+                    <p><span class="label">📍 Address:</span> ${stop.address}</p>
+                    <p><span class="label">⏰ Time Window:</span> ${stop.window_start} - ${stop.window_end}</p>
+                    <p><span class="label">🕐 Planned Start:</span> ${stop.planned_start}</p>
+                    <p><span class="label">🕐 Planned Finish:</span> ${stop.planned_finish}</p>
+                    <p><span class="label">⏱️ Duration:</span> ${stop.service_minutes} minutes</p>
+                    <p><span class="label">🔧 Required Skill:</span> <span class="skill-badge">${stop.required_skill}</span></p>
+                    <p><span class="label">👷 Assigned To:</span> ${stop.assigned_technician}</p>
+                </div>
+            `;
+            
+            const stopInfoWindow = new google.maps.InfoWindow({
+                content: stopInfoContent
+            });
+            
+            // Use different marker style for shared addresses
+            const markerScale = isSharedAddress ? 14 : 10; // Larger marker for shared addresses
+            const markerColor = isSharedAddress ? '#ff9800' : route.color; // Orange for shared addresses
+            const markerLabel = isSharedAddress ? '🏠' : stop.sequence.toString();
+            
+            const stopMarker = new google.maps.Marker({
                 position: stop.position,
                 map: map,
-                label: (idx + 1).toString(),
-                title: route.technician + ' - ' + stop.customer,
+                label: {
+                    text: markerLabel,
+                    color: 'white',
+                    fontSize: isSharedAddress ? '14px' : '12px',
+                    fontWeight: 'bold'
+                },
+                title: route.technician + ' - Stop ' + stop.sequence + ': ' + stop.customer + (isSharedAddress ? ' (Shared Address)' : ''),
                 icon: {
                     path: google.maps.SymbolPath.CIRCLE,
-                    fillColor: route.color,
-                    fillOpacity: 1,
+                    fillColor: markerColor,
+                    fillOpacity: 0.9,
                     strokeColor: '#000',
-                    strokeWeight: 1,
-                    scale: 8
-                }
+                    strokeWeight: isSharedAddress ? 3 : 1,
+                    scale: markerScale
+                },
+                zIndex: isSharedAddress ? 1000 : 100 // Higher z-index for shared addresses
+            });
+            
+            // Store stop marker
+            routeMarkers[route.technician].markers.push(stopMarker);
+            allMarkers.push(stopMarker);
+            
+            // Add hover and click events for stop markers
+            stopMarker.addListener('mouseover', function() {
+                stopInfoWindow.open(map, stopMarker);
+            });
+            stopMarker.addListener('mouseout', function() {
+                stopInfoWindow.close();
             });
         });
         
-        // Create polyline if we have path data
-        if (route.path && route.path.length > 0) {
-            const path = route.path.map(p => ({ lat: p[1], lng: p[0] }));
-            new google.maps.Polyline({
-                path: path,
-                geodesic: true,
-                strokeColor: route.color,
-                strokeOpacity: 0.8,
-                strokeWeight: 4,
-                map: map
+        // Create polyline connecting depot → stops → depot
+        if (route.stops.length > 0) {
+            const points = [route.depot];
+            route.stops.forEach(stop => {
+                points.push(stop.position);
             });
-        } else {
-            // Simple straight lines between points
-            const points = [route.depot].concat(route.stops.map(s => s.position)).concat([route.depot]);
+            points.push(route.depot); // Return to depot
+            
             const flightPath = new google.maps.Polyline({
                 path: points,
                 geodesic: true,
@@ -124,16 +315,165 @@ function initMap() {
                 strokeWeight: 4,
                 map: map
             });
+            
+            // Store polyline for visibility control
+            routeMarkers[route.technician].polylines.push(flightPath);
         }
     });
+    
+    // Add markers for pending customers (not assigned)
+    // Group by location to handle shared addresses
+    const pendingByLocation = {};
+    pendingCustomers.forEach(customer => {
+        const locationKey = customer.location_key || 'unknown';
+        if (!pendingByLocation[locationKey]) {
+            pendingByLocation[locationKey] = [];
+        }
+        pendingByLocation[locationKey].push(customer);
+    });
+    
+    Object.keys(pendingByLocation).forEach(locationKey => {
+        const customersAtLocation = pendingByLocation[locationKey];
+        const isSharedAddress = customersAtLocation.length > 1;
+        const firstCustomer = customersAtLocation[0];
+        
+        customersAtLocation.forEach((customer, idx) => {
+            const allCustomers = customer.all_customers_at_location || [customer.customer];
+            const customerCount = customer.customers_at_location || 1;
+            
+            const customerInfoContent = `
+                <div class="info-window">
+                    <h4>⏳ Pending Request</h4>
+                    ${isSharedAddress ? `<p style="background: #fff3cd; padding: 5px; border-radius: 3px; margin-bottom: 8px;"><strong>🏠 Shared Address:</strong> ${customerCount} customers at this location</p>` : ''}
+                    <p><span class="label">👤 Customer:</span> ${customer.customer}</p>
+                    ${isSharedAddress ? `<p><span class="label">👥 All Customers Here:</span> ${allCustomers.join(', ')}</p>` : ''}
+                    <p><span class="label">🔧 Service:</span> ${customer.service_name}</p>
+                    <p><span class="label">📍 Address:</span> ${customer.address}</p>
+                    <p><span class="label">⏰ Time Window:</span> ${customer.window_start} - ${customer.window_end}</p>
+                    <p><span class="label">⏱️ Duration:</span> ${customer.service_minutes} minutes</p>
+                    <p><span class="label">🔧 Required Skill:</span> <span class="skill-badge">${customer.required_skill}</span></p>
+                    <p><span class="label">📊 Priority:</span> ${customer.priority}</p>
+                    <p><span class="label">⚠️ Status:</span> <strong style="color: #dc3545;">${customer.status}</strong></p>
+                </div>
+            `;
+            
+            const customerInfoWindow = new google.maps.InfoWindow({
+                content: customerInfoContent
+            });
+            
+            // Use different marker style for shared addresses
+            const markerScale = isSharedAddress ? 14 : 10;
+            const markerColor = isSharedAddress ? '#ff6b6b' : '#dc3545'; // Lighter red for shared addresses
+            const markerLabel = isSharedAddress ? '🏠' : '⏳';
+            
+            // Slight offset for multiple markers at same location
+            const offset = isSharedAddress ? {
+                lat: customer.position.lat + (idx * 0.0001),
+                lng: customer.position.lng + (idx * 0.0001)
+            } : customer.position;
+            
+            const customerMarker = new google.maps.Marker({
+                position: offset,
+                map: map,
+                label: {
+                    text: markerLabel,
+                    color: 'white',
+                    fontSize: isSharedAddress ? '14px' : '14px',
+                    fontWeight: 'bold'
+                },
+                title: 'Pending: ' + customer.customer + ' - ' + customer.service_name + (isSharedAddress ? ' (Shared Address)' : ''),
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: markerColor,
+                    fillOpacity: 0.9,
+                    strokeColor: '#fff',
+                    strokeWeight: isSharedAddress ? 3 : 2,
+                    scale: markerScale
+                },
+                zIndex: isSharedAddress ? 1000 : 100
+            });
+            
+            // Store pending marker
+            pendingMarkers.push(customerMarker);
+            allMarkers.push(customerMarker);
+            
+            // Add hover and click events for pending customer markers
+            customerMarker.addListener('mouseover', function() {
+                customerInfoWindow.open(map, customerMarker);
+            });
+            customerMarker.addListener('mouseout', function() {
+                customerInfoWindow.close();
+            });
+        });
+    });
+    
+    // Update map bounds to show all routes
+    function updateMapBounds() {
+        if (!map) return;
+        
+        const bounds = new google.maps.LatLngBounds();
+        let hasRoutes = false;
+        
+        // Add all depot markers to bounds
+        Object.keys(routeMarkers).forEach(techName => {
+            const routeData = routeMarkers[techName];
+            if (routeData && routeData.depotMarker) {
+                bounds.extend(routeData.depotMarker.getPosition());
+                hasRoutes = true;
+            }
+            // Add all stop markers to bounds
+            if (routeData && routeData.markers) {
+                routeData.markers.forEach(marker => {
+                    if (marker) {
+                        bounds.extend(marker.getPosition());
+                    }
+                });
+            }
+        });
+        
+        // Add pending markers
+        pendingMarkers.forEach(marker => {
+            if (marker) {
+                bounds.extend(marker.getPosition());
+                hasRoutes = true;
+            }
+        });
+        
+        // Fit map to bounds if there are routes
+        if (hasRoutes && !bounds.isEmpty()) {
+            map.fitBounds(bounds);
+            // Don't zoom in too much if only one point
+            const listener = google.maps.event.addListener(map, "bounds_changed", function() {
+                if (map.getZoom() > 15) map.setZoom(15);
+                google.maps.event.removeListener(listener);
+            });
+        }
+    }
+    
+    // Update map bounds after all routes are loaded
+    setTimeout(updateMapBounds, 100);
+    
+    } catch (error) {
+        console.error('Error initializing map:', error);
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            mapElement.innerHTML = '<p style="padding: 20px; text-align: center; color: #dc3545;">Error loading map: ' + error.message + '</p>';
+        }
+    }
 }
 
-// Load map when page is ready
-if (google && google.maps) {
-    google.maps.event.addDomListener(window, 'load', initMap);
-} else {
-    window.onload = initMap;
-}
+// If API key is provided, the callback will be called automatically
+// Otherwise, try to initialize after a delay
+{% if not api_key %}
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+            initMap();
+        } else {
+            document.getElementById('map').innerHTML = '<p style="padding: 20px; text-align: center; color: #dc3545;">Google Maps API not loaded. Please check your API key configuration.</p>';
+        }
+    }, 1000);
+});
+{% endif %}
 </script>
 {% endblock %}
-

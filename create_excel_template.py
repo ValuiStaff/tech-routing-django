@@ -14,29 +14,27 @@ def create_excel_template():
     type_options = ['Customer', 'Technician']
     
     service_type_options = [
-        'Gas Leak Repair',
-        'Electrical Fault',
-        'Plumbing Issue',
-        'HVAC Maintenance',
-        'Appliance Installation',
-        'Emergency Callout',
-        'Routine Service',
-        'Maintenance Check',
-        'Safety Inspection',
-        'System Upgrade'
+        'Personal care',
+        'Domestic Assistance',
+        'Community Access',
+        'Transport',
+        'Behaviour Support',
+        'Support Coordination',
+        'Therapy Access',
+        'Assistive Tech',
+        'Life Skills Training'
     ]
     
     skill_options = [
-        'Plumbing',
-        'Electric',
-        'HVAC',
-        'IT',
-        'Roofing',
-        'Gas',
-        'Solar',
-        'Carpentry',
-        'Cleaning',
-        'Security'
+        'Personal care',
+        'Domestic Assistance',
+        'Community Access',
+        'Transport',
+        'Behaviour Support',
+        'Support Coordination',
+        'Therapy Access',
+        'Assistive Tech',
+        'Life Skills Training'
     ]
     
     priority_options = ['High', 'Medium', 'Low']
@@ -159,13 +157,13 @@ def create_excel_template():
         ["Type=Customer, Username=john_doe, Email=john@example.com", ""],
         ["Address=123 Collins St, Melbourne VIC 3000", ""],
         ["WindowStart=2025-11-01 09:00, WindowEnd=2025-11-01 17:00", ""],
-        ["RequiredSkills=Plumbing, ServiceType=Plumbing Issue", ""],
+        ["RequiredSkills=Personal care, ServiceType=Personal care", ""],
         ["", ""],
         ["Technician Example:", ""],
         ["Type=Technician, Username=tech_john, Email=tech@example.com", ""],
         ["DepotAddress=456 Bourke St, Melbourne VIC 3000", ""],
         ["ShiftStart=08:00, ShiftEnd=17:00, CapacityHours=8", ""],
-        ["Skills=Plumbing, ColorHex=#4285F4", ""],
+        ["Skills=Personal care,Transport, ColorHex=#4285F4", ""],
         ["", ""],
         ["NOTES", ""],
         ["- All addresses must be in Melbourne, VIC, Australia", ""],

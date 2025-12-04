@@ -24,35 +24,43 @@ def create_sample_data():
         'Footscray': ['Barkly Street, Footscray VIC 3011', 'Nicholson Street, Footscray VIC 3011']
     }
     
-    # Service types
+    # Service types - matches skill names
     service_types = [
-        'Gas Leak Repair',
-        'Electrical Fault',
-        'Plumbing Issue',
-        'HVAC Maintenance',
-        'Appliance Installation',
-        'Emergency Callout',
-        'Routine Service',
-        'Maintenance Check',
-        'Safety Inspection',
-        'System Upgrade'
+        'Personal care',
+        'Domestic Assistance',
+        'Community Access',
+        'Transport',
+        'Behaviour Support',
+        'Support Coordination',
+        'Therapy Access',
+        'Assistive Tech',
+        'Life Skills Training'
     ]
     
-    # Skills
-    skills = ['Plumbing', 'Electric', 'HVAC', 'IT', 'Roofing', 'Gas', 'Solar', 'Carpentry', 'Cleaning', 'Security']
+    # Skills - matches service types
+    skills = [
+        'Personal care',
+        'Domestic Assistance',
+        'Community Access',
+        'Transport',
+        'Behaviour Support',
+        'Support Coordination',
+        'Therapy Access',
+        'Assistive Tech',
+        'Life Skills Training'
+    ]
     
-    # Customer skill mapping (each customer needs one specific skill)
+    # Customer skill mapping (service type matches skill name 1:1)
     customer_skill_map = {
-        'Gas Leak Repair': 'Gas',
-        'Electrical Fault': 'Electric',
-        'Plumbing Issue': 'Plumbing',
-        'HVAC Maintenance': 'HVAC',
-        'Appliance Installation': 'Electric',
-        'Emergency Callout': 'Plumbing',
-        'Routine Service': 'Plumbing',
-        'Maintenance Check': 'Electric',
-        'Safety Inspection': 'Security',
-        'System Upgrade': 'IT'
+        'Personal care': 'Personal care',
+        'Domestic Assistance': 'Domestic Assistance',
+        'Community Access': 'Community Access',
+        'Transport': 'Transport',
+        'Behaviour Support': 'Behaviour Support',
+        'Support Coordination': 'Support Coordination',
+        'Therapy Access': 'Therapy Access',
+        'Assistive Tech': 'Assistive Tech',
+        'Life Skills Training': 'Life Skills Training'
     }
     
     # Generate customers
@@ -69,13 +77,35 @@ def create_sample_data():
         ('Steven', 'King'), ('Victoria', 'Wright'), ('Paul', 'Scott')
     ]
     
-    # 35 Customers
+    # Define shared addresses for multiple customers (same house, different people)
+    shared_addresses = [
+        '123 Collins Street, Melbourne VIC 3000',
+        '456 Bourke Street, Melbourne VIC 3000',
+        '789 Swanston Street, Melbourne VIC 3000',
+        '55 Clayton Road, Clayton VIC 3168',
+        '88 Dandenong Road, Dandenong VIC 3175'
+    ]
+    
+    # 35 Customers - some will share addresses
     for i in range(35):
         first_name, last_name = names[i]
-        suburb = random.choice(list(suburbs.keys()))
-        address = f"{random.randint(1, 999)} {random.choice(suburbs[suburb])}"
+        
+        # First 15 customers get random addresses, next 20 customers share addresses
+        if i < 15:
+            suburb = random.choice(list(suburbs.keys()))
+            address = f"{random.randint(1, 999)} {random.choice(suburbs[suburb])}"
+        else:
+            # Assign to shared addresses (4 customers per shared address)
+            shared_idx = (i - 15) // 4
+            if shared_idx < len(shared_addresses):
+                address = shared_addresses[shared_idx]
+            else:
+                # Fallback to random address if we run out of shared addresses
+                suburb = random.choice(list(suburbs.keys()))
+                address = f"{random.randint(1, 999)} {random.choice(suburbs[suburb])}"
+        
         service_type = random.choice(service_types)
-        required_skill = customer_skill_map.get(service_type, 'Plumbing')
+        required_skill = customer_skill_map.get(service_type, 'Personal care')
         
         # Tight time window: maximum 2 hours (all on November 1st)
         # Daytime only: between 8 AM and 6 PM
@@ -126,21 +156,21 @@ def create_sample_data():
     
     # Technician skill combinations (each tech has 2-4 skills)
     tech_skill_combos = [
-        ['Plumbing', 'Gas'],
-        ['Electric', 'Solar'],
-        ['HVAC', 'Electric'],
-        ['IT', 'Electric'],
-        ['Plumbing', 'Cleaning'],
-        ['Roofing', 'Carpentry'],
-        ['Electric', 'HVAC', 'IT'],
-        ['Plumbing', 'Gas', 'Carpentry'],
-        ['Solar', 'Electric', 'HVAC'],
-        ['Gas', 'HVAC', 'Plumbing'],
-        ['Electric', 'Plumbing', 'Security'],
-        ['IT', 'Security'],
-        ['Roofing', 'Carpentry', 'Cleaning'],
-        ['HVAC', 'Plumbing'],
-        ['Electric', 'Solar', 'HVAC', 'IT']
+        ['Personal care', 'Domestic Assistance'],
+        ['Transport', 'Community Access'],
+        ['Behaviour Support', 'Therapy Access'],
+        ['Support Coordination', 'Life Skills Training'],
+        ['Personal care', 'Domestic Assistance', 'Life Skills Training'],
+        ['Transport', 'Community Access', 'Therapy Access'],
+        ['Behaviour Support', 'Therapy Access', 'Assistive Tech'],
+        ['Personal care', 'Domestic Assistance', 'Community Access'],
+        ['Transport', 'Community Access', 'Therapy Access'],
+        ['Behaviour Support', 'Support Coordination', 'Life Skills Training'],
+        ['Personal care', 'Domestic Assistance', 'Assistive Tech'],
+        ['Transport', 'Community Access'],
+        ['Therapy Access', 'Assistive Tech'],
+        ['Personal care', 'Domestic Assistance', 'Community Access'],
+        ['Transport', 'Community Access', 'Therapy Access', 'Life Skills Training']
     ]
     
     technicians = []
